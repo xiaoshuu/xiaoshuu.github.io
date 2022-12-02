@@ -1,12 +1,11 @@
 ---
-title: Post with Header Image
-tags: TeXt
+title: 随便搞点东西上来瞅瞅
+tags: 胡言乱语
+sidebar:
+  nav: docs-en
 article_header:
   type: cover
-  image:
-    src: /screenshot.jpg
 ---
 
-A Post with Header Image, See [Page layout](https://kitian616.github.io/jekyll-TeXt-theme/samples.html#page-layout) for more examples.
-
+没啥要说的 只能继续给大家打招呼
 <!--more-->
