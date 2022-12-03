@@ -40,17 +40,14 @@ header:
     url: /about.html
     
 docs-en:
-  - title:      Start
+  - title:      乱七八糟
     children:
-      - title:  Quick Start
-        url:    /docs/en/quick-start
-      - title:  Structure
-        url:    /docs/en/structure
+      - title:  随便搞点东西上来瞅瞅
+        url:    /posts
+      
         
-  - title:      Customization
+  - title:      虽然什么都没有但是新建一个分类先
     children:
-      - title:  Configuration
-        url:    /docs/en/configuration
-      - title:  Navigation
-        url:    /docs/en/navigation
+      - title:  nothing
+        url:    /posts
       
