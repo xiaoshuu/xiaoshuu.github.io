@@ -131,7 +131,7 @@ comments:
     clientSecret: c073b1dce5f5d3a4d5273681b49a779c9ae6f9de # GitHub Application Client Secret
     repository  : comments # GitHub repo
     owner       : xiaoshuu # GitHub repo owner
-    proxy: https://netnr-proxy.cloudno.de/https://github.com/login/oauth/access_token
+    proxy       ：http://pigass.cn/proxy/https://github.com/login/oauth/access_token
     admin: # GitHub repo owner and collaborators, only these guys can initialize GitHub issues, IT IS A LIST.
       - xiaoshuu
 
