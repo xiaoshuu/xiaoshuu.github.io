@@ -43,7 +43,7 @@ docs-en:
   - title:      乱七八糟
     children:
       - title:  随便搞点东西上来瞅瞅
-        url:    /_posts/2022-12-02-firstpost.md
+        url:    /2022/12/02/firstpost.html
       
         
   - title:      虽然什么都没有但是新建一个分类先
