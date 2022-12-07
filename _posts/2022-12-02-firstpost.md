@@ -6,6 +6,6 @@ sidebar:
 mathjax: true
 key: 2022-12-02-firstpost
 ---
-
-没啥要说的 只能继续给大家打招呼
+##嗨嗨嗨
+作为第一个post给大家打打招呼好了
 <!--more-->
