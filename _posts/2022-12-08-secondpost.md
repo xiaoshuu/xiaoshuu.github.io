@@ -1,5 +1,5 @@
 ---
-layout: article
+
 title: 少年！你居然发现了这里！
 tags: [给点进来的各位打招呼,试图让大家入教]
 sidebar:
