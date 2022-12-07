@@ -40,14 +40,14 @@ header:
     url: /about.html
     
 docs-en:
-  - title:      乱七八糟
+  - title:      打招呼区域
     children:
-      - title:  随便搞点东西上来瞅瞅
-        url:    /2022/12/02/firstpost.html
+      - title:  你好呀
+        url:    /2022/12/08/secondpost.html
       
         
-  - title:      虽然什么都没有但是新建一个分类先
+  - title:      这里什么也没有
     children:
-      - title:  nothing
+      - title:  点了你只会掉进虚无
         url:    /_posts
       
