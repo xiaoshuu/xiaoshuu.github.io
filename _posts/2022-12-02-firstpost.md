@@ -1,7 +1,7 @@
 ---
+layout:article
 title: 随便搞点东西上来瞅瞅
 tags: 胡言乱语
-layout:article
 sidebar:
   nav: docs-en
 mathjax: true
