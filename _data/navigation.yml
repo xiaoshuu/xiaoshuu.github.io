@@ -50,4 +50,16 @@ docs-en:
     children:
       - title:  点了你只会掉进虚无
         url:    /_posts
+        
+ docs-serious:
+  - title:      Ubuntu
+    children:
+      - title:  双系统（梦开始的地方！）
+        url:    /2022/12/08/ubuntu.html
+      
+        
+  - title:      机器学习
+    children:
+      - title:  环境配置
+        url:    /2022/12/08/pycharm.html
       
