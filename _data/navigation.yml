@@ -60,7 +60,12 @@ cs:
   - title:      试图学习机器学习
     children:
       - title:  环境配置
-        url:    /_posts/machine_learning/  
+        url:    /_posts/machine_learning/
+
+  - title:      c++
+    children:
+      - title:  sort函数
+        url:    /2022/12/11/sort.html        
         
  
       
