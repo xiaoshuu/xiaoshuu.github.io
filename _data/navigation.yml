@@ -61,12 +61,6 @@ cs:
     children:
       - title:  ml
         url:    /2022/12/08/Andrew-Ng.html  
-      - title:  dl
-        url:    /404.html    
-      - title:  rl
-        url:    /404.html   
-      - title:  drl
-        url:    /404.html
 
   - title:      c++
     children:
@@ -76,7 +70,7 @@ cs:
    - title:      多片机
     children:
       - title:  求你了学学吧
-        url:    /404.html
+        url:    /2022/12/11/sort.html 
         
  
       
