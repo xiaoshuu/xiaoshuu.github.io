@@ -71,7 +71,14 @@ cs:
   - title:      c++
     children:
       - title:  sort函数
-        url:    /2022/12/11/sort.html    
+        url:    /2022/12/11/sort.html   
+      - title:  基类与派生类构造和析构中混了虚函数和指针的顺序
+        url:    /2022/12/19/virtual.html   
+
+  - title:      python
+    children:
+      - title:  numpy库
+        url:    /2022/12/24/numpy.html           
            
   - title:      多片机
     children:
