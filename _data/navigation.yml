@@ -1,0 +1,95 @@
+header:
+  - titles:
+      # @start locale config
+      en      : &EN       Everything
+      en-GB   : *EN
+      en-US   : *EN
+      en-CA   : *EN
+      en-AU   : *EN
+      zh-Hans : &ZH_HANS  乱七八糟
+      zh      : *ZH_HANS
+      zh-CN   : *ZH_HANS
+      zh-SG   : *ZH_HANS
+      # @end locale config
+    url: /archive.html
+
+  - titles:
+      # @start locale config
+      en      : &EN       About
+      en-GB   : *EN
+      en-US   : *EN
+      en-CA   : *EN
+      en-AU   : *EN
+      zh-Hans : &ZH_HANS  关于
+      zh      : *ZH_HANS
+      zh-CN   : *ZH_HANS
+      zh-SG   : *ZH_HANS
+      zh-Hant : &ZH_HANT  關於
+      zh-TW   : *ZH_HANT
+      zh-HK   : *ZH_HANT
+      ko      : &KO       소개
+      ko-KR   : *KO
+      fr      : &FR       À propos
+      fr-BE   : *FR
+      fr-CA   : *FR
+      fr-CH   : *FR
+      fr-FR   : *FR
+      fr-LU   : *FR
+      tr      : &TR       Hakkında
+      # @end locale config
+    url: /about.html
+    
+docs-en:
+  - title:      打招呼区域
+    children:
+      - title:  你好呀
+        url:    /2022/12/08/secondpost.html
+              
+  - title:      这里什么也没有
+    children:
+      - title:  点了你只会掉进虚无
+        url:    /404.html
+
+
+cs:
+  - title:      Ubuntu
+    children:
+      - title:  双系统
+        url:    /2022/12/08/ubuntu.html
+
+  - title:      试图学习机器学习
+    children:
+      - title:  ml
+        url:    /2022/12/08/Andrew-Ng.html
+      - title:  dl
+        url:    /404.html  
+      - title:  rl
+        url:    /404.html
+      - title:  drl
+        url:    /404.html      
+
+  - title:      c++
+    children:
+      - title:  sort函数
+        url:    /2022/12/11/sort.html   
+      - title:  基类与派生类构造和析构中混了虚函数和指针的顺序
+        url:    /2022/12/19/virtual.html   
+      - title:  cs106b
+        children:
+          - title: 课堂笔记1
+            url:   /2024/11/06/1.html
+          - title: 作业
+            url:   /2024/11/06/code.html
+
+  - title:      python
+    children:
+      - title:  numpy库
+        url:    /2022/12/24/numpy.html           
+           
+  - title:      多片机
+    children:
+      - title:  中断
+        url:    /2022/12/16/interrupt.html 
+        
+ 
+      
