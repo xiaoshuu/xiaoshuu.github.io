@@ -77,9 +77,9 @@ cs:
       - title:  cs106b
         children:
           - title: 课堂笔记1
-            url:   /2024/11/06/1.html
+            url: /2024/11/06/1.html
           - title: 作业
-            url:   /2024/11/06/code.html
+            url: /2024/11/06/code.html
 
   - title:      python
     children:
