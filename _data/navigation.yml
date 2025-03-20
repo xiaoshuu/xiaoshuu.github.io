@@ -68,7 +68,7 @@ cs:
       - title:  drl
         url:    /404.html      
 
-  - title:      c++
+  - title:      cpp
     children:
       - title:  sort函数
         url:    /2022/12/11/sort.html   
