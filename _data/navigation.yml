@@ -59,8 +59,12 @@ cs:
 
   - title:      试图学习机器学习
     children:
-      - title:  ml
+      - title:  吴恩达
         url:    /2022/12/08/Andrew-Ng.html
+      - title:  cs188
+        url:    /2025/4/4/cs188.html
+      - title:  李沐
+        url:    /2025/07/04/LiMuAI.html
       - title:  dl
         url:    /404.html  
       - title:  rl
@@ -90,6 +94,11 @@ cs:
     children:
       - title:  中断
         url:    /2022/12/16/interrupt.html 
+
+  - title:      论文阅读笔记
+    children:
+      - title:  SORT3D
+        url:    /2025/07/11/SORT3D.html 
         
  
       
