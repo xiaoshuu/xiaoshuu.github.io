@@ -1,0 +1,216 @@
+---
+// src/pages/about.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig } from '../site.config';
+
+// 1. 👫 朋友列表
+const friends = [
+  {
+    name: "Peanuts",
+    desc: "吞计算器的人",
+    link: "https://gnehsizum.github.io/",
+    avatar: "/peanuts.jpg",
+    color: "#4ecdc4"
+  },
+];
+
+// 2. 🎯 "Now" - 最近在做什么
+const nowFocus = [
+  "缓慢游玩: 博德之门3",
+  "缓慢学习: 各种learning和机器人相关",
+  "缓慢工作: maybe scene graph"
+];
+
+// 3. 🧠 人生算法 / 原则
+const principles = [
+  { label: "Optimization", text: "Minimize Regret" }, // 最小化遗憾
+  { label: "Loop", text: "Read, Code, Run, Repeat" }, // 循环
+  { label: "Preference", text: "Happy Endings Only" }, // 只看大团圆结局
+  { label: "Rule", text: "Sleep > Debugging" },        // 睡觉大于修Bug
+];
+---
+
+<BaseLayout title="About Me">
+  <div class="about-container">
+    
+    <header class="page-header">
+      <h1 class="title">About.</h1>
+      <p class="subtitle">Engineer / Student / Dreamer</p>
+    </header>
+
+    <div class="bento-grid">
+      
+      <div class="grid-item main-bio clean-card">
+        <div class="bio-header">
+          <img src="/avatar.jpg" alt="Me" class="bio-avatar" />
+          <div>
+            <h2>Hello, I'm {siteConfig.author}. </h2>
+            <p class="role-badge">(MAYBE)Robotics Engineer</p>
+          </div>
+        </div>
+        
+        <div class="prose">
+          <p>
+            嘿！你好啊！੭ ˙ᗜ˙ ੭
+          </p>
+          <p>
+            这是一个缓慢不定时更新的个人网站，时不时开新的学习坑但大概率不填上这个坑。
+          </p>
+          <p>
+            没什么要说的了
+          </p>
+          <p>
+            最后震惊一下你居然发现了这里！
+          </p>
+        </div>
+      </div>
+
+      <div class="sidebar-column">
+        
+        <div class="grid-item now-card clean-card">
+          <h3>⚡ Now Focusing</h3>
+          <ul class="now-list">
+            {nowFocus.map(item => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="grid-item algo-card clean-card">
+            <h3>🧠 Life Algorithms</h3>
+            <div class="algo-list">
+                {principles.map(item => (
+                <div class="algo-item">
+                    <span class="algo-label">def {item.label}():</span>
+                    <span class="algo-value">return "{item.text}"</span>
+                </div>
+                ))}
+        </div>
+        </div>
+
+        <div class="grid-item connect-card clean-card" style="background: var(--accent-library); color: white;">
+          <h3>📬 Let's Connect</h3>
+          <p>Have a question or just want to say hi?</p>
+          <div class="connect-links">
+            {siteConfig.social.github && <a href={siteConfig.social.github} target="_blank" class="connect-btn">GitHub</a>}
+            <a href="mailto:jiangruoxin@163.com" class="connect-btn">Email</a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="grid-item friends-section clean-card">
+        <h3>🏡 The Neighborhood</h3>
+        <div class="friends-grid">
+          {friends.map(friend => (
+            <a href={friend.link} target="_blank" class="friend-item">
+              <img src={friend.avatar} alt={friend.name} />
+              <div class="friend-text">
+                <strong>{friend.name}</strong>
+                <span>{friend.desc}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .about-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+
+  .page-header { margin-bottom: 2rem; }
+  .title { font-family: 'Playfair Display', serif; font-size: 3rem; margin: 0; line-height: 1; }
+  .subtitle { color: var(--text-sub); font-size: 1.1rem; margin-top: 0.5rem; letter-spacing: 1px; }
+
+  /* 🍱 Bento Grid */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; 
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    .bento-grid { grid-template-columns: 1fr; }
+  }
+
+  /* 通用卡片 */
+  .clean-card {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.04);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  }
+
+  /* Bio 样式 */
+  .bio-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; border-bottom: 1px solid #f0f0f0; padding-bottom: 1.5rem; }
+  .bio-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+  .bio-header h2 { margin: 0; font-size: 1.5rem; color: var(--text-main); }
+  .role-badge { display: inline-block; background: var(--accent-library); color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 0.8rem; margin: 0.5rem 0 0; }
+  .prose { line-height: 1.8; color: #444; font-size: 1.05rem; }
+  .prose p { margin-bottom: 1.2rem; }
+
+  /* 右侧栏 */
+  .sidebar-column { display: flex; flex-direction: column; gap: 1.5rem; }
+  .sidebar-column h3 { margin: 0 0 1rem 0; font-size: 1.1rem; }
+
+  /* Now List */
+  .now-list { list-style: none; padding: 0; margin: 0; }
+  .now-list li { 
+    position: relative; 
+    padding-left: 1.2rem; 
+    margin-bottom: 0.8rem; 
+    color: #555; font-size: 0.95rem; 
+  }
+  .now-list li::before {
+    content: "•"; color: #4caf50; position: absolute; left: 0; font-weight: bold;
+  }
+
+  /* algo-item */
+  .algo-list { display: flex; flex-direction: column; gap: 0.8rem; font-family: 'Fira Code', monospace; /* 如果没有 Fira Code 会回退到默认等宽字体 */ }
+
+    .algo-item { 
+    display: flex; 
+    flex-direction: column; 
+    background: #f8f9fa; 
+    padding: 8px 12px; 
+    border-radius: 8px; 
+    border-left: 3px solid var(--accent-library);
+    }
+
+    .algo-label { font-size: 0.8rem; color: #888; margin-bottom: 2px; }
+    .algo-value { font-size: 0.9rem; color: #333; font-weight: 600; }
+
+  /* Connect Card (Colorful) */
+  .connect-card p { margin: 0 0 1.5rem 0; opacity: 0.9; font-size: 0.9rem; }
+  .connect-links { display: flex; gap: 1rem; }
+  .connect-btn { 
+    background: rgba(255,255,255,0.2); 
+    color: #fff; 
+    text-decoration: none; 
+    padding: 6px 16px; 
+    border-radius: 6px; 
+    font-size: 0.9rem; 
+    font-weight: 600; 
+    transition: background 0.2s; 
+  }
+  .connect-btn:hover { background: rgba(255,255,255,0.4); }
+
+  /* Friends Grid */
+  .friends-section { grid-column: 1 / -1; }
+  .friends-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; }
+  .friend-item { display: flex; align-items: center; gap: 1rem; text-decoration: none; padding: 1rem; border-radius: 12px; background: #fafafa; transition: all 0.2s; border: 1px solid transparent; }
+  .friend-item:hover { background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: #eee; transform: translateY(-2px); }
+  .friend-item img { width: 48px; height: 48px; border-radius: 50%; }
+  .friend-text { display: flex; flex-direction: column; }
+  .friend-text strong { color: var(--text-main); font-size: 0.95rem; }
+  .friend-text span { color: #888; font-size: 0.8rem; }
+</style>

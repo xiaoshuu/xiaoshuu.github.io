@@ -1,0 +1,140 @@
+---
+// src/pages/notes/[...slug].astro
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TreeItem from '../../components/TreeItem.astro';
+import TableOfContents from '../../components/TableOfContents.astro'; // 新组件
+import { buildFileTree } from '../../utils/file-tree';
+import Comment from '../../components/Comment.astro';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes');
+  return notes.map(entry => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+// render() 返回 headings 用于 TOC
+const { Content, headings } = await entry.render();
+
+const allNotes = await getCollection('notes');
+const tree = buildFileTree(allNotes);
+
+// 提取日期：优先用 frontmatter.date，没有则解析文件名
+const fileNameDateMatch = entry.slug.split('/').pop()?.match(/^(\d{4}-\d{2}-\d{2})/);
+const displayDate = entry.data.date || (fileNameDateMatch ? new Date(fileNameDateMatch[1]) : null);
+
+function formatDate(date) {
+   if(!date) return '';
+   return new Date(date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+---
+
+<BaseLayout title={entry.data.title}>
+  <div class="doc-layout">
+    
+    <aside class="sidebar-left">
+      <div class="sidebar-header">
+        <a href="/notes" class="back-link">← Library Index</a>
+      </div>
+      <nav class="tree-nav">
+        {tree.map(node => <TreeItem node={node} currentUrl={`/notes/${entry.slug}`} />)}
+      </nav>
+    </aside>
+
+    <main class="doc-content">
+      <article class="prose-container">
+        <header class="doc-header">
+          <div class="doc-meta">
+            {displayDate && <time class="doc-date">{formatDate(displayDate)}</time>}
+            {entry.data.tags && (
+              <div class="doc-tags">
+                {entry.data.tags.map((t: string) => <span>#{t}</span>)}
+              </div>
+            )}
+          </div>
+          <h1>{entry.data.title}</h1>
+        </header>
+        
+        <div class="markdown-body">
+          <Content />
+        </div>
+
+        <div class="comments-wrapper">
+          <Comment />
+        </div>
+      </article>
+    </main>
+
+    <aside class="sidebar-right">
+      <TableOfContents headings={headings} />
+    </aside>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .doc-layout {
+    display: grid;
+    /* 关键：三栏布局，中间 minmax(0, 1fr) 防止代码块撑爆布局 */
+    grid-template-columns: 260px minmax(0, 1fr) 240px; 
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  /* 左侧边栏 */
+  .sidebar-left {
+    padding: 2rem 1.5rem;
+    background: #fbfbfb;
+    border-right: 1px solid rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .back-link { font-size: 0.85rem; color: #888; font-weight: 600; display: block; margin-bottom: 1.5rem; }
+
+  /* 中间内容 */
+  .doc-content { padding: 3rem 4rem; }
+
+  .doc-header { margin-bottom: 3rem; border-bottom: 1px solid #eee; padding-bottom: 2rem; }
+  .doc-header h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin: 0.5rem 0 0; line-height: 1.2; color: var(--text-main); }
+  
+  .doc-meta { display: flex; gap: 1rem; align-items: center; margin-bottom: 0.5rem; }
+  .doc-date { font-family: monospace; color: #999; font-size: 0.9rem; }
+  .doc-tags span { color: var(--accent-library); font-size: 0.85rem; font-weight: 600; margin-right: 5px; }
+
+  /* 正文排版微调 */
+  .markdown-body { line-height: 1.8; color: #333; }
+  .markdown-body :global(h2) { font-size: 1.8rem; margin-top: 3rem; margin-bottom: 1rem; font-weight: 600; color: #222; }
+  .markdown-body :global(img) { border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .markdown-body :global(pre) { border-radius: 8px; padding: 1.2rem; font-size: 0.9rem; background: #2d2d2d; }
+
+  .comments-wrapper {
+    margin-top: 4rem;      /* 离文章底部远一点 */
+    padding-top: 2rem;     /* 内部留白 */
+    border-top: 1px solid #eee; /* 加一条分割线 */
+  }
+
+  /* 右侧边栏 */
+  .sidebar-right {
+    padding: 2rem 1rem;
+    position: sticky; /* 并没有 sticky，因为内部 TOC 组件是 sticky 的 */
+    top: 0;
+    height: 100vh; /* 占满高度 */
+  }
+
+  /* 响应式 */
+  @media (max-width: 1024px) {
+    .doc-layout { grid-template-columns: 240px 1fr; }
+    .sidebar-right { display: none; } /* 平板隐藏右侧 TOC */
+  }
+  @media (max-width: 768px) {
+    .doc-layout { grid-template-columns: 1fr; }
+    .sidebar-left, .sidebar-right { display: none; }
+    .doc-content { padding: 2rem 1.5rem; }
+  }
+</style>

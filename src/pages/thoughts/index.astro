@@ -1,0 +1,183 @@
+---
+// src/pages/thoughts/index.astro
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const thoughts = await getCollection('thoughts');
+
+// 🔧 修复：增加日期提取逻辑（和首页一样）
+function extractDate(post) {
+  // 1. 优先读 Frontmatter 里的 date
+  if (post.data.date) return new Date(post.data.date);
+  
+  // 2. 如果没有，去文件名里找 YYYY-MM-DD
+  const dateMatch = post.slug.match(/(\d{4}-\d{2}-\d{2})/);
+  if (dateMatch) return new Date(dateMatch[1]);
+  
+  // 3. 实在没有，就沉底
+  return new Date('2000-01-01');
+}
+
+// 排序
+const sortedThoughts = thoughts.sort((a, b) => {
+  return extractDate(b).valueOf() - extractDate(a).valueOf();
+});
+
+function formatDate(date) {
+  if (!date) return '';
+  return date.toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric'
+  });
+}
+---
+
+<BaseLayout title="Thoughts">
+  <div class="thoughts-container">
+    
+    <header class="page-header">
+      <a href="/" class="back-btn">← Home</a>
+      <div class="header-content">
+        <h1>Stream of Thoughts</h1>
+        <p>Fragments, ideas, and daily logs.</p>
+      </div>
+    </header>
+
+    <div class="timeline">
+      <div class="timeline-line"></div>
+
+      {sortedThoughts.map((post) => {
+        // 在这里计算日期
+        const displayDate = extractDate(post);
+        
+        return (
+          <a href={`/thoughts/${post.slug}`} class="timeline-item">
+            
+            <div class="timeline-marker">
+              <div class="dot"></div>
+              <span class="date desktop-only">{formatDate(displayDate)}</span>
+            </div>
+
+            <div class="timeline-content clean-card">
+              <span class="date mobile-only">{formatDate(displayDate)}</span>
+              
+              <h3>{post.data.title}</h3>
+              {post.data.description && <p class="desc">{post.data.description}</p>}
+              
+              <div class="tags">
+                 {post.data.tags?.map(t => <span>#{t}</span>)}
+              </div>
+            </div>
+            
+          </a>
+        );
+      })}
+    </div>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .thoughts-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  .page-header { margin-bottom: 4rem; }
+  .back-btn { display: inline-block; margin-bottom: 1.5rem; color: #999; font-size: 0.9rem; font-weight: 600; }
+  .header-content h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin: 0; color: var(--text-main); }
+  .header-content p { color: var(--text-sub); margin-top: 0.5rem; font-size: 1.1rem; }
+
+  /* Timeline Logic */
+  .timeline { position: relative; padding-left: 2rem; }
+  
+  .timeline-line {
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 0;
+    width: 2px;
+    background: #e5e5e5;
+  }
+
+  .timeline-item {
+    display: block;
+    position: relative;
+    margin-bottom: 2.5rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .timeline-item:hover .dot { background: var(--accent-thoughts); box-shadow: 0 0 0 4px rgba(143, 164, 184, 0.2); }
+  .timeline-item:hover .timeline-content { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); border-color: var(--accent-thoughts); }
+
+  .timeline-marker {
+    position: absolute;
+    left: -2rem;
+    top: 0;
+    display: flex;
+    align-items: center;
+  }
+  
+  .dot {
+    width: 12px;
+    height: 12px;
+    background: #ccc;
+    border-radius: 50%;
+    border: 3px solid var(--bg-color);
+    position: absolute;
+    left: -6px;
+    top: 24px;
+    z-index: 2;
+    transition: all 0.2s;
+  }
+
+  /* 📆 日期样式 */
+  .date.desktop-only {
+    position: absolute;
+    right: 25px; 
+    top: 20px;
+    white-space: nowrap;
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: #999;
+    text-align: right;
+  }
+
+  .mobile-only { display: none; }
+
+  /* 卡片样式 */
+  .timeline-content {
+    margin-left: 1.5rem;
+    padding: 1.5rem;
+    background: #fff;
+    transition: all 0.2s;
+    border-left: 4px solid transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .timeline-content h3 { margin: 0 0 0.5rem 0; font-size: 1.2rem; font-weight: 600; color: var(--text-main); }
+  .desc { font-size: 0.95rem; color: #666; margin: 0 0 1rem 0; line-height: 1.6; }
+  
+  .tags { display: flex; gap: 8px; margin-top: auto; }
+  .tags span { font-size: 0.8rem; color: var(--accent-thoughts); background: rgba(143, 164, 184, 0.1); padding: 2px 8px; border-radius: 4px; }
+
+  /* 📱 响应式 */
+  @media (max-width: 768px) {
+    .thoughts-container { padding: 2rem 1.2rem; }
+    .timeline { padding-left: 1rem; }
+    .timeline-marker { left: -1rem; }
+    .timeline-content { margin-left: 1rem; padding: 1.2rem; }
+    
+    .desktop-only { display: none; }
+    
+    .mobile-only {
+      display: block;
+      font-size: 0.75rem;
+      color: #bbb;
+      font-family: monospace;
+      margin-bottom: 0.3rem;
+    }
+  }
+</style>

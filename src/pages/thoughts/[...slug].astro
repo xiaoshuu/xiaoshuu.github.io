@@ -1,0 +1,118 @@
+---
+// src/pages/thoughts/[...slug].astro
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Comment from '../../components/Comment.astro';
+
+export async function getStaticPaths() {
+  const thoughts = await getCollection('thoughts');
+  return thoughts.map(entry => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+function formatDate(date) {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+}
+---
+
+<BaseLayout title={entry.data.title}>
+  <div class="thought-wrapper">
+    
+    <nav class="top-nav">
+      <a href="/thoughts">← Back to Stream</a>
+    </nav>
+
+    <article class="thought-paper">
+      <header class="thought-header">
+        <span class="thought-date">{formatDate(entry.data.date)}</span>
+        <h1>{entry.data.title}</h1>
+        <div class="decoration-line"></div>
+      </header>
+
+      <div class="thought-body">
+        <Content />
+      </div>
+
+      <div class="comments-wrapper">
+          <Comment />
+      </div>
+
+      <footer class="thought-footer">
+        <div class="tags">
+          {entry.data.tags?.map(t => <span>#{t}</span>)}
+        </div>
+      </footer>
+    </article>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .thought-wrapper {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+    min-height: 100vh;
+  }
+
+  .top-nav { margin-bottom: 3rem; }
+  .top-nav a { color: var(--accent-thoughts); font-weight: 600; font-size: 0.9rem; }
+  .top-nav a:hover { text-decoration: underline; }
+
+  /* 模拟纸张感觉 */
+  .thought-paper {
+    /* 这里的背景色可以让它看起来不像纯白，有点纸张的暖色 */
+    /* background: #fff; */ 
+    /* border: 1px solid #f0f0f0; */
+    /* padding: 3rem; */
+    /* border-radius: 4px; */
+    /* box-shadow: 0 4px 20px rgba(0,0,0,0.03); */
+    /* 如果喜欢极简，可以不用卡片背景，直接印在背景上 */
+  }
+
+  .thought-header { text-align: center; margin-bottom: 3rem; }
+  .thought-date { font-family: monospace; color: var(--accent-thoughts); font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; }
+  .thought-header h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin: 1rem 0; color: var(--text-main); }
+  
+  .decoration-line { width: 40px; height: 3px; background: var(--accent-thoughts); margin: 0 auto; opacity: 0.5; }
+
+  /* 正文样式：比 Library 更像散文 */
+  .thought-body {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #444;
+  }
+  
+  .thought-body :global(p) { margin-bottom: 1.5rem; }
+  .thought-body :global(blockquote) { 
+    border-left: 3px solid var(--accent-thoughts); 
+    padding-left: 1.2rem; 
+    color: #666; 
+    font-style: italic; 
+    background: transparent;
+  }
+  .thought-body :global(img) { border-radius: 8px; margin: 1rem 0; }
+
+  .thought-footer { margin-top: 4rem; border-top: 1px solid #eee; padding-top: 1.5rem; }
+  .tags { display: flex; justify-content: center; gap: 1rem; }
+  .tags span { color: #999; font-size: 0.9rem; font-style: italic; }
+
+  .comments-wrapper {
+    margin-top: 4rem;      /* 离文章底部远一点 */
+    padding-top: 2rem;     /* 内部留白 */
+    border-top: 1px solid #eee; /* 加一条分割线 */
+  }
+
+  @media (max-width: 600px) {
+    .thought-wrapper { padding: 2rem 1.2rem; }
+    .thought-header h1 { font-size: 1.8rem; }
+  }
+</style>

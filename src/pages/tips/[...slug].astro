@@ -1,0 +1,68 @@
+---
+// src/pages/tips/[...slug].astro
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Comment from '../../components/Comment.astro';
+
+export async function getStaticPaths() {
+  const tips = await getCollection('tips');
+  return tips.map(entry => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+---
+
+<BaseLayout title={entry.data.title}>
+  <div class="tip-layout">
+    
+    <nav class="breadcrumb">
+      <a href="/tips">Workshop</a> / <span>{entry.data.title}</span>
+    </nav>
+
+    <article class="tip-content">
+      <h1>{entry.data.title}</h1>
+      <div class="tip-meta">
+        {entry.data.tags?.map(t => <span class="tag">#{t}</span>)}
+      </div>
+      
+      <div class="markdown-body">
+        <Content />
+      </div>
+    </article>
+
+    <div class="comments-wrapper">
+        <Comment />
+    </div>
+
+    <div class="comments-section">
+      <Comment />
+    </div>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .tip-layout { max-width: 720px; margin: 0 auto; padding: 4rem 1.5rem; }
+  
+  .breadcrumb { font-size: 0.9rem; color: #999; margin-bottom: 2rem; }
+  .breadcrumb a { color: var(--accent-workshop); font-weight: 600; }
+  
+  .tip-content h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin-bottom: 1rem; color: var(--text-main); }
+  .tip-meta { display: flex; gap: 10px; margin-bottom: 3rem; }
+  .tag { background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; color: #666; }
+
+  .markdown-body { line-height: 1.8; color: #333; }
+  .markdown-body :global(pre) { background: #282c34; padding: 1.5rem; border-radius: 8px; overflow-x: auto; color: #abb2bf; }
+
+  .comments-wrapper {
+    margin-top: 4rem;      /* 离文章底部远一点 */
+    padding-top: 2rem;     /* 内部留白 */
+    border-top: 1px solid #eee; /* 加一条分割线 */
+  }
+  
+  .comments-section { margin-top: 5rem; border-top: 1px solid #eee; padding-top: 2rem; }
+</style>

@@ -1,0 +1,47 @@
+/* src/styles/global.css */
+
+/* 引入一个干净的无衬线体 (Inter) 和一个有气质的衬线体 (Playfair) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap');
+
+:root {
+  /* 背景：不再是纯白，而是像Kindle一样的护眼米灰 */
+  --bg-color: #f7f7f5; 
+  --card-bg: #ffffff;
+  
+  --text-main: #333333;
+  --text-sub: #666666;
+  
+  /* 莫兰迪色系：低饱和度，高级且克制 */
+  --accent-library: #8da399;  /* 灰绿 (Sage) - 代表知识 */
+  --accent-thoughts: #8fa4b8; /* 灰蓝 (Slate) - 代表思考 */
+  --accent-workshop: #b8a08f; /* 暖灰 (Taupe) - 代表实践 */
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  /* 正文用干净的无衬线体，阅读体验最好 */
+  font-family: 'Inter', system-ui, sans-serif;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
+
+/* 全局的卡片样式：干净、有轻微阴影 */
+.clean-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(0,0,0,0.04);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  border-radius: 12px; /* 现代标准的圆角 */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clean-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.06);
+  border-color: rgba(0,0,0,0.08);
+}

@@ -1,0 +1,67 @@
+---
+// src/components/TreeItem.astro
+import type { FileNode } from '../utils/file-tree';
+
+interface Props {
+  node: FileNode;
+  currentUrl: string;
+  level?: number;
+}
+
+const { node, currentUrl, level = 0 } = Astro.props;
+const isFolder = node.children && node.children.length > 0;
+const isActive = node.slug === currentUrl;
+---
+
+<div style={`margin-left: ${level * 12}px`}>
+  {isFolder ? (
+    <div class="folder-group">
+      <div class="folder-name">{node.name}</div>
+      {node.children.map((child) => (
+        <Astro.self node={child} currentUrl={currentUrl} level={level + 1} />
+      ))}
+    </div>
+  ) : (
+    <a href={node.slug} class={`file-link ${isActive ? 'active' : ''}`}>
+      <span class="link-text">{node.name}</span>
+    </a>
+  )}
+</div>
+
+<style>
+  .folder-group { margin-top: 0.5rem; }
+  
+  .folder-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+    padding-left: 0.5rem; /* 对齐 */
+  }
+
+  .file-link {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    margin: 2px 0;
+    border-radius: 6px;
+    color: var(--text-sub);
+    transition: all 0.2s;
+    text-decoration: none;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .file-link:hover {
+    background-color: rgba(0,0,0,0.04);
+    color: var(--text-main);
+  }
+
+  .file-link.active {
+    background-color: rgba(141, 163, 153, 0.15); /* 灰绿背景 */
+    color: #4a5d53;
+    font-weight: 500;
+  }
+</style>

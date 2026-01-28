@@ -1,0 +1,23 @@
+---
+// src/layouts/BaseLayout.astro
+import '../styles/global.css';
+const { title } = Astro.props;
+---
+<html lang="en"> <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title} | Xiaoshuu</title>
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+        integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvLMrmlenvfker"
+        crossorigin="anonymous"
+    >
+  </head>
+  <body>
+    <div style="padding: 0;"></div>
+    
+    <slot />
+    
+  </body>
+</html>

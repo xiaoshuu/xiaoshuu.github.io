@@ -1,0 +1,289 @@
+---
+// src/pages/index.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { siteConfig, statusConfig, manualTags, techStack } from '../site.config';
+
+// 1. 获取所有内容
+const notes = await getCollection('notes');
+const thoughts = await getCollection('thoughts');
+const tips = await getCollection('tips');
+
+// --- 🔧 终极防误删版数据处理逻辑 ---
+
+function stripMarkdown(text) {
+  if (!text) return '';
+  
+  // 使用 new RegExp 构造正则，避免 // 被当成注释
+  // 1. 匹配 HTML 注释 
+  const commentRegex = new RegExp('', 'g');
+  // 2. 匹配 HTML 标签 <...>
+  const htmlTagRegex = new RegExp('<[^>]+>', 'g');
+  // 3. 匹配图片 ![...](...)
+  const imageRegex = new RegExp('!\\[[^\\]]*\\]\\([^)]*\\)', 'g');
+  // 4. 匹配链接 [...](...) -> 保留文字
+  const linkRegex = new RegExp('\\[([^\\]]+)\\]\\([^)]*\\)', 'g');
+  // 5. 匹配标题 # (仅匹配行首)
+  const titleRegex = new RegExp('^#+\\s+', 'gm');
+  // 6. 匹配其他符号
+  const symbolRegex = new RegExp('[*_`~>]', 'g');
+
+  return text
+    .replace(commentRegex, '')
+    .replace(htmlTagRegex, '')
+    .replace(imageRegex, '')
+    .replace(linkRegex, '$1')
+    .replace(titleRegex, '')
+    .replace(symbolRegex, '')
+    .replace(/\n/g, ' ') // 换行转空格
+    .replace(/\s+/g, ' ') // 合并空格
+    .trim();
+}
+
+function extractDescription(body) {
+  if (!body) return 'No content';
+  
+  let rawContent = '';
+  
+  // 🥊 字符串拼接法：防止 被编辑器误删
+  // 拼出来就是 '<' + '!' + '-' + '-' + 'more' + '-' + '-' + '>'
+  const moreTag = '<' + '!' + '-' + '-' + 'more' + '-' + '-' + '>';
+  const moreTagSpace = '<' + '!' + '-' + '-' + ' more ' + '-' + '-' + '>';
+
+  // 查找位置
+  let splitIndex = body.indexOf(moreTag);
+  if (splitIndex === -1) {
+    splitIndex = body.indexOf(moreTagSpace);
+  }
+
+  if (splitIndex !== -1) {
+    // 找到了！截取前面的部分
+    rawContent = body.substring(0, splitIndex);
+  } else {
+    // 没找到，取前 150 个字符
+    rawContent = body.substring(0, 150);
+  }
+
+  // 清洗
+  const cleanDesc = stripMarkdown(rawContent);
+
+  // 调试回退
+  if (!cleanDesc || cleanDesc.length === 0) {
+    const debugRaw = rawContent.replace(/\n/g, ' ').substring(0, 60);
+    return `[预览为空] 原文: "${debugRaw}..."`;
+  }
+
+  return cleanDesc.length > 120 ? cleanDesc.substring(0, 120) + '...' : cleanDesc;
+}
+
+function extractDate(post) {
+  if (post.data.date) return new Date(post.data.date);
+  const dateMatch = post.slug.match(/(\d{4}-\d{2}-\d{2})/);
+  if (dateMatch) return new Date(dateMatch[1]);
+  return new Date('2000-01-01');
+}
+
+// 合并并处理文章
+const allPosts = [
+  ...notes.map(p => ({ 
+    ...p, type: 'note', typeLabel: 'Library', color: 'var(--accent-library)',
+    calculatedDate: extractDate(p),
+    calculatedDesc: extractDescription(p.body) 
+  })),
+  ...thoughts.map(p => ({ 
+    ...p, type: 'thought', typeLabel: 'Thought', color: 'var(--accent-thoughts)',
+    calculatedDate: extractDate(p),
+    calculatedDesc: extractDescription(p.body)
+  })),
+  ...tips.map(p => ({ 
+    ...p, type: 'tip', typeLabel: 'Workshop', color: 'var(--accent-workshop)',
+    calculatedDate: extractDate(p),
+    calculatedDesc: extractDescription(p.body)
+  }))
+];
+
+// 排序
+const sortedPosts = allPosts.sort((a, b) => {
+    return b.calculatedDate.valueOf() - a.calculatedDate.valueOf();
+}).slice(0, 6);
+
+// 标签云
+const autoTags = [...new Set(allPosts.flatMap(post => post.data.tags || []))].slice(0, 10);
+const displayTags = [...new Set([...manualTags, ...autoTags])];
+
+function formatDate(date) {
+  return date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+}
+---
+
+<BaseLayout title="Home">
+  <div class="dashboard-grid">
+    
+    <aside class="sidebar left-sidebar">
+      <div class="clean-card profile-card">
+		<img src="/avatar.jpg" alt="Profile" class="avatar-img" />
+        <h1 class="profile-name">{siteConfig.author}.</h1>
+        <p class="profile-role">{siteConfig.description}</p>
+        <div class="social-links">
+          {siteConfig.social.github && <a href={siteConfig.social.github} target="_blank" class="social-btn">GitHub</a>}
+          <a href="/about" class="social-btn">About</a>
+        </div>
+      </div>
+      <div class="clean-card mini-widget">
+        <span class="widget-label">Location</span>
+        <span class="widget-value">Earth, CN 📍</span>
+      </div>
+    </aside>
+
+    <main class="center-content">
+      <section class="welcome-header">
+        <h2>Welcome back.</h2>
+        <p>Ready to build something new?</p>
+      </section>
+
+      <nav class="nav-grid">
+        <a href="/notes" class="nav-card" style="border-left: 4px solid var(--accent-library)">
+          <span class="icon">📚</span>
+          <div class="nav-info">
+            <h3>Library</h3>
+            <span class="desc">Structured Notes</span>
+          </div>
+        </a>
+        <a href="/thoughts" class="nav-card" style="border-left: 4px solid var(--accent-thoughts)">
+          <span class="icon">💭</span>
+          <div class="nav-info">
+            <h3>Thoughts</h3>
+            <span class="desc">Daily Log</span>
+          </div>
+        </a>
+        <a href="/tips" class="nav-card" style="border-left: 4px solid var(--accent-workshop)">
+          <span class="icon">🛠️</span>
+          <div class="nav-info">
+            <h3>Workshop</h3>
+            <span class="desc">Fixes & Snippets</span>
+          </div>
+        </a>
+      </nav>
+
+      <section class="latest-feed">
+        <div class="feed-header">
+          <h3>Freshly Picked</h3>
+          <div class="line"></div>
+        </div>
+        
+        <div class="post-list">
+          {sortedPosts.map(post => (
+            <a href={`/${post.collection}/${post.slug}`} class="clean-card post-item">
+              <div class="post-main">
+                <span class="post-title">{post.data.title}</span>
+                <span class="post-preview">
+                  {post.calculatedDesc}
+                </span>
+              </div>
+              <div class="post-meta-side">
+                <span class="tag-pill" style={`background-color: ${post.color}20; color: ${post.color}`}>
+                  {post.typeLabel}
+                </span>
+                <span class="date">{formatDate(post.calculatedDate)}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    </main>
+
+    <aside class="sidebar right-sidebar">
+      <div class="clean-card status-widget">
+        <h3 class="sidebar-title">Now Focusing</h3>
+        {statusConfig.map(status => (
+          <div class="status-item">
+            <span class={`status-dot ${status.type === 'warning' ? 'warning' : ''}`}></span>
+            <span>{status.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <div class="clean-card tags-widget">
+        <h3 class="sidebar-title">Topics</h3>
+        <div class="tags-cloud">
+          {displayTags.map(tag => (
+            <span class="cloud-tag"># {tag}</span>
+          ))}
+        </div>
+      </div>
+
+      <div class="clean-card stack-widget">
+        <h3 class="sidebar-title">Tech Stack</h3>
+        <div class="stack-text">{techStack.join(' / ')}</div>
+      </div>
+    </aside>
+
+  </div>
+</BaseLayout>
+
+<style>
+  /* 样式保持不变 */
+  .dashboard-grid { display: grid; grid-template-columns: 260px 1fr 260px; gap: 2rem; max-width: 1200px; margin: 0 auto; padding: 2rem; align-items: start; }
+  .sidebar { position: sticky; top: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+  
+  .clean-card { background: #fff; border-radius: 12px; border: 1px solid rgba(0,0,0,0.04); box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+  .profile-card { padding: 2rem; text-align: center; display: flex; flex-direction: column; align-items: center; }
+  /* .avatar-placeholder { width: 80px; height: 80px; background: #333; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; margin-bottom: 1rem; font-family: 'Playfair Display', serif; } */
+  .avatar-img {
+	width: 100px;        /* 头像调大一点更有气场 */
+	height: 100px;
+	border-radius: 50%;  /* 圆形 */
+	object-fit: cover;   /* 防止图片变形 */
+	margin-bottom: 1rem;
+	border: 3px solid #fff; /* 加个白边更有层次感 */
+	box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+   }
+  .profile-name { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 0.5rem 0 0; }
+  .profile-role { color: var(--text-sub); font-size: 0.9rem; margin-top: 0.5rem; line-height: 1.4; text-transform: uppercase; letter-spacing: 1px; }
+  .social-links { margin-top: 2rem; display: flex; gap: 1rem; }
+  .social-btn { font-size: 0.85rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid #ddd; }
+  
+  .mini-widget { padding: 1rem 1.5rem; display: flex; justify-content: space-between; font-size: 0.9rem; }
+  .widget-label { color: var(--text-sub); }
+  
+  .welcome-header { margin-bottom: 2rem; }
+  .welcome-header h2 { font-family: 'Playfair Display', serif; font-size: 2rem; margin: 0; }
+  .welcome-header p { color: var(--text-sub); margin-top: 0.5rem; }
+  
+  .nav-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 3rem; }
+  .nav-card { background: #fff; padding: 1.2rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); transition: all 0.2s; display: flex; flex-direction: column; gap: 0.8rem; border: 1px solid transparent; }
+  .nav-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
+  .nav-info h3 { margin: 0; font-size: 1rem; }
+  .nav-info .desc { font-size: 0.8rem; color: var(--text-sub); }
+  
+  .feed-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+  .feed-header h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin: 0; }
+  .line { flex: 1; height: 1px; background: #eee; }
+  
+  .post-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 1.5rem; margin-bottom: 1rem; text-decoration: none; color: inherit; }
+  .post-title { display: block; font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem; }
+  .post-preview { font-size: 0.9rem; color: var(--text-sub); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.6; }
+  .post-meta-side { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; min-width: 80px; margin-left: 1rem; }
+  .tag-pill { font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+  .date { font-size: 0.8rem; color: #bbb; font-family: monospace; }
+  
+  .sidebar-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #999; margin: 0 0 1rem 0; }
+  .status-widget, .tags-widget, .stack-widget { padding: 1.5rem; }
+  .status-item { display: flex; align-items: center; gap: 0.8rem; font-size: 0.9rem; margin-bottom: 0.8rem; }
+  .status-dot { width: 8px; height: 8px; background: #4caf50; border-radius: 50%; box-shadow: 0 0 0 2px rgba(76,175,80,0.2); }
+  .status-dot.warning { background: #ff9800; box-shadow: 0 0 0 2px rgba(255,152,0,0.2); }
+  
+  .tags-cloud { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .cloud-tag { font-size: 0.8rem; color: var(--text-sub); background: #f4f4f4; padding: 4px 8px; border-radius: 6px; transition: all 0.2s; }
+  .cloud-tag:hover { background: #333; color: #fff; }
+  .stack-text { font-family: monospace; font-size: 0.85rem; color: var(--text-main); }
+  
+  @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 240px 1fr; } .right-sidebar { display: none; } }
+  @media (max-width: 768px) { 
+    .dashboard-grid { grid-template-columns: 1fr; padding: 1rem; } 
+    .left-sidebar { position: static; margin-bottom: 2rem; }
+    .profile-card { flex-direction: row; text-align: left; padding: 1.5rem; gap: 1.5rem; align-items: center; }
+    .avatar-placeholder { margin: 0; width: 60px; height: 60px; font-size: 1.5rem; }
+    .profile-role, .social-links { display: none; }
+  }
+</style>

@@ -1,0 +1,100 @@
+---
+// src/pages/tips/index.astro
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const tips = await getCollection('tips');
+// 按日期倒序
+const sortedTips = tips.sort((a, b) => {
+  const dateA = new Date(a.data.date || '2000-01-01').valueOf();
+  const dateB = new Date(b.data.date || '2000-01-01').valueOf();
+  return dateB - dateA;
+});
+---
+
+<BaseLayout title="Workshop">
+  <div class="workshop-container">
+    
+    <header class="page-header">
+      <a href="/" class="back-btn">← Home</a>
+      <div class="header-content">
+        <h1>Workshop</h1>
+        <p>Snippets, fixes, and configuration notes.</p>
+      </div>
+    </header>
+
+    <div class="tips-grid">
+      {sortedTips.map((tip) => (
+        <a href={`/tips/${tip.slug}`} class="tip-card">
+          <div class="card-icon">🛠️</div>
+          <h3 class="card-title">{tip.data.title}</h3>
+          
+          <div class="card-tags">
+            {tip.data.tags?.slice(0, 3).map(t => <span>{t}</span>)}
+          </div>
+        </a>
+      ))}
+    </div>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .workshop-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  .page-header { margin-bottom: 3rem; text-align: center; }
+  .back-btn { color: #999; font-weight: 600; font-size: 0.9rem; }
+  .header-content h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin: 0.5rem 0; color: var(--text-main); }
+  .header-content p { color: var(--text-sub); }
+
+  /* 紧凑的网格布局 */
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .tip-card {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: 100%;
+  }
+
+  .tip-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    border-color: var(--accent-workshop);
+  }
+
+  .card-icon { font-size: 1.5rem; margin-bottom: 1rem; opacity: 0.8; }
+  
+  .card-title { 
+    margin: 0 0 1rem 0; 
+    font-size: 1.1rem; 
+    font-weight: 600; 
+    line-height: 1.4; 
+    color: var(--text-main);
+    flex-grow: 1; /* 让标题占满剩余空间，把标签挤到底部 */
+  }
+
+  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .card-tags span { 
+    font-size: 0.75rem; 
+    background: #f4f4f0; 
+    color: #888; 
+    padding: 2px 8px; 
+    border-radius: 4px; 
+  }
+</style>

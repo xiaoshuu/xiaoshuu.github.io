@@ -1,0 +1,64 @@
+---
+// src/components/TableOfContents.astro
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+// 只显示 h2 和 h3，避免太乱 
+const toc = headings.filter(h => h.depth > 1 && h.depth <= 3);
+---
+
+<nav class="toc-container">
+  <h3 class="toc-title">ON THIS PAGE</h3>
+  <ul class="toc-list">
+    {toc.map(heading => (
+      <li class={`toc-item depth-${heading.depth}`}>
+        <a href={`#${heading.slug}`}>{heading.text}</a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  .toc-container {
+    position: sticky;
+    top: 2rem;
+    padding-left: 1rem;
+    border-left: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .toc-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #aaa;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .toc-item { margin-bottom: 0.6rem; }
+
+  .toc-item a {
+    font-size: 0.85rem;
+    color: var(--text-sub);
+    text-decoration: none;
+    transition: color 0.2s;
+    display: block;
+    line-height: 1.4;
+  }
+
+  .toc-item a:hover { color: var(--accent-library); }
+
+  /* 缩进 h3 */
+  .depth-3 { padding-left: 1rem; font-size: 0.8rem; }
+</style>
