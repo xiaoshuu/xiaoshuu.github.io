@@ -5,6 +5,7 @@ import rehypeKatex from 'rehype-katex';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://xiaoshuu.github.io',
   markdown: {
     // 允许 HTML 
     extendDefaultPlugins: true,     
