@@ -207,7 +207,7 @@ function formatDate(date) {
         <h3 class="sidebar-title">Topics</h3>
         <div class="tags-cloud">
           {displayTags.map(tag => (
-            <span class="cloud-tag"># {tag}</span>
+            <a href={`/tags/${tag}`} class="cloud-tag"># {tag}</a>
           ))}
         </div>
       </div>

@@ -1,142 +1,94 @@
 ---
 // src/pages/notes/index.astro
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import TreeItem from '../../components/TreeItem.astro';
 import { getCollection } from 'astro:content';
-import { buildFileTree } from '../../utils/file-tree';
 
 const allNotes = await getCollection('notes');
-const tree = buildFileTree(allNotes);
 
-// 按日期倒序排列，用于中间列表展示
-const sortedNotes = allNotes.sort((a, b) => {
-  // 尝试解析日期，逻辑同 file-tree.ts
-  const getDate = (slug, frontmatterDate) => {
-    if (frontmatterDate) return new Date(frontmatterDate);
-    const match = slug.split('/').pop().match(/^(\d{4}-\d{2}-\d{2})/);
-    return match ? new Date(match[1]) : new Date('2000-01-01');
-  };
-  return getDate(b.slug, b.data.date).valueOf() - getDate(a.slug, a.data.date).valueOf();
+// --- 🔧 核心逻辑：按文件夹分组 ---
+const folderMap = new Map();
+
+allNotes.forEach(note => {
+  // 假设 slug 是 "ros2/installation"，那么 split('/')[0] 就是 "ros2"
+  // 如果文件直接在根目录 (没有文件夹)，我们就把它归类为 "General"
+  const slugParts = note.slug.split('/');
+  const folderName = slugParts.length > 1 ? slugParts[0] : 'General';
+  
+  if (!folderMap.has(folderName)) {
+    folderMap.set(folderName, 0);
+  }
+  // 统计每个文件夹里有几篇文章
+  folderMap.set(folderName, folderMap.get(folderName) + 1);
 });
 
-function formatDate(date) {
-   if(!date) return '';
-   return new Date(date).toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
-}
+// 转换成数组方便渲染
+const folders = Array.from(folderMap.entries()).map(([name, count]) => ({ name, count }));
 ---
 
 <BaseLayout title="Library">
-  <div class="three-col-layout">
+  <div class="library-container">
     
-    <aside class="sidebar-left">
-      <div class="sidebar-header">
-        <a href="/" class="back-link">← Back Home</a>
-      </div>
-      <nav class="tree-nav">
-        {tree.map(node => <TreeItem node={node} currentUrl="" />)}
-      </nav>
-    </aside>
+    <header class="lib-header">
+      <a href="/" class="back-link">← Home</a>
+      <h1>Library.</h1>
+      <p>Structured notes organized by topics.</p>
+    </header>
 
-    <main class="content-center">
-      <header class="list-header">
-        <h1>Library Index</h1>
-        <p class="subtitle">{allNotes.length} notes in total</p>
-      </header>
-
-      <div class="notes-grid">
-        {sortedNotes.map(note => {
-          // 提取日期逻辑
-          const fileNameDateMatch = note.slug.split('/').pop()?.match(/^(\d{4}-\d{2}-\d{2})/);
-          const displayDate = note.data.date || (fileNameDateMatch ? new Date(fileNameDateMatch[1]) : null);
-          const title = note.data.title || note.slug.split('/').pop();
-
-          return (
-            <a href={`/notes/${note.slug}`} class="note-card">
-              <div class="card-body">
-                <h3 class="card-title">{title}</h3>
-                <div class="card-meta">
-                  {displayDate && <span class="card-date">{formatDate(displayDate)}</span>}
-                  {note.data.tags && (
-                    <div class="card-tags">
-                      {note.data.tags.slice(0,3).map((t: string) => <span>#{t}</span>)}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </a>
-          );
-        })}
-      </div>
-    </main>
-    
-    <aside class="sidebar-right"></aside>
+    <div class="folder-grid">
+      {folders.map(folder => (
+        <a href={folder.name === 'General' ? '#' : `/notes/folder/${folder.name}`} class="folder-card clean-card">
+          <div class="folder-icon">📂</div>
+          <div class="folder-info">
+            <h3>{folder.name}</h3>
+            <span>{folder.count} notes</span>
+          </div>
+          <div class="folder-arrow">→</div>
+        </a>
+      ))}
+    </div>
 
   </div>
 </BaseLayout>
 
 <style>
-  /* 三栏布局样式 */
-  .three-col-layout {
-    display: grid;
-    /* 左侧目录 | 中间内容 | 右侧占位(可空) */
-    grid-template-columns: 260px 1fr 240px; 
-    max-width: 1400px;
-    margin: 0 auto;
-    min-height: 100vh;
-  }
-
-  .sidebar-left {
-    padding: 2rem 1.5rem;
-    background: #fbfbfb;
-    border-right: 1px solid rgba(0,0,0,0.05);
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-  }
-  .back-link { font-size: 0.85rem; color: #888; font-weight: 600; display: block; margin-bottom: 2rem; }
-
-  /* 中间列表样式 */
-  .content-center { padding: 3rem 4rem; }
+  .library-container { max-width: 1000px; margin: 0 auto; padding: 4rem 1.5rem; }
   
-  .list-header { margin-bottom: 3rem; border-bottom: 1px solid #eee; padding-bottom: 1.5rem; }
-  .list-header h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin: 0; }
-  .subtitle { color: #999; margin-top: 0.5rem; }
+  .lib-header { margin-bottom: 4rem; text-align: center; }
+  .back-link { color: #999; font-weight: 600; font-size: 0.9rem; }
+  .lib-header h1 { font-family: 'Playfair Display', serif; font-size: 3rem; margin: 0.5rem 0; color: var(--text-main); }
+  .lib-header p { color: var(--text-sub); }
 
-  .notes-grid {
+  /* 文件夹网格 */
+  .folder-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
   }
 
-  .note-card {
-    background: #fff;
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 8px;
+  .folder-card {
+    display: flex;
+    align-items: center;
     padding: 1.5rem;
-    transition: all 0.2s;
     text-decoration: none;
     color: inherit;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 12px;
+    transition: all 0.2s;
   }
-  .note-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-color: var(--accent-library); }
 
-  .card-title { margin: 0 0 1rem 0; font-size: 1.1rem; line-height: 1.4; color: var(--text-main); }
-  .card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
-  .card-date { color: #bbb; font-family: monospace; }
-  .card-tags { display: flex; gap: 6px; }
-  .card-tags span { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; color: #666; font-size: 0.75rem; }
+  .folder-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    border-color: var(--accent-library);
+  }
 
-  /* 响应式 */
-  @media (max-width: 1024px) {
-    .three-col-layout { grid-template-columns: 240px 1fr; }
-    .sidebar-right { display: none; }
-  }
-  @media (max-width: 768px) {
-    .three-col-layout { grid-template-columns: 1fr; }
-    .sidebar-left, .sidebar-right { display: none; }
-    .content-center { padding: 2rem 1.5rem; }
-  }
+  .folder-icon { font-size: 2rem; margin-right: 1rem; }
+  
+  .folder-info { flex: 1; }
+  .folder-info h3 { margin: 0; font-size: 1.1rem; text-transform: capitalize; }
+  .folder-info span { font-size: 0.85rem; color: #888; }
+
+  .folder-arrow { color: #ccc; font-weight: bold; }
+  .folder-card:hover .folder-arrow { color: var(--accent-library); }
 </style>

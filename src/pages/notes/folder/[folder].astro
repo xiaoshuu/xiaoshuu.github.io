@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allNotes = await getCollection('notes');
+  
+  // 1. 提取所有文件夹名 (取 slug 的第一部分)
+  const folders = new Set(allNotes.map(note => note.slug.split('/')[0]));
+
+  return [...folders].map(folder => {
+    // 2. 筛选出属于该文件夹的笔记
+    const notesInFolder = allNotes.filter(note => note.slug.startsWith(folder + '/'));
+    return {
+      params: { folder },
+      props: { notes: notesInFolder, folderName: folder }
+    };
+  });
+}
+
+const { folder } = Astro.params;
+const { notes, folderName } = Astro.props;
+---
+
+<BaseLayout title={`Folder: ${folderName}`}>
+  <div class="folder-page">
+    <header class="header">
+      <a href="/notes" class="back-link">📂 Library</a> / <span>{folderName}</span>
+      <h1>{folderName.toUpperCase()}</h1>
+    </header>
+
+    <div class="note-grid">
+      {notes.map(note => (
+        <a href={`/notes/${note.slug}`} class="clean-card note-card">
+          <h3>{note.data.title}</h3>
+          <p>{note.data.description || 'No description'}</p>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .folder-page { max-width: 900px; margin: 0 auto; padding: 4rem 1.5rem; }
+  .header { margin-bottom: 3rem; }
+  .back-link { font-weight: 600; color: var(--accent-library); text-decoration: none; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-top: 1rem; }
+  
+  .note-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
+  .note-card { padding: 1.5rem; text-decoration: none; color: inherit; transition: all 0.2s; height: 100%; display: flex; flex-direction: column; }
+  .note-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.05); border-color: var(--accent-library); }
+  .note-card h3 { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
+  .note-card p { color: #888; font-size: 0.9rem; line-height: 1.5; }
+</style>
