@@ -1,21 +1,33 @@
 ---
 // src/layouts/BaseLayout.astro
 import '../styles/global.css';
-const { title } = Astro.props;
+const { title, wide = false } = Astro.props;
 ---
-<html lang="en"> <head>
+<html lang="en">
+  <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>{title} | Xiaoshuu</title>
     <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+      crossorigin="anonymous"
     >
   </head>
-  <body>
+  
+  <body class={wide ? 'layout-wide' : ''}>
     <div style="padding: 0;"></div>
     
     <slot />
     
   </body>
 </html>
+
+<style is:global>
+  /* 宽屏模式的黑魔法：强制解锁宽度 */
+  body.layout-wide {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+</style>

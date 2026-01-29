@@ -6,6 +6,11 @@ import GuestbookComponent from '../components/Guestbook.astro';
 
 <BaseLayout title="Guestbook">
   <div class="guestbook-page-container">
+    
+    <nav class="top-nav">
+      <a href="/" class="back-btn">← Home</a>
+    </nav>
+
     <header class="page-header">
       <h1 class="title">Guestbook.</h1>
       <p class="subtitle">Leave a note, say hi, or share your thoughts.</p>
@@ -18,36 +23,68 @@ import GuestbookComponent from '../components/Guestbook.astro';
 </BaseLayout>
 
 <style>
+  /* 页面内部样式 */
   .guestbook-page-container {
-    /* 👇 关键修改：从 800px 改大到 1200px */
-    max-width: 1200px;
+    max-width: 1200px; /* 目标宽度 */
+    width: 90%;        /* 手机端适配 */
     margin: 0 auto;
-    padding: 4rem 2rem; /* 左右内边距也稍微加大一点点 */
+    padding: 2rem 0 5rem;
   }
+
+  .top-nav { margin-bottom: 2rem; }
+  .back-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #f4f4f5;
+    color: #666;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .back-btn:hover { background: #e4e4e7; color: #333; }
 
   .page-header {
     text-align: center;
-    margin-bottom: 5rem; /* 头部和下面拉开更大距离，更有呼吸感 */
+    margin-bottom: 4rem;
   }
 
   .title {
     font-family: 'Playfair Display', serif;
-    font-size: 4rem; /* 标题也顺便放大一点，撑起气场 */
+    font-size: 3.5rem;
     margin: 0 0 1rem 0;
     color: #333;
   }
 
   .subtitle {
     color: #888;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 300;
   }
 
-  /* 留言板容器 */
   .guestbook-wrapper {
-    /* 这里不需要背景色了，因为组件内部已经有了 */
-    border-radius: 24px; /* 圆角更大一点 */
-    box-shadow: 0 8px 30px rgba(0,0,0,0.05); /* 阴影更柔和、更大 */
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.05);
     overflow: hidden;
+    width: 100%; /* 确保填满容器 */
+  }
+</style>
+
+<style is:global>
+  /* 强制 body 占满屏幕 */
+  body {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden; /* 防止横向滚动条 */
+  }
+
+  /* 如果你的 global.css 限制了 main 标签，也一并解开 */
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 </style>

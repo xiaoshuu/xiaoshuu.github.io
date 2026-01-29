@@ -2,7 +2,7 @@
 // src/components/Guestbook.astro
 ---
 
-<div class="guestbook-container clean-card">
+<div class="guestbook-container">
   <div class="guestbook-header">
     <h3>Say Hello! 👋</h3>
     <p>Leave a message, specific feedback, or just say hi.</p>
@@ -10,10 +10,10 @@
 
   <div class="giscus-wrapper">
     <script src="https://giscus.app/client.js"
-        data-repo="xiaoshuu/xiaoshuu.github.io"
-        data-repo-id="R_kgDOIiiGzA"
+        data-repo="你的用户名/你的仓库名"
+        data-repo-id="你的RepoID"
         data-category="General"
-        data-category-id="DIC_kwDOIiiGzM4C1llQ"
+        data-category-id="你的CategoryID"
         data-mapping="pathname"
         data-strict="0"
         data-reactions-enabled="1"
@@ -30,11 +30,8 @@
 
 <style>
   .guestbook-container {
-    margin-top: 3rem;
-    padding: 2rem;
+    padding: 3rem;
     background: #fff;
-    /* 稍微加一点莫兰迪色的边框点缀 */
-    border-top: 4px solid #D3C4BD; /* 灰粉色 */
   }
 
   .guestbook-header {
@@ -54,7 +51,6 @@
     font-size: 0.9rem;
   }
 
-  /* 调整 Giscus 的最小高度，防止加载时抖动 */
   .giscus-wrapper {
     min-height: 200px;
   }
