@@ -27,15 +27,25 @@ NeRF的训练过程如上图所示，分为四个部分： <br/>
 (b) 网络输出采样点的体密度$\sigma$和颜色$\mathbf{c}$。体密度$\sigma$仅与位置相关，而颜色$\mathbf{c}$则与位置和观察方向都相关。 <br/>
 (c) 体渲染通过沿相应射线积分采样点的密度加权颜色，计算出目标像素的颜色。 <br/>
 (d) 渲染损失通常定义为每个目标像素的预测颜色与真实颜色之间的平方误差，通过最小化该损失来优化网络参数。 <br/>
-具体而言，体渲染沿着每条射线执行积分，通过累积所有采样点的颜色贡献（按其密度和可见性加权），来计算沿观察方向 $\mathbf{d}$的目标图像中的最终像素值：<br/>
-$C(\mathbf{r})=\int_{t_n}^{t_f}\underbrace{T(t)}_{\text{累积透射率}}\cdot\underbrace{\sigma(\mathbf{r}(t))}_{\text{密度}}\cdot\underbrace{\mathbf{c}(\mathbf{r}(t),\mathbf{d})}_{\text{颜色}}dt$ ，<br/>
+具体而言，体渲染沿着每条射线执行积分，通过累积所有采样点的颜色贡献（按其密度和可见性加权），来计算沿观察方向 $\mathbf{d}$的目标图像中的最终像素值：
+
+$$
+C(\mathbf{r})=\int_{t_n}^{t_f}\underbrace{T(t)}_{\text{累积透射率}}\cdot\underbrace{\sigma(\mathbf{r}(t))}_{\text{密度}}\cdot\underbrace{\mathbf{c}(\mathbf{r}(t),\mathbf{d})}_{\text{颜色}}dt
+$$ 
+
 其中$\mathbf{t_n}$和$\mathbf{t_f}$是相机光线$\mathbf{r}(t)=\mathbf{o}+t\mathbf{d}$的近边界和远边界。$\mathbf{T(t)}$被计算为光线从$\mathbf{t_n}$传播到$\mathbf{t}$的透射率： <br/>
 $T(t)=\exp\left(-\int_{t_n}^t\sigma(\mathbf{r}(s))ds\right)$ <br/>
 由于点采样的离散性质，NeRF使用以下离散公式来近似理想的连续体积积分： <br/>
 $\hat{C}(\mathbf{r})=\sum_{i=1}^NT_i\alpha_i\mathbf{c}_i,\quad\text{其中}\quad T_i=\exp\left(-\sum_{j=1}^{i-1}\sigma_j\delta_j\right)$ <br/>
 其中$\alpha_i=(1-\exp(-\sigma_i\delta_i))$，$\delta_i=t_{i+1}-t_i$是相邻采样点之间的距离。 <br/>
 基于此设计，NeRF还融入了两项额外技术：位置编码以提升表示质量，以及分层体采样以提高计算效率。 <br/>
-位置编码定义为$F_{\Theta}=F_{\Theta}^{\prime}\circ\gamma$，它使用$\gamma(p)$将输入向量映射到高维空间，以便更好地表示场景颜色和几何的高频变化：$\begin{aligned}\boldsymbol{\gamma}(p)=&(\sin(2^0\pi p),\cos(2^0\pi p),...,\sin(2^{L-1}\pi p),\cos(2^{L-1}\pi p))\end{aligned}$，其中${L}$是一个超参数。在NeRF中，对$\gamma(\mathbf{x})$使用${L=10}$，对$\gamma(\mathbf{d})$使用${L=4}$。$\gamma(\mathbf{x})$在MLP开始时注入网络，而$\gamma(\mathbf{d})$在接近末端时注入，该方法可以缓解退化解问题。 <br/>
+位置编码定义为$F_{\Theta}=F_{\Theta}^{\prime}\circ\gamma$，它使用$\gamma(p)$将输入向量映射到高维空间，以便更好地表示场景颜色和几何的高频变化：
+
+$$
+\begin{aligned}\boldsymbol{\gamma}(p)=&(\sin(2^0\pi p),\cos(2^0\pi p),...,\sin(2^{L-1}\pi p),\cos(2^{L-1}\pi p))\end{aligned}
+$$
+
+，其中${L}$是一个超参数。在NeRF中，对$\gamma(\mathbf{x})$使用${L=10}$，对$\gamma(\mathbf{d})$使用${L=4}$。$\gamma(\mathbf{x})$在MLP开始时注入网络，而$\gamma(\mathbf{d})$在接近末端时注入，该方法可以缓解退化解问题。 <br/>
 分层次渲染采用由粗到精的策略：首先粗略采样${N_c}$个点以生成初始渲染结果。然后这个粗略结果指导精细采样，选择${N_f}$个精细层级的点。其目的是将采样集中在那些对最终像素颜色贡献更显著的区域。 <br/>
 最后，分层体渲染的损失函数定义如下： <br/>
 $L=\sum_{\mathbf{r}\in R}\left[\left\|\hat{C}_c(\mathbf{r})-C(\mathbf{r})\right\|_2^2+\left\|\hat{C}_f(\mathbf{r})-C(\mathbf{r})\right\|_2^2\right]$ <br/>
@@ -77,7 +87,7 @@ NeRF训练是通过从图像中发射射线，然后在空间中采样很多点�
     - 外观和几何是耦合的
     - 灾难性遗忘严重
 2. 有符号距离函数SDF (Signed Distance Function)
-![20250716141954](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250716141954.png)
+![20250716141954](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250716141954.png) <br/>
 SDF表示每个点x到最近表面的距离，并加上符号：
 $$\mathrm{SDF}(\mathbf{x}) = \begin{cases} -d & \text{如果点在物体内部} \\ 0 & \text{如果点在物体表面} \\ +d & \text{如果点在物体外部} \end{cases}$$ 
 3. 截断的SDF（TSDF, Truncated Signed Distance Function） <br/>
@@ -85,12 +95,12 @@ TSDF是对SDF的一个实际改进版本，目的是节省存储并增强数值�
 定义如下：
 $\mathrm{TSDF}(\mathbf{x})=\mathrm{clip}(\mathrm{SDF}(\mathbf{x}),-\tau,+\tau)$ <br/>
 即，超过阈值$\tau$的部分都被截断为$\pm\tau$
-![20250716143738](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250716143738.png)
+![20250716143738](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250716143738.png) <br/>
 
 ### Dynamic Reconstruction
 
 长期运行的机器人通常会面临复杂环境中的动态变化。传统的NeRF模型基于静态场景假设，因此动态变化无疑会干扰其学习过程，导致图像伪影。此外，在动态场景中，每个时刻只能提供一次观察，这会导致视角之间缺乏空间一致性约束。因此，在动态环境中，NeRF模型必须被扩展或以不同的方式进行训练。 <br/>
-![20250716151040](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250716151040.png)
+![20250716151040](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250716151040.png) <br/>
 在早期的探索中，研究者通过将NeRF与额外输入（如时间或相机位姿变换）进行条件耦合，端到端地建模场景动态性。STaR提出了一种刚性动态NeRF，用于表示场景中的单个运动物体，并通过优化与时间相关的刚性姿态来追踪其运动。DyNeRF使用时间相关的潜编码而非直接输入时间变量，用于建模动态场。这种方式能更好地表达拓扑结构的变化及瞬态现象。
 
 #### 🧩 基于形变场的动态 NeRF 方法（Deformation-based）

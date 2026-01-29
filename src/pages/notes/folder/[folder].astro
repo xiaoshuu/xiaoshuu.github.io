@@ -1,15 +1,12 @@
 ---
+// src/pages/notes/folder/[folder].astro
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
   const allNotes = await getCollection('notes');
-  
-  // 1. 提取所有文件夹名 (取 slug 的第一部分)
   const folders = new Set(allNotes.map(note => note.slug.split('/')[0]));
-
   return [...folders].map(folder => {
-    // 2. 筛选出属于该文件夹的笔记
     const notesInFolder = allNotes.filter(note => note.slug.startsWith(folder + '/'));
     return {
       params: { folder },
@@ -18,37 +15,232 @@ export async function getStaticPaths() {
   });
 }
 
-const { folder } = Astro.params;
 const { notes, folderName } = Astro.props;
+
+// --- 🎨 1. 莫兰迪色系配置 (保持一致) ---
+const morandiColors = [
+  '#E0E5DF', // 灰绿
+  '#E4D4C8', // 暖沙
+  '#D3C4BD', // 灰粉
+  '#C7CFD1', // 雾霾蓝
+  '#D8D3CD', // 奶咖
+  '#CCD4D9', // 烟灰蓝
+];
+
+// 根据文件夹名算颜色
+const colorIndex = folderName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % morandiColors.length;
+const themeColor = morandiColors[colorIndex];
+
+
+// --- 🔧 2. 核心修复：移植最强的抓取逻辑 ---
+
+function stripMarkdown(text) {
+  if (!text) return '';
+  
+  // 使用 new RegExp 避免语法错误
+  const commentRegex = new RegExp('', 'g');
+  const htmlTagRegex = new RegExp('<[^>]+>', 'g');
+  const imageRegex = new RegExp('!\\[[^\\]]*\\]\\([^)]*\\)', 'g');
+  const linkRegex = new RegExp('\\[([^\\]]+)\\]\\([^)]*\\)', 'g');
+  const titleRegex = new RegExp('^#+\\s+', 'gm');
+  const symbolRegex = new RegExp('[*_`~>]', 'g');
+
+  return text
+    .replace(commentRegex, '')
+    .replace(htmlTagRegex, '')
+    .replace(imageRegex, '')
+    .replace(linkRegex, '$1')
+    .replace(titleRegex, '')
+    .replace(symbolRegex, '')
+    .replace(/\n/g, ' ') 
+    .replace(/\s+/g, ' ') 
+    .trim();
+}
+
+function extractDescription(note) {
+  // 1. 优先使用 frontmatter 里的 description
+  if (note.data.description) return note.data.description;
+  if (!note.body) return '';
+
+  let rawContent = '';
+  let body = note.body;
+  
+  // --- 🥊 关键：把这一行放出来，别注释掉！ ---
+  const moreTag = '<' + '!' + '-' + '-' + 'more' + '-' + '-' + '>';
+  
+  // 查找位置
+  let splitIndex = body.indexOf(moreTag);
+  
+  if (splitIndex !== -1) {
+    // 找到了！截取前面的部分
+    rawContent = body.substring(0, splitIndex);
+  } else {
+    // 没找到，取前 120 个字符
+    rawContent = body.substring(0, 120);
+  }
+
+  // 清洗
+  const cleanDesc = stripMarkdown(rawContent);
+
+  // 长度控制 (这里给稍微短一点，80字，保持卡片清爽)
+  return cleanDesc.length > 80 ? cleanDesc.substring(0, 80) + '...' : cleanDesc;
+}
 ---
 
 <BaseLayout title={`Folder: ${folderName}`}>
   <div class="folder-page">
-    <header class="header">
-      <a href="/notes" class="back-link">📂 Library</a> / <span>{folderName}</span>
-      <h1>{folderName.toUpperCase()}</h1>
+    
+    <header class="header" style={`background-color: ${themeColor}`}>
+      <div class="header-inner">
+        <a href="/notes" class="back-link">← Library</a>
+        <div class="title-group">
+          <span class="folder-label">COLLECTION</span>
+          <h1>{folderName}</h1>
+        </div>
+      </div>
     </header>
 
-    <div class="note-grid">
-      {notes.map(note => (
-        <a href={`/notes/${note.slug}`} class="clean-card note-card">
-          <h3>{note.data.title}</h3>
-          <p>{note.data.description || 'No description'}</p>
-        </a>
-      ))}
+    <div class="note-list">
+      {notes.map(note => {
+        // 使用新函数抓取描述
+        const desc = extractDescription(note);
+        const dateStr = note.data.date ? new Date(note.data.date).toLocaleDateString() : '';
+
+        return (
+          <a href={`/notes/${note.slug}`} class="note-card">
+            <div class="note-main">
+              <h3>{note.data.title}</h3>
+              
+              {desc && <p class="desc">{desc}</p>}
+              
+              <div class="note-meta">
+                {dateStr && <span class="date">{dateStr}</span>}
+                {note.data.tags && (
+                  <div class="tags">
+                    {note.data.tags.map(t => <span class="tag">#{t}</span>)}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div class="arrow" style={`color: ${themeColor}; filter: brightness(0.6);`}>→</div>
+          </a>
+        );
+      })}
     </div>
+
   </div>
 </BaseLayout>
 
 <style>
-  .folder-page { max-width: 900px; margin: 0 auto; padding: 4rem 1.5rem; }
-  .header { margin-bottom: 3rem; }
-  .back-link { font-weight: 600; color: var(--accent-library); text-decoration: none; }
-  .header h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-top: 1rem; }
+  /* 页面容器 */
+  .folder-page { max-width: 900px; margin: 0 auto; padding-bottom: 4rem; }
   
-  .note-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
-  .note-card { padding: 1.5rem; text-decoration: none; color: inherit; transition: all 0.2s; height: 100%; display: flex; flex-direction: column; }
-  .note-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.05); border-color: var(--accent-library); }
-  .note-card h3 { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-  .note-card p { color: #888; font-size: 0.9rem; line-height: 1.5; }
+  /* 头部设计：大色块卡片 */
+  .header {
+    /* 这里的背景色由上面 JS 动态控制 */
+    padding: 3rem 2rem;
+    border-radius: 0 0 24px 24px; /* 下方圆角 */
+    margin-bottom: 3rem;
+    color: #444;
+  }
+  .header-inner { max-width: 800px; margin: 0 auto; }
+
+  .back-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    text-decoration: none;
+    color: rgba(0,0,0,0.6);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 0.7; }
+
+  .title-group { display: flex; flex-direction: column; gap: 0.5rem; }
+  .folder-label { 
+    font-family: monospace; 
+    font-size: 0.8rem; 
+    letter-spacing: 2px; 
+    opacity: 0.6; 
+    text-transform: uppercase; 
+  }
+  .header h1 { 
+    font-family: 'Playfair Display', serif; 
+    font-size: 3rem; 
+    margin: 0; 
+    text-transform: capitalize; 
+    color: #333; 
+    line-height: 1.1;
+  }
+
+  /* 列表区域 */
+  .note-list { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 1.5rem; 
+    padding: 0 1.5rem; /* 左右留白 */
+  }
+
+  /* 笔记卡片 */
+  .note-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.03); /* 极细的边框 */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .note-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  }
+
+  .note-main { flex: 1; min-width: 0; padding-right: 1rem; }
+  
+  .note-card h3 { 
+    margin: 0 0 0.8rem 0; 
+    font-size: 1.25rem; 
+    font-weight: 600; 
+    color: #333; 
+  }
+
+  .desc { 
+    margin: 0 0 1.2rem 0; 
+    color: #777; 
+    font-size: 0.95rem; 
+    line-height: 1.6; 
+    /* 限制行数 */
+    display: -webkit-box; 
+    -webkit-line-clamp: 2; 
+    -webkit-box-orient: vertical; 
+    overflow: hidden;
+  }
+
+  .note-meta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .date { font-family: monospace; font-size: 0.85rem; color: #aaa; }
+  
+  .tags { display: flex; gap: 8px; }
+  .tag { 
+    font-size: 0.75rem; 
+    color: #666; 
+    background: #f4f4f4; 
+    padding: 3px 8px; 
+    border-radius: 4px; 
+  }
+
+  .arrow { font-size: 1.5rem; transition: transform 0.2s; }
+  .note-card:hover .arrow { transform: translateX(5px); }
+
+  @media (max-width: 600px) {
+    .header { padding: 2rem 1.5rem; border-radius: 0 0 16px 16px; }
+    .header h1 { font-size: 2.2rem; }
+    .note-card { padding: 1.5rem; }
+    .arrow { display: none; }
+  }
 </style>

@@ -5,90 +5,254 @@ import { getCollection } from 'astro:content';
 
 const allNotes = await getCollection('notes');
 
-// --- 🔧 核心逻辑：按文件夹分组 ---
-const folderMap = new Map();
+// --- 🎨 莫兰迪色系配置 ---
+const morandiColors = [
+  '#E0E5DF', // 灰绿
+  '#E4D4C8', // 暖沙
+  '#D3C4BD', // 灰粉
+  '#C7CFD1', // 雾霾蓝
+  '#D8D3CD', // 奶咖
+  '#CCD4D9', // 烟灰蓝
+];
 
+function getColor(name) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % morandiColors.length;
+  return morandiColors[index];
+}
+
+// --- 🔧 修复版：内容清洗逻辑 ---
+function stripMarkdown(text) {
+  if (!text) return '';
+  
+  const commentRegex = new RegExp('', 'g');
+  const htmlTagRegex = new RegExp('<[^>]+>', 'g');
+  const imageRegex = new RegExp('!\\[[^\\]]*\\]\\([^)]*\\)', 'g');
+  const linkRegex = new RegExp('\\[([^\\]]+)\\]\\([^)]*\\)', 'g');
+  const titleRegex = new RegExp('^#+\\s+', 'gm');
+  const symbolRegex = new RegExp('[*_`~>]', 'g');
+
+  return text
+    .replace(commentRegex, '')
+    .replace(htmlTagRegex, '')
+    .replace(imageRegex, '')
+    .replace(linkRegex, '$1')
+    .replace(titleRegex, '')
+    .replace(symbolRegex, '')
+    .replace(/\n/g, ' ') 
+    .replace(/\s+/g, ' ') 
+    .trim();
+}
+
+function extractDescription(post) {
+  // 1. 优先使用 frontmatter 里的 description
+  if (post.data.description) return post.data.description;
+  if (!post.body) return '';
+
+  let rawContent = '';
+  let body = post.body;
+  
+  // --- 🥊 关键修复：把这一行从注释里放出来！ ---
+  const moreTag = '<' + '!' + '-' + '-' + 'more' + '-' + '-' + '>';
+  
+  // 查找位置
+  let splitIndex = body.indexOf(moreTag);
+  
+  if (splitIndex !== -1) {
+    // 找到了！截取前面的部分
+    rawContent = body.substring(0, splitIndex);
+  } else {
+    // 没找到，取前 120 个字符
+    rawContent = body.substring(0, 120);
+  }
+
+  // 清洗
+  const cleanDesc = stripMarkdown(rawContent);
+
+  // 长度控制
+  return cleanDesc.length > 100 ? cleanDesc.substring(0, 100) + '...' : cleanDesc;
+}
+
+
+// --- 数据处理 ---
+const folderMap = new Map();
 allNotes.forEach(note => {
-  // 假设 slug 是 "ros2/installation"，那么 split('/')[0] 就是 "ros2"
-  // 如果文件直接在根目录 (没有文件夹)，我们就把它归类为 "General"
   const slugParts = note.slug.split('/');
   const folderName = slugParts.length > 1 ? slugParts[0] : 'General';
-  
-  if (!folderMap.has(folderName)) {
-    folderMap.set(folderName, 0);
-  }
-  // 统计每个文件夹里有几篇文章
-  folderMap.set(folderName, folderMap.get(folderName) + 1);
+  if (!folderMap.has(folderName)) folderMap.set(folderName, []);
+  folderMap.get(folderName).push(note);
 });
 
-// 转换成数组方便渲染
-const folders = Array.from(folderMap.entries()).map(([name, count]) => ({ name, count }));
+const folders = Array.from(folderMap.entries()).map(([name, notes]) => ({ 
+  name, 
+  notes: notes.sort((a, b) => (new Date(b.data.date || 0).valueOf()) - (new Date(a.data.date || 0).valueOf())) 
+}));
 ---
 
 <BaseLayout title="Library">
   <div class="library-container">
     
+    <nav class="top-nav">
+      <a href="/" class="back-btn">← Home</a>
+    </nav>
+
     <header class="lib-header">
-      <a href="/" class="back-link">← Home</a>
-      <h1>Library.</h1>
-      <p>Structured notes organized by topics.</p>
+      <h1 class="title">Library.</h1>
+      <p class="subtitle">Structured notes & archives.</p>
     </header>
 
     <div class="folder-grid">
-      {folders.map(folder => (
-        <a href={folder.name === 'General' ? '#' : `/notes/folder/${folder.name}`} class="folder-card clean-card">
-          <div class="folder-icon">📂</div>
-          <div class="folder-info">
-            <h3>{folder.name}</h3>
-            <span>{folder.count} notes</span>
+      {folders.map(folder => {
+        const themeColor = getColor(folder.name);
+        
+        return (
+          <div class="folder-card">
+            
+            <div class="card-header" style={`background-color: ${themeColor}`}>
+              <a href={`/notes/folder/${folder.name}`} class="folder-title-link">
+                <span class="folder-label">COLLECTION</span>
+                <h2>{folder.name}</h2>
+              </a>
+              <span class="badge">{folder.notes.length}</span>
+            </div>
+
+            <div class="card-body">
+              {folder.notes.slice(0, 3).map(note => (
+                <a href={`/notes/${note.slug}`} class="mini-post-item">
+                  <div class="post-text">
+                    <span class="post-title">{note.data.title}</span>
+                    <span class="post-desc">{extractDescription(note)}</span>
+                  </div>
+                </a>
+              ))}
+              
+              {folder.notes.length === 0 && <div class="empty-state">Empty</div>}
+            </div>
+
+            {folder.notes.length > 3 && (
+              <a href={`/notes/folder/${folder.name}`} class="card-footer">
+                View all {folder.notes.length} notes →
+              </a>
+            )}
           </div>
-          <div class="folder-arrow">→</div>
-        </a>
-      ))}
+        )
+      })}
     </div>
 
   </div>
 </BaseLayout>
 
 <style>
-  .library-container { max-width: 1000px; margin: 0 auto; padding: 4rem 1.5rem; }
+  .library-container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
   
-  .lib-header { margin-bottom: 4rem; text-align: center; }
-  .back-link { color: #999; font-weight: 600; font-size: 0.9rem; }
-  .lib-header h1 { font-family: 'Playfair Display', serif; font-size: 3rem; margin: 0.5rem 0; color: var(--text-main); }
-  .lib-header p { color: var(--text-sub); }
-
-  /* 文件夹网格 */
-  .folder-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .folder-card {
-    display: flex;
-    align-items: center;
-    padding: 1.5rem;
+  /* 顶部导航 & 返回按钮 */
+  .top-nav { margin-bottom: 2rem; }
+  .back-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #f4f4f5;
+    color: #666;
+    border-radius: 20px;
     text-decoration: none;
-    color: inherit;
-    background: #fff;
-    border: 1px solid rgba(0,0,0,0.05);
-    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
     transition: all 0.2s;
   }
+  .back-btn:hover { background: #e4e4e7; color: #333; }
 
-  .folder-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-    border-color: var(--accent-library);
+  /* 标题区域 */
+  .lib-header { margin-bottom: 4rem; text-align: center; }
+  .title { font-family: 'Playfair Display', serif; font-size: 3.5rem; margin: 0; color: #333; letter-spacing: -1px; }
+  .subtitle { color: #999; font-size: 1.1rem; margin-top: 0.5rem; font-weight: 300; }
+
+  /* 网格布局 */
+  .folder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2.5rem;
   }
 
-  .folder-icon { font-size: 2rem; margin-right: 1rem; }
+  /* 卡片主体 */
+  .folder-card {
+    background: #fff;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.04);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
   
-  .folder-info { flex: 1; }
-  .folder-info h3 { margin: 0; font-size: 1.1rem; text-transform: capitalize; }
-  .folder-info span { font-size: 0.85rem; color: #888; }
+  .folder-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+  }
 
-  .folder-arrow { color: #ccc; font-weight: bold; }
-  .folder-card:hover .folder-arrow { color: var(--accent-library); }
+  /* 卡片头部：彩色区域 */
+  .card-header {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  
+  .folder-title-link { text-decoration: none; color: #333; display: flex; flex-direction: column; gap: 4px; }
+  .folder-label { font-size: 0.7rem; opacity: 0.6; letter-spacing: 1.5px; font-weight: 600; text-transform: uppercase; }
+  .folder-title-link h2 { margin: 0; font-size: 1.4rem; text-transform: capitalize; font-weight: 700; line-height: 1.2; }
+  
+  .badge { 
+    background: rgba(255,255,255,0.6); 
+    backdrop-filter: blur(4px);
+    padding: 4px 10px; 
+    border-radius: 12px; 
+    font-size: 0.8rem; 
+    color: #444; 
+    font-weight: 600; 
+  }
+
+  /* 列表区域 */
+  .card-body { padding: 1rem 0; flex: 1; display: flex; flex-direction: column; }
+
+  .mini-post-item {
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(0,0,0,0.05);
+    transition: background 0.1s;
+  }
+  .mini-post-item:last-child { border-bottom: none; }
+  .mini-post-item:hover { background: #fafafa; }
+  
+  .post-text { display: flex; flex-direction: column; gap: 4px; }
+  .post-title { color: #333; font-size: 0.95rem; font-weight: 600; }
+  .post-desc { 
+    color: #888; 
+    font-size: 0.8rem; 
+    line-height: 1.5;
+    /* 限制显示两行 */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .empty-state { padding: 2rem; color: #ccc; text-align: center; font-style: italic; font-size: 0.9rem; }
+
+  /* 底部链接 */
+  .card-footer {
+    display: block;
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: #666;
+    background: #fbfbfb;
+    text-decoration: none;
+    font-weight: 500;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    transition: all 0.2s;
+  }
+  .card-footer:hover { color: #000; background: #f4f4f4; }
 </style>
