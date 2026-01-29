@@ -37,7 +37,7 @@ $$
 $T(t)=\exp\left(-\int_{t_n}^t\sigma(\mathbf{r}(s))ds\right)$ <br/>
 由于点采样的离散性质，NeRF使用以下离散公式来近似理想的连续体积积分： <br/>
 $\hat{C}(\mathbf{r})=\sum_{i=1}^NT_i\alpha_i\mathbf{c}_i,\quad\text{其中}\quad T_i=\exp\left(-\sum_{j=1}^{i-1}\sigma_j\delta_j\right)$ <br/>
-其中$\alpha_i=(1-\exp(-\sigma_i\delta_i))$，$\delta_i=t_{i+1}-t_i$是相邻采样点之间的距离。 <br/>
+$\alpha_i=(1-\exp(-\sigma_i\delta_i))$，$\delta_i=t_{i+1}-t_i$是相邻采样点之间的距离。 <br/>
 基于此设计，NeRF还融入了两项额外技术：位置编码以提升表示质量，以及分层体采样以提高计算效率。 <br/>
 位置编码定义为$F_{\Theta}=F_{\Theta}^{\prime}\circ\gamma$，它使用$\gamma(p)$将输入向量映射到高维空间，以便更好地表示场景颜色和几何的高频变化：
 
@@ -89,7 +89,9 @@ NeRF训练是通过从图像中发射射线，然后在空间中采样很多点�
 2. 有符号距离函数SDF (Signed Distance Function)
 ![20250716141954](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250716141954.png) <br/>
 SDF表示每个点x到最近表面的距离，并加上符号：
-$$\mathrm{SDF}(\mathbf{x}) = \begin{cases} -d & \text{如果点在物体内部} \\ 0 & \text{如果点在物体表面} \\ +d & \text{如果点在物体外部} \end{cases}$$ 
+$$
+\mathrm{SDF}(\mathbf{x}) = \begin{cases} -d & \text{如果点在物体内部} \\ 0 & \text{如果点在物体表面} \\ +d & \text{如果点在物体外部} \end{cases}
+$$ 
 3. 截断的SDF（TSDF, Truncated Signed Distance Function） <br/>
 TSDF是对SDF的一个实际改进版本，目的是节省存储并增强数值稳定性。 <br/>
 定义如下：

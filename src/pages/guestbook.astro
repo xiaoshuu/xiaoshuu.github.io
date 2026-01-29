@@ -1,0 +1,53 @@
+---
+// src/pages/guestbook.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GuestbookComponent from '../components/Guestbook.astro';
+---
+
+<BaseLayout title="Guestbook">
+  <div class="guestbook-page-container">
+    <header class="page-header">
+      <h1 class="title">Guestbook.</h1>
+      <p class="subtitle">Leave a note, say hi, or share your thoughts.</p>
+    </header>
+    
+    <div class="guestbook-wrapper">
+      <GuestbookComponent />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .guestbook-page-container {
+    /* 👇 关键修改：从 800px 改大到 1200px */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem; /* 左右内边距也稍微加大一点点 */
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 5rem; /* 头部和下面拉开更大距离，更有呼吸感 */
+  }
+
+  .title {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem; /* 标题也顺便放大一点，撑起气场 */
+    margin: 0 0 1rem 0;
+    color: #333;
+  }
+
+  .subtitle {
+    color: #888;
+    font-size: 1.2rem;
+    font-weight: 300;
+  }
+
+  /* 留言板容器 */
+  .guestbook-wrapper {
+    /* 这里不需要背景色了，因为组件内部已经有了 */
+    border-radius: 24px; /* 圆角更大一点 */
+    box-shadow: 0 8px 30px rgba(0,0,0,0.05); /* 阴影更柔和、更大 */
+    overflow: hidden;
+  }
+</style>

@@ -1,6 +1,7 @@
 ---
 // src/pages/index.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Guestbook from '../components/Guestbook.astro';
 import { getCollection } from 'astro:content';
 import { siteConfig, statusConfig, manualTags, techStack } from '../site.config';
 
@@ -121,12 +122,13 @@ function formatDate(date) {
     
     <aside class="sidebar left-sidebar">
       <div class="clean-card profile-card">
-		<img src="/avatar.jpg" alt="Profile" class="avatar-img" />
+        <img src="/avatar.jpg" alt="Profile" class="avatar-img" />
         <h1 class="profile-name">{siteConfig.author}.</h1>
         <p class="profile-role">{siteConfig.description}</p>
         <div class="social-links">
           {siteConfig.social.github && <a href={siteConfig.social.github} target="_blank" class="social-btn">GitHub</a>}
           <a href="/about" class="social-btn">About</a>
+          <a href="/guestbook" class="social-btn">Guestbook</a>
         </div>
       </div>
       <div class="clean-card mini-widget">
@@ -222,7 +224,6 @@ function formatDate(date) {
 </BaseLayout>
 
 <style>
-  /* 样式保持不变 */
   .dashboard-grid { display: grid; grid-template-columns: 260px 1fr 260px; gap: 2rem; max-width: 1200px; margin: 0 auto; padding: 2rem; align-items: start; }
   .sidebar { position: sticky; top: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
   
@@ -240,8 +241,9 @@ function formatDate(date) {
    }
   .profile-name { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 0.5rem 0 0; }
   .profile-role { color: var(--text-sub); font-size: 0.9rem; margin-top: 0.5rem; line-height: 1.4; text-transform: uppercase; letter-spacing: 1px; }
-  .social-links { margin-top: 2rem; display: flex; gap: 1rem; }
-  .social-btn { font-size: 0.85rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid #ddd; }
+  .social-links { margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; }
+  .social-btn { font-size: 0.85rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid #ddd; text-decoration: none; transition: color 0.2s; }
+  .social-btn:hover { color: var(--accent-library); border-bottom-color: var(--accent-library); }
   
   .mini-widget { padding: 1rem 1.5rem; display: flex; justify-content: space-between; font-size: 0.9rem; }
   .widget-label { color: var(--text-sub); }
