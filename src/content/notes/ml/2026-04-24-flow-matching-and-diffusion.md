@@ -1354,8 +1354,6 @@ $$
 
 就是在描述由于向量场搬运概率质量而造成的密度变化。
 
-8.4 它为什么重要？
-
 Continuity equation 是连接下面两个层面的桥梁：
 
 单个样本层面：
@@ -1369,7 +1367,7 @@ $$
 $$
 X_t \sim p_t
 $$
-	​
+
 它告诉我们：
 
 > 如果想让 ODE 的样本分布沿着某条 probability path $p_t$ 走，那么向量场 $u_t$ 必须让 $p_t$ 满足 continuity equation。
@@ -2018,7 +2016,7 @@ $$
 
 #### 10 SDE Extension Trick
 
-##### 10.1 这一页在讲什么？
+##### 10.1 定义
 
 前面我们已经知道，Flow Model 的 ODE 是：
 
@@ -2039,8 +2037,6 @@ X_t \sim p_t
 $$
 
 也就是说，ODE 会让样本分布沿着我们构造好的 probability path $p_t$ 演化。
-
-这一页要说明的是：
 
 > 我们不仅可以用 ODE 产生这条 probability path，也可以用一类 SDE 产生同一条 probability path。
 
@@ -2948,21 +2944,7 @@ u_t^{\mathrm{target}}(x \mid z)
 \frac{z-x}{1-t}
 $$
 
-这个公式的直观意义是：
-
-> 当前在 $x$，目标是 $z$，剩余时间是 $1-t$，所以速度应该是目标位置减当前位置，再除以剩余时间。
-
-也就是：
-
-$$
-\text{速度}
-=
-\frac{\text{目标位置}-\text{当前位置}}{\text{剩余时间}}
-$$
-
----
-
-##### 10. Flow Matching 训练完成后怎么生成？
+##### Flow Matching 训练完成后怎么生成？
 
 训练完成后，我们得到了：
 
@@ -3006,11 +2988,9 @@ $$
 
 > 训练时用数据点 $z$ 构造 conditional target；生成时只使用学到的 marginal vector field，从噪声走到数据。
 
----
+#### Score Matching
 
-# Part 2：Score Matching
-
-##### 11. Diffusion Model 为什么需要 Score？
+##### Diffusion Model 为什么需要 Score？
 
 第二讲里我们知道，Diffusion Model 需要 marginal score function：
 
@@ -3034,13 +3014,7 @@ u_t^{\mathrm{target}}(X_t)
 \sigma_t dW_t
 $$
 
-这里的：
-
-$$
-\nabla_x \log p_t(X_t)
-$$
-
-就是 score function。
+这里的$\nabla_x \log p_t(X_t)$就是 score function。
 
 因此，Diffusion Model 需要训练一个 score network：
 
@@ -3062,9 +3036,7 @@ s_t^\theta(x)
 \nabla_x \log p_t(x)
 $$
 
----
-
-##### 12. 理想的 Score Matching Loss
+##### Score Matching Loss（=Denoising Score Matching Loss）
 
 最直接的训练目标是：
 
@@ -3103,27 +3075,11 @@ $$
 
 所以 marginal score 也涉及对所有数据点 $z$ 的积分。
 
----
-
-##### 13. Score Matching 的关键想法
-
 虽然 marginal score 不好算，但是 conditional score 好算。
 
 也就是说：
 
-$$
-\nabla_x \log p_t(x)
-$$
-
-不好算。
-
-但是：
-
-$$
-\nabla_x \log p_t(x \mid z)
-$$
-
-通常可以算。
+$\nabla_x \log p_t(x)$不好算。但是：$\nabla_x \log p_t(x \mid z)$通常可以算。
 
 所以 Score Matching 的训练目标是：
 
@@ -3156,27 +3112,7 @@ $$
 
 这就是 Denoising Score Matching。
 
-它和 Flow Matching 的结构非常像。
-
-Flow Matching 是：
-
-$$
-u_t^\theta(x)
-\approx
-u_t^{\mathrm{target}}(x \mid z)
-$$
-
-Score Matching 是：
-
-$$
-s_t^\theta(x)
-\approx
-\nabla_x \log p_t(x \mid z)
-$$
-
----
-
-##### 14. 为什么用 conditional score 能学到 marginal score？
+##### 为什么用 conditional score 能学到 marginal score？
 
 原因和 Flow Matching 一样。
 
@@ -3224,9 +3160,7 @@ $$
 
 > 虽然训练时使用 conditional score，但网络最终学到的是 marginal score。
 
----
-
-##### 15. Score Matching 训练流程
+##### Score Matching 训练流程
 
 给定：
 
@@ -3282,9 +3216,7 @@ $$
 
 6. 用梯度下降更新参数 $\theta$。
 
----
-
-##### 16. Gaussian Path 下的 Conditional Score
+##### Gaussian Path 下的 Conditional Score
 
 对于 Gaussian probability path：
 
@@ -3355,19 +3287,7 @@ s_t^\theta(x)
 -\frac{\epsilon}{\beta_t}
 $$
 
-所以：
-
-$$
-s_t^\theta(x)
-+
-\frac{\epsilon}{\beta_t}
-\approx
-0
-$$
-
----
-
-##### 17. 为什么叫 Denoising Score Matching？
+##### 为什么叫 Denoising Score Matching？
 
 因为训练时输入的：
 
@@ -3399,9 +3319,7 @@ $$
 
 这就是 denoising 的含义。
 
----
-
-##### 18. Noise Predictor 的写法
+##### Noise Predictor 的写法
 
 很多 diffusion model 不直接预测 score：
 
@@ -3453,9 +3371,7 @@ $$
 
 这也是很多实际 diffusion model 训练时常见的形式。
 
----
-
-##### 19. 低 $\beta_t$ 时的数值不稳定
+##### 低 $\beta_t$ 时的数值不稳定
 
 在 Gaussian path 下，score target 是：
 
@@ -3489,11 +3405,9 @@ $$
 
 这也是为什么实际 diffusion model 里经常会使用不同的参数化方式，例如预测噪声、预测 clean data，或者对 loss 加权。
 
----
+#### Stochastic Sampling with Diffusion Models
 
-# Part 3：Stochastic Sampling with Diffusion Models
-
-##### 20. SDE Extension Trick 回顾
+##### SDE Extension Trick 回顾
 
 第二讲里已经讲过 SDE extension trick。
 
@@ -3535,71 +3449,7 @@ $$
 X_t \sim p_t
 $$
 
----
-
-##### 21. 训练后如何用神经网络采样？
-
-训练完成后，我们用神经网络替换真实 target。
-
-用：
-
-$$
-u_t^\theta(x)
-$$
-
-近似：
-
-$$
-u_t^{\mathrm{target}}(x)
-$$
-
-用：
-
-$$
-s_t^\theta(x)
-$$
-
-近似：
-
-$$
-\nabla_x \log p_t(x)
-$$
-
-于是 SDE 采样公式变成：
-
-$$
-dX_t =
-\left[
-u_t^\theta(X_t)
-+
-\frac{\sigma_t^2}{2}
-s_t^\theta(X_t)
-\right]dt
-+
-\sigma_t dW_t
-$$
-
-从：
-
-$$
-X_0 \sim p_{\mathrm{init}}
-$$
-
-开始，模拟这个 SDE 到 $t=1$，得到：
-
-$$
-X_1
-$$
-
-如果训练得好，那么：
-
-$$
-X_1 \sim p_{\mathrm{data}}
-$$
-
----
-
-##### 22. Euler-Maruyama 采样
+##### Euler-Maruyama 采样
 
 对于 SDE：
 
@@ -3722,15 +3572,9 @@ $$
 
 > diffusion coefficient 控制“扩散得有多厉害”，score term 负责“把扩散后的样本拉回正确分布”。
 
----
+#### Denoising Diffusion Models
 
-# Part 4：Denoising Diffusion Models
-
-##### 24. DDM 是什么？
-
-课程中说的 DDM 指的是 Denoising Diffusion Model。
-
-很多人会直接把 Denoising Diffusion Model 简称为 Diffusion Model。
+##### 定义
 
 在这门课的框架里：
 
@@ -3745,12 +3589,9 @@ p_t(x \mid z)
 $$
 
 作为 conditional probability path。
+但在大部分情况下denoising diffusion model = diffusion model
 
-这是课程里一直使用的标准例子。
-
----
-
-##### 25. DDM 的特殊性质：Score for Free
+##### DDM 的特殊性质：Score for Free
 
 对于 Gaussian probability path，我们有两个公式。
 
@@ -3790,9 +3631,7 @@ $$
 
 > 对 Denoising Diffusion Models 来说，不一定需要分别训练 vector field network 和 score network，因为二者可以通过公式互相转换。
 
----
-
-##### 26. Conditional 版本的转换公式
+##### Conditional 版本的转换公式
 
 对于 Gaussian path，可以推导出：
 
@@ -3821,9 +3660,7 @@ $$
 
 所以在 $\alpha_t=0$ 的端点附近需要小心处理。
 
----
-
-##### 27. Marginal 版本的转换公式
+##### Marginal 版本的转换公式
 
 对所有 $z$ 做 marginalization 后，可以得到 marginal 版本：
 
@@ -3871,9 +3708,7 @@ $$
 
 > 在 DDM 中，训练 score network 后，也可以后处理得到 vector field network。
 
----
-
-##### 28. 为什么早期 diffusion model 只做 score matching？
+##### 为什么早期 diffusion model 只做 score matching？
 
 因为在 DDM 中，score 和 vector field 可以互相转换。
 
@@ -3891,11 +3726,9 @@ $$
 
 > 第一代 diffusion models 只做 score matching。
 
----
+#### 完整算法总结
 
-# Part 5：完整算法总结
-
-##### 29. Flow Matching 完整流程
+##### Flow Matching 完整流程
 
 训练阶段：
 
@@ -3955,9 +3788,7 @@ $$
 X_1
 $$
 
----
-
-##### 30. Score Matching 完整流程
+##### Score Matching 完整流程
 
 训练阶段：
 
@@ -4040,9 +3871,7 @@ $$
 X_1
 $$
 
----
-
-##### 31. Flow Matching 和 Score Matching 的对比
+##### Flow Matching 和 Score Matching 的对比
 
 | 方法 | 学什么 | 网络 | 训练 target | 采样方式 |
 |---|---|---|---|---|
@@ -4050,69 +3879,7 @@ $$
 | Score Matching | score function | $s_t^\theta(x)$ | $\nabla_x\log p_t(x\mid z)$ | SDE |
 | DDM 特殊情况 | score 和 vector field 可互转 | $s_t^\theta$ 或 $u_t^\theta$ | Gaussian path 下的 target | ODE 或 SDE |
 
----
-
-##### 32. 第三讲的主线总结
-
-第三讲可以按下面这条线理解。
-
-第二讲已经构造出了两个理论目标：
-
-$$
-u_t^{\mathrm{target}}(x)
-$$
-
-和：
-
-$$
-\nabla_x \log p_t(x)
-$$
-
-但是这两个 marginal target 都不好直接算。
-
-第三讲的核心 trick 是：
-
-> 不直接训练 marginal target，而是训练 conditional target。
-
-对于 Flow Matching：
-
-$$
-u_t^\theta(x)
-\approx
-u_t^{\mathrm{target}}(x\mid z)
-$$
-
-虽然训练时使用 conditional vector field，但最优解是 marginal vector field：
-
-$$
-u_t^\theta(x)
-\approx
-u_t^{\mathrm{target}}(x)
-$$
-
-对于 Score Matching：
-
-$$
-s_t^\theta(x)
-\approx
-\nabla_x \log p_t(x\mid z)
-$$
-
-虽然训练时使用 conditional score，但最优解是 marginal score：
-
-$$
-s_t^\theta(x)
-\approx
-\nabla_x \log p_t(x)
-$$
-
-因此，这一讲真正完成了从理论到算法的转变：
-
-> 第二讲构造 target，第三讲把 target 变成可以训练的 loss。
-
----
-
-##### 33. 最重要的公式速查
+##### 公式速查
 
 ###### Flow Matching Loss
 
@@ -4248,8 +4015,1688 @@ $$
 
 ---
 
-##### 34. 一句话总结
+##### 一句话总结
 
 第三讲的核心是：
 
 > Flow Matching 用 conditional vector field 训练出 marginal vector field；Score Matching 用 conditional score 训练出 marginal score。前者得到 ODE 采样算法，后者得到 SDE 采样算法。在 Gaussian probability path，也就是 DDM 中，score 和 vector field 还可以互相转换，所以不一定需要分别训练两个网络。
+
+### 构建图像生成器
+
+#### 这一讲的目标
+
+前三讲主要建立了 Flow Matching 和 Diffusion Models 的数学基础。
+
+第一讲讲的是：
+
+> 如果已经有了正确的 ODE / SDE，如何从噪声采样生成数据。
+
+第二讲讲的是：
+
+> 如何构造训练目标，比如 marginal vector field 和 marginal score function。
+
+第三讲讲的是：
+
+> 如何训练模型，比如 Flow Matching 和 Score Matching。
+
+第四讲开始进入更接近真实图像生成模型的部分。
+
+这一讲主要回答三个问题：
+
+1. 如何从无条件生成扩展到条件生成？
+2. 什么是 guidance，尤其是 classifier-free guidance？
+3. 图像生成模型通常使用什么样的神经网络架构？
+
+#### Conditional Generation and Guidance
+
+##### 从无条件生成到条件生成
+
+前面几讲默认讨论的是无条件生成。
+
+无条件生成的目标是：
+
+$$
+x \sim p_{\mathrm{data}}(x)
+$$
+
+也就是说：
+
+> 生成一个看起来像真实数据的样本。
+
+例如：
+
+> Generate an image.
+
+但是现实中的图像生成通常是条件生成。
+
+比如：
+
+> Generate an image of a cat baking a cake.
+
+这里的文本提示词就是条件。
+
+我们把条件记作：
+
+$$
+y
+$$
+
+条件生成的目标是：
+
+$$
+x \sim p_{\mathrm{data}}(x\mid y)
+$$
+
+也就是说：
+
+> 给定条件 $y$，从对应的条件数据分布中采样。
+
+例如：
+
+- $y=$ “a cat baking a cake”
+- $x$ 应该是一张猫在烤蛋糕的图片
+
+所以无条件生成和条件生成的区别是：
+
+无条件生成：
+
+$$
+p_{\mathrm{data}}(x)
+$$
+
+条件生成：
+
+$$
+p_{\mathrm{data}}(x\mid y)
+$$
+
+---
+
+##### 2. 条件生成中的 probability path
+
+无条件生成中，我们构造一条 probability path：
+
+$$
+p_t(x)
+$$
+
+满足：
+
+$$
+p_0=p_{\mathrm{init}}
+$$
+
+$$
+p_1=p_{\mathrm{data}}
+$$
+
+在条件生成中，我们需要构造条件版本的 probability path：
+
+$$
+p_t(x\mid y)
+$$
+
+它满足：
+
+$$
+p_0(x\mid y)=p_{\mathrm{init}}(x)
+$$
+
+$$
+p_1(x\mid y)=p_{\mathrm{data}}(x\mid y)
+$$
+
+也就是说：
+
+- $t=0$ 时，仍然是初始噪声分布；
+- $t=1$ 时，变成给定条件 $y$ 下的数据分布。
+
+注意：
+
+$$
+p_0(x\mid y)=p_{\mathrm{init}}(x)
+$$
+
+通常不依赖 $y$。
+
+因为一开始的噪声通常和条件无关。
+
+---
+
+##### 3. 条件生成中的数据
+
+在无条件生成中，训练数据是：
+
+$$
+z \sim p_{\mathrm{data}}
+$$
+
+在条件生成中，训练数据通常是成对出现的：
+
+$$
+(z,y) \sim p_{\mathrm{data}}(z,y)
+$$
+
+其中：
+
+- $z$ 是真实数据样本，例如一张真实图片；
+- $y$ 是对应条件，例如类别标签、文本描述、草图、深度图等。
+
+例如图文数据集中：
+
+$$
+z = \text{一张图片}
+$$
+
+$$
+y = \text{这张图片的文本描述}
+$$
+
+条件生成的目标是学习：
+
+$$
+p_{\mathrm{data}}(z\mid y)
+$$
+
+---
+
+##### 4. Conditional Probability Path
+
+类似前面几讲，我们可以先给定一个数据点 $z$，构造 conditional probability path：
+
+$$
+p_t(x\mid z)
+$$
+
+对于 Gaussian path：
+
+$$
+p_t(x\mid z)
+=
+\mathcal{N}(\alpha_t z,\beta_t^2I)
+$$
+
+也可以写成：
+
+$$
+x_t=\alpha_tz+\beta_t\epsilon
+$$
+
+其中：
+
+$$
+\epsilon\sim\mathcal{N}(0,I)
+$$
+
+在条件生成中，$z$ 本身来自条件数据分布：
+
+$$
+z\sim p_{\mathrm{data}}(\cdot\mid y)
+$$
+
+所以条件 marginal probability path 可以写成：
+
+$$
+p_t(x\mid y)
+=
+\int
+p_t(x\mid z)
+p_{\mathrm{data}}(z\mid y)
+dz
+$$
+
+这个公式的含义是：
+
+> 给定条件 $y$，把所有符合条件 $y$ 的数据点 $z$ 对应的 conditional path 混合起来。
+
+也就是说：
+
+- $p_t(x\mid z)$ 是通向某一个具体数据点 $z$ 的路径；
+- $p_t(x\mid y)$ 是通向条件分布 $p_{\mathrm{data}}(x\mid y)$ 的整体路径。
+
+---
+
+##### 5. 条件版 marginal vector field
+
+无条件生成中，Flow Model 要学习：
+
+$$
+u_t^{\mathrm{target}}(x)
+$$
+
+条件生成中，Flow Model 要学习：
+
+$$
+u_t^{\mathrm{target}}(x\mid y)
+$$
+
+它表示：
+
+> 给定条件 $y$，当前点 $x$ 在时间 $t$ 应该以什么速度运动。
+
+它可以由 conditional vector field 加权平均得到：
+
+$$
+u_t^{\mathrm{target}}(x\mid y)
+=
+\int
+u_t^{\mathrm{target}}(x\mid z)
+\frac{
+p_t(x\mid z)p_{\mathrm{data}}(z\mid y)
+}{
+p_t(x\mid y)
+}
+dz
+$$
+
+也可以写成条件期望：
+
+$$
+u_t^{\mathrm{target}}(x\mid y)
+=
+\mathbb{E}
+\left[
+u_t^{\mathrm{target}}(x\mid z)
+\mid x,y
+\right]
+$$
+
+这和前几讲的 marginal vector field 结构完全一样。
+
+区别只是：
+
+前几讲无条件：
+
+$$
+u_t^{\mathrm{target}}(x)
+=
+\mathbb{E}
+[
+u_t^{\mathrm{target}}(x\mid z)
+\mid x
+]
+$$
+
+现在条件生成：
+
+$$
+u_t^{\mathrm{target}}(x\mid y)
+=
+\mathbb{E}
+[
+u_t^{\mathrm{target}}(x\mid z)
+\mid x,y
+]
+$$
+
+也就是说，现在模型不仅看 $x,t$，还要看条件 $y$。
+
+---
+
+##### 6. 条件版 Flow Matching Objective
+
+无条件 Flow Matching 的训练目标是：
+
+$$
+\mathcal{L}_{\mathrm{CFM}}(\theta)
+=
+\mathbb{E}_{z,t,x}
+\left[
+\left\|
+u_t^\theta(x)
+-
+u_t^{\mathrm{target}}(x\mid z)
+\right\|^2
+\right]
+$$
+
+条件生成中，我们训练一个带条件输入的模型：
+
+$$
+u_t^\theta(x\mid y)
+$$
+
+更完整地写：
+
+$$
+u_\theta(x,t,y)
+$$
+
+训练目标变成：
+
+$$
+\mathcal{L}_{\mathrm{CondCFM}}(\theta)
+=
+\mathbb{E}_{(z,y),t,x}
+\left[
+\left\|
+u_t^\theta(x\mid y)
+-
+u_t^{\mathrm{target}}(x\mid z)
+\right\|^2
+\right]
+$$
+
+其中：
+
+$$
+(z,y)\sim p_{\mathrm{data}}(z,y)
+$$
+
+$$
+t\sim \mathrm{Unif}[0,1]
+$$
+
+$$
+x\sim p_t(\cdot\mid z)
+$$
+
+如果使用 Gaussian path：
+
+$$
+x=\alpha_tz+\beta_t\epsilon
+$$
+
+那么 loss 可以写成：
+
+$$
+\mathcal{L}_{\mathrm{CondCFM}}(\theta)
+=
+\mathbb{E}_{(z,y),t,\epsilon}
+\left[
+\left\|
+u_t^\theta(\alpha_tz+\beta_t\epsilon\mid y)
+-
+u_t^{\mathrm{target}}(\alpha_tz+\beta_t\epsilon\mid z)
+\right\|^2
+\right]
+$$
+
+进一步，如果把 target 写成路径速度：
+
+$$
+u_t^{\mathrm{target}}(\alpha_tz+\beta_t\epsilon\mid z)
+=
+\dot{\alpha}_tz+\dot{\beta}_t\epsilon
+$$
+
+则有：
+
+$$
+\mathcal{L}_{\mathrm{CondCFM}}(\theta)
+=
+\mathbb{E}_{(z,y),t,\epsilon}
+\left[
+\left\|
+u_t^\theta(\alpha_tz+\beta_t\epsilon\mid y)
+-
+(\dot{\alpha}_tz+\dot{\beta}_t\epsilon)
+\right\|^2
+\right]
+$$
+
+---
+
+##### 7. 条件采样
+
+训练完成后，给定一个条件 $y$，采样过程是：
+
+1. 从初始分布中采样噪声：
+
+$$
+X_0\sim p_{\mathrm{init}}
+$$
+
+2. 解条件 ODE：
+
+$$
+\frac{d}{dt}X_t
+=
+u_t^\theta(X_t\mid y)
+$$
+
+3. 从 $t=0$ 积分到 $t=1$。
+
+4. 得到：
+
+$$
+X_1\sim p_{\mathrm{data}}(\cdot\mid y)
+$$
+
+也就是说：
+
+> 条件模型通过把条件 $y$ 输入到向量场中，控制生成结果的方向。
+
+---
+
+#### Part 2：Guidance
+
+##### 8. 为什么需要 Guidance？
+
+上面的方法已经可以做条件生成。
+
+但是实际图像生成中，我们通常希望模型更强地遵守条件。
+
+例如提示词是：
+
+> a cat baking a cake
+
+普通条件生成可能确实生成一只猫，也可能生成蛋糕，但不一定非常严格地满足“猫正在烤蛋糕”这个语义。
+
+Guidance 的目标是：
+
+> 在采样时增强条件 $y$ 对生成结果的影响。
+
+也就是说，不只是生成一个合理图片，还要更像：
+
+$$
+p_{\mathrm{data}}(x\mid y)
+$$
+
+中非常符合条件 $y$ 的样本。
+
+---
+
+##### 9. Guided vector field 的直观想法
+
+条件模型有一个向量场：
+
+$$
+u_t^\theta(x\mid y)
+$$
+
+无条件模型有一个向量场：
+
+$$
+u_t^\theta(x)
+$$
+
+或者写成：
+
+$$
+u_t^\theta(x\mid \varnothing)
+$$
+
+其中：
+
+$$
+\varnothing
+$$
+
+表示没有条件。
+
+条件向量场告诉我们：
+
+> 如何生成符合条件 $y$ 的样本。
+
+无条件向量场告诉我们：
+
+> 如何生成一般自然样本。
+
+两者的差：
+
+$$
+u_t^\theta(x\mid y)-u_t^\theta(x)
+$$
+
+可以理解为：
+
+> 条件 $y$ 带来的方向修正。
+
+Guidance 的想法是：
+
+> 在采样时放大这个条件修正方向。
+
+---
+
+##### 10. Classifier-Free Guidance 的公式
+
+Classifier-Free Guidance，简称 CFG，通常写成：
+
+$$
+u_t^{\mathrm{CFG}}(x\mid y)
+=
+u_t^\theta(x)
++
+w
+\left(
+u_t^\theta(x\mid y)
+-
+u_t^\theta(x)
+\right)
+$$
+
+也可以写成：
+
+$$
+u_t^{\mathrm{CFG}}(x\mid y)
+=
+w u_t^\theta(x\mid y)
++
+(1-w)u_t^\theta(x)
+$$
+
+如果把无条件输入写成空条件：
+
+$$
+\varnothing
+$$
+
+则写作：
+
+$$
+u_t^{\mathrm{CFG}}(x\mid y)
+=
+w u_t^\theta(x\mid y)
++
+(1-w)u_t^\theta(x\mid \varnothing)
+$$
+
+其中：
+
+$$
+w
+$$
+
+是 guidance scale。
+
+不同的 $w$ 有不同效果：
+
+- $w=0$：只用无条件模型；
+- $w=1$：普通条件生成，不额外增强；
+- $w>1$：增强条件效果。
+
+当：
+
+$$
+w>1
+$$
+
+时，系数：
+
+$$
+1-w
+$$
+
+是负的，所以这个公式实际是在做：
+
+$$
+u_t^\theta(x\mid y)
++
+(w-1)
+\left(
+u_t^\theta(x\mid y)
+-
+u_t^\theta(x\mid \varnothing)
+\right)
+$$
+
+也就是说：
+
+> 沿着“条件方向”再多走一点。
+
+---
+
+##### 11. 为什么 CFG 可以增强条件？
+
+条件向量场：
+
+$$
+u_t^\theta(x\mid y)
+$$
+
+可以看成由两部分组成：
+
+1. 生成自然样本的方向；
+2. 满足条件 $y$ 的方向。
+
+无条件向量场：
+
+$$
+u_t^\theta(x\mid \varnothing)
+$$
+
+主要包含第一部分：
+
+> 让样本看起来自然、像数据。
+
+两者相减：
+
+$$
+u_t^\theta(x\mid y)-u_t^\theta(x\mid \varnothing)
+$$
+
+就大致提取出了：
+
+> 条件 $y$ 对生成方向的额外影响。
+
+CFG 将这部分放大：
+
+$$
+w
+\left(
+u_t^\theta(x\mid y)-u_t^\theta(x\mid \varnothing)
+\right)
+$$
+
+所以模型会更强地朝符合条件的方向走。
+
+这就是为什么增大 guidance scale 后，结果通常更符合 prompt。
+
+---
+
+##### 12. CFG 和 score 的关系
+
+对于 Gaussian probability path，vector field 和 score function 可以互相转换。
+
+因此也可以从 score 的角度理解 CFG。
+
+条件 score 是：
+
+$$
+\nabla_x\log p_t(x\mid y)
+$$
+
+无条件 score 是：
+
+$$
+\nabla_x\log p_t(x)
+$$
+
+CFG 对 score 的增强可以写成：
+
+$$
+s_t^{\mathrm{CFG}}(x\mid y)
+=
+w s_t^\theta(x\mid y)
++
+(1-w)s_t^\theta(x\mid \varnothing)
+$$
+
+也就是：
+
+$$
+s_t^{\mathrm{CFG}}(x\mid y)
+=
+s_t^\theta(x\mid \varnothing)
++
+w
+\left(
+s_t^\theta(x\mid y)
+-
+s_t^\theta(x\mid \varnothing)
+\right)
+$$
+
+这说明：
+
+> CFG 本质上是在采样时把条件分布相对于无条件分布的 score 差异放大。
+
+---
+
+##### 13. CFG 对应的分布直觉
+
+从 score 角度看：
+
+$$
+\nabla_x\log p_t(x\mid y)
+-
+\nabla_x\log p_t(x)
+=
+\nabla_x
+\log
+\frac{p_t(x\mid y)}{p_t(x)}
+$$
+
+这个差异项表示：
+
+> 当前样本相对于无条件数据分布，是否更符合条件 $y$。
+
+CFG 放大这个差异，因此会更偏向满足条件的样本。
+
+如果定义一个 guided distribution：
+
+$$
+p_t^{(w)}(x\mid y)
+\propto
+p_t(x\mid y)^w
+p_t(x)^{1-w}
+$$
+
+那么它的 score 是：
+
+$$
+\nabla_x\log p_t^{(w)}(x\mid y)
+=
+w\nabla_x\log p_t(x\mid y)
++
+(1-w)\nabla_x\log p_t(x)
+$$
+
+这正好对应 CFG 的 score 公式。
+
+所以 CFG 可以理解为：
+
+> 采样时不是严格沿着原始条件分布 $p_t(x\mid y)$，而是沿着一个更强调条件的 guided distribution。
+
+---
+
+##### 14. CFG 的优点和问题
+
+CFG 的优点：
+
+- 不需要额外训练一个分类器；
+- 实现简单；
+- 对文本到图像生成效果非常好；
+- 只需要一个同时支持有条件和无条件输入的模型。
+
+CFG 的问题：
+
+- $w$ 太小，条件控制不强；
+- $w$ 太大，样本可能过度贴合条件，导致画面不自然；
+- 过大的 guidance scale 可能降低多样性；
+- 可能放大模型学到的偏差或伪影。
+
+所以实际使用中，$w$ 是一个需要调节的超参数。
+
+---
+
+#### Part 3：Classifier-Free Guidance Training
+
+##### 15. 为什么叫 Classifier-Free？
+
+早期 guidance 的一种方法是 classifier guidance。
+
+它需要额外训练一个分类器：
+
+$$
+p_\phi(y\mid x)
+$$
+
+然后用分类器的梯度来引导采样。
+
+但是 classifier-free guidance 不需要额外分类器。
+
+它只训练一个生成模型：
+
+$$
+u_t^\theta(x\mid y)
+$$
+
+并且让这个模型同时学会：
+
+- 有条件生成；
+- 无条件生成。
+
+所以叫：
+
+> classifier-free
+
+也就是：
+
+> 不依赖外部分类器。
+
+---
+
+##### 16. 如何用一个模型同时学条件和无条件？
+
+关键技巧是：
+
+> 训练时随机丢掉条件 $y$。
+
+具体做法：
+
+给定训练样本：
+
+$$
+(z,y)
+$$
+
+训练时随机生成一个新的条件：
+
+$$
+\tilde y
+$$
+
+其中：
+
+$$
+\tilde y =
+\begin{cases}
+y, & \text{with probability } 1-p_{\mathrm{drop}} \\
+\varnothing, & \text{with probability } p_{\mathrm{drop}}
+\end{cases}
+$$
+
+这里：
+
+- $y$ 是原始条件；
+- $\varnothing$ 表示空条件，也就是没有条件；
+- $p_{\mathrm{drop}}$ 是 condition dropout probability。
+
+训练目标是：
+
+$$
+\mathcal{L}_{\mathrm{CFG-train}}(\theta)
+=
+\mathbb{E}_{(z,y),t,\epsilon,\tilde y}
+\left[
+\left\|
+u_t^\theta(\alpha_tz+\beta_t\epsilon\mid \tilde y)
+-
+(\dot{\alpha}_tz+\dot{\beta}_t\epsilon)
+\right\|^2
+\right]
+$$
+
+这意味着：
+
+- 有时模型输入真实条件 $y$，学习条件向量场；
+- 有时模型输入空条件 $\varnothing$，学习无条件向量场。
+
+于是同一个模型就能在采样时提供：
+
+$$
+u_t^\theta(x\mid y)
+$$
+
+和：
+
+$$
+u_t^\theta(x\mid \varnothing)
+$$
+
+---
+
+##### 17. CFG 采样流程
+
+给定条件 $y$ 和 guidance scale $w$。
+
+1. 从初始噪声采样：
+
+$$
+X_0\sim p_{\mathrm{init}}
+$$
+
+2. 在每个时间 $t$，模型做两次预测：
+
+有条件预测：
+
+$$
+u_{\mathrm{cond}}
+=
+u_t^\theta(X_t\mid y)
+$$
+
+无条件预测：
+
+$$
+u_{\mathrm{uncond}}
+=
+u_t^\theta(X_t\mid \varnothing)
+$$
+
+3. 合成 CFG 向量场：
+
+$$
+u_{\mathrm{CFG}}
+=
+u_{\mathrm{uncond}}
++
+w
+\left(
+u_{\mathrm{cond}}
+-
+u_{\mathrm{uncond}}
+\right)
+$$
+
+等价于：
+
+$$
+u_{\mathrm{CFG}}
+=
+w u_{\mathrm{cond}}
++
+(1-w)u_{\mathrm{uncond}}
+$$
+
+4. 用这个向量场更新样本：
+
+$$
+\frac{d}{dt}X_t
+=
+u_{\mathrm{CFG}}(X_t)
+$$
+
+或者用 Euler method：
+
+$$
+X_{t+h}
+=
+X_t
++
+h u_{\mathrm{CFG}}(X_t)
+$$
+
+5. 从 $t=0$ 走到 $t=1$，得到最终图像。
+
+---
+
+#### Part 4：Architectural Considerations for Image Generation
+
+##### 18. 为什么不能直接用普通 MLP？
+
+图像是高维数据。
+
+一张图像可以表示成：
+
+$$
+x\in \mathbb{R}^{H\times W\times C}
+$$
+
+例如一张 $256\times256$ RGB 图像有：
+
+$$
+256\times256\times3
+$$
+
+个数值。
+
+如果直接把图像展平成向量再输入 MLP，问题很多：
+
+- 维度太高；
+- 参数量巨大；
+- MLP 不利用图像的空间结构；
+- 不容易捕捉局部纹理和全局语义；
+- 不适合高分辨率图像生成。
+
+所以图像生成模型通常使用专门的图像架构。
+
+Lecture 4 主要提到两类：
+
+1. U-Net
+2. Diffusion Transformer, DiT
+
+---
+
+##### 19. U-Net 的基本思想
+
+U-Net 是一种卷积网络架构，常用于 diffusion model 和早期图像生成模型。
+
+它的结构像一个 U 形：
+
+1. Encoder / Downsampling path
+2. Middle block / Bottleneck
+3. Decoder / Upsampling path
+4. Skip connections
+
+---
+
+##### 20. U-Net Encoder
+
+Encoder 的作用是：
+
+> 逐步降低空间分辨率，同时增加通道数，提取更抽象的特征。
+
+例如：
+
+$$
+H\times W
+\longrightarrow
+\frac{H}{2}\times\frac{W}{2}
+\longrightarrow
+\frac{H}{4}\times\frac{W}{4}
+$$
+
+在这个过程中：
+
+- 浅层特征包含边缘、纹理、局部细节；
+- 深层特征包含更抽象的语义信息。
+
+Encoder 可以理解为：
+
+> 把图像压缩成更高级的表示。
+
+---
+
+##### 21. U-Net Decoder
+
+Decoder 的作用是：
+
+> 逐步恢复空间分辨率，生成最终输出。
+
+它会把低分辨率、高语义的特征逐渐上采样回原始大小。
+
+例如：
+
+$$
+\frac{H}{4}\times\frac{W}{4}
+\longrightarrow
+\frac{H}{2}\times\frac{W}{2}
+\longrightarrow
+H\times W
+$$
+
+在生成模型中，decoder 负责把抽象特征转回像素级或 latent-level 的输出。
+
+---
+
+##### 22. Skip Connections
+
+U-Net 的一个重要特点是 skip connections。
+
+它会把 encoder 中某一层的特征直接连接到 decoder 中对应分辨率的层。
+
+作用是：
+
+> 保留高分辨率细节。
+
+因为 encoder 在下采样过程中会损失一些局部信息，而 skip connection 可以把这些细节传给 decoder。
+
+所以 U-Net 同时拥有：
+
+- 深层语义信息；
+- 浅层空间细节。
+
+这对图像生成很重要。
+
+---
+
+##### 23. 时间和条件怎么输入 U-Net？
+
+在 diffusion / flow model 中，网络不仅需要知道当前图像状态：
+
+$$
+x_t
+$$
+
+还需要知道时间：
+
+$$
+t
+$$
+
+条件生成时，还需要知道条件：
+
+$$
+y
+$$
+
+因此网络一般写作：
+
+$$
+u_\theta(x_t,t,y)
+$$
+
+或者 score 模型写作：
+
+$$
+s_\theta(x_t,t,y)
+$$
+
+时间 $t$ 通常会先变成 time embedding。
+
+例如通过 sinusoidal embedding 或 MLP 得到：
+
+$$
+\mathrm{emb}(t)
+$$
+
+然后加到网络的各个 block 中。
+
+条件 $y$ 的输入方式取决于任务：
+
+- 类别标签：可以用 embedding table；
+- 文本提示词：通常用文本编码器，例如 CLIP 或 T5；
+- 图像条件：可以用卷积编码器或 cross-attention；
+- 空条件 $\varnothing$：用于 classifier-free guidance。
+
+---
+
+##### 24. Cross-Attention
+
+文本到图像模型中，条件 $y$ 通常是一段文本。
+
+文本会先经过 text encoder，变成一串 token embeddings：
+
+$$
+c_1,c_2,\dots,c_L
+$$
+
+图像特征也可以看成一组 spatial tokens。
+
+Cross-attention 的作用是：
+
+> 让图像特征在生成过程中关注文本 token。
+
+直观来说：
+
+- 文本 token 提供语义信息；
+- 图像特征根据这些语义信息更新自己；
+- 这样模型才能把 prompt 内容融入图像。
+
+例如 prompt 是：
+
+> a cat baking a cake
+
+cross-attention 可以帮助图像特征关注：
+
+- cat
+- baking
+- cake
+
+这些语义元素。
+
+---
+
+##### 25. Diffusion Transformer, DiT
+
+除了 U-Net，现代图像生成模型也常使用 Transformer 架构。
+
+Diffusion Transformer，简称 DiT。
+
+DiT 的基本思想是：
+
+> 把图像切成 patches，然后像 Vision Transformer 一样处理这些 patch tokens。
+
+假设图像或 latent 表示为：
+
+$$
+x\in \mathbb{R}^{H\times W\times C}
+$$
+
+把它分成若干 patches，每个 patch 变成一个 token。
+
+然后 Transformer 在这些 tokens 之间做 self-attention。
+
+这样模型可以捕捉：
+
+- 局部关系；
+- 长距离依赖；
+- 全局结构。
+
+DiT 更适合大规模训练，也更容易随模型规模提升性能。
+
+---
+
+##### 26. DiT 和 U-Net 的区别
+
+U-Net 主要基于卷积：
+
+- 擅长处理局部空间结构；
+- 有天然的图像归纳偏置；
+- 在较小数据或较早 diffusion models 中很常见。
+
+DiT 主要基于 attention：
+
+- 更擅长建模全局关系；
+- 更容易扩展到大模型；
+- 通常需要更大规模数据和计算；
+- 是许多现代高性能图像生成模型的重要组件。
+
+可以粗略理解为：
+
+> U-Net 更像传统图像网络，DiT 更像把图像当作 token 序列处理的大模型架构。
+
+---
+
+#### Part 5：Generative Modeling in Latent Space
+
+##### 27. 为什么要在 latent space 里生成？
+
+直接在像素空间生成高分辨率图像非常昂贵。
+
+例如 $1024\times1024$ 的 RGB 图像维度很高。
+
+如果每一步 ODE / SDE 都在像素空间里运行，计算成本会很大。
+
+因此很多现代图像生成模型不直接在像素空间生成，而是在 latent space 中生成。
+
+核心思想是：
+
+> 先用 autoencoder 把图像压缩到 latent space，再在 latent space 中训练 flow / diffusion model。
+
+---
+
+##### 28. Autoencoder
+
+Autoencoder 由两个部分组成：
+
+1. Encoder
+2. Decoder
+
+Encoder：
+
+$$
+E: x \mapsto z_{\mathrm{latent}}
+$$
+
+把图像压缩成 latent representation。
+
+Decoder：
+
+$$
+D: z_{\mathrm{latent}} \mapsto x
+$$
+
+把 latent representation 还原成图像。
+
+训练 autoencoder 的目标是让重建图像接近原图：
+
+$$
+D(E(x))\approx x
+$$
+
+---
+
+##### 29. Latent Diffusion / Latent Flow 的流程
+
+在 latent space 中生成图像的流程是：
+
+1. 训练一个 autoencoder。
+
+图像：
+
+$$
+x
+$$
+
+被编码成 latent：
+
+$$
+\ell = E(x)
+$$
+
+2. 在 latent space 中训练生成模型。
+
+也就是学习 latent distribution：
+
+$$
+p_{\mathrm{latent}}(\ell)
+$$
+
+而不是直接学习像素分布：
+
+$$
+p_{\mathrm{data}}(x)
+$$
+
+3. 采样时，先在 latent space 中生成：
+
+$$
+\ell_{\mathrm{generated}}
+$$
+
+4. 再通过 decoder 得到图像：
+
+$$
+x_{\mathrm{generated}}
+=
+D(\ell_{\mathrm{generated}})
+$$
+
+所以整体流程是：
+
+$$
+\text{noise}
+\longrightarrow
+\text{latent}
+\longrightarrow
+\text{image}
+$$
+
+---
+
+##### 30. 为什么 latent generation 更高效？
+
+latent space 的维度通常比像素空间低很多。
+
+例如原图可能是：
+
+$$
+1024\times1024\times3
+$$
+
+而 latent 可能是更小的空间分辨率和通道数。
+
+因此：
+
+- ODE / SDE 每一步更便宜；
+- 训练更高效；
+- 采样更快；
+- 可以生成更高分辨率图像。
+
+这也是 Latent Diffusion Models 能够成功的重要原因。
+
+---
+
+##### 31. 但 latent space 也有要求
+
+不是任何 autoencoder 都适合做 latent generation。
+
+如果 autoencoder 只是重建效果好，但 latent distribution 很复杂，生成模型仍然很难学习。
+
+所以好的 latent space 应该满足：
+
+- 能保留图像的重要语义和细节；
+- 维度比像素空间低；
+- latent distribution 相对容易建模；
+- decoder 可以把 latent 高质量还原成图像。
+
+这也是为什么现代模型通常使用精心训练的 autoencoder 或 variational autoencoder。
+
+---
+
+#### Part 6：Case Study：Stable Diffusion 3
+
+##### 32. Stable Diffusion 3 的核心组件
+
+Lecture 4 中用 Stable Diffusion 3 作为现代图像生成模型的案例。
+
+它的大致思路是：
+
+1. 使用预训练 autoencoder；
+2. 在 latent space 中建模；
+3. 使用 transformer-based 架构；
+4. 使用文本编码器处理 prompt；
+5. 使用 cross-attention 或类似机制注入文本条件。
+
+---
+
+##### 33. 文本条件：CLIP 和 T5
+
+Stable Diffusion 3 使用文本编码器来处理 prompt。
+
+slides 中提到：
+
+- CLIP
+- T5-XXL
+
+可以粗略理解为：
+
+CLIP 提供较粗粒度的图文语义对齐信息。
+
+T5-XXL 提供更强的 sequence-level 文本理解能力。
+
+文本 prompt 经过这些 encoder 后，会变成文本 embeddings。
+
+这些 embeddings 再通过 cross-attention 等机制输入到生成模型中。
+
+---
+
+##### 34. 从 class-conditioning 到 text-conditioning
+
+早期条件生成可能只是类别条件。
+
+例如：
+
+$$
+y=\text{cat}
+$$
+
+或者：
+
+$$
+y=\text{dog}
+$$
+
+这叫 class-conditioning。
+
+但文本到图像生成中，条件变成了一整段自然语言：
+
+$$
+y=\text{a cat baking a cake in a kitchen}
+$$
+
+这叫 text-conditioning。
+
+text-conditioning 更复杂，因为它需要理解：
+
+- 对象；
+- 属性；
+- 动作；
+- 空间关系；
+- 风格；
+- 组合语义。
+
+所以现代模型通常需要强大的文本编码器和注意力机制。
+
+---
+
+##### 35. SD3 和 Rectified Flow / Flow Matching
+
+Stable Diffusion 3 相关工作使用了 rectified flow transformer。
+
+从这门课的角度看，可以把它理解为：
+
+> 使用 flow / rectified flow 风格的训练目标，在 latent space 中训练 transformer-based image generator。
+
+其核心仍然是：
+
+$$
+x_t=\alpha_tz+\beta_t\epsilon
+$$
+
+训练模型预测对应的 vector field：
+
+$$
+u_t^\theta(x_t\mid y)
+$$
+
+然后采样时从噪声出发，沿着学到的向量场走到图像 latent。
+
+最后用 decoder 转成图像。
+
+---
+
+#### Part 7：本讲整体总结
+
+##### 36. 这一讲的主线
+
+这一讲从理论走向实际图像生成模型。
+
+主线可以整理为：
+
+1. 前几讲讨论的是无条件生成：
+
+$$
+x\sim p_{\mathrm{data}}(x)
+$$
+
+2. 真实图像生成通常是条件生成：
+
+$$
+x\sim p_{\mathrm{data}}(x\mid y)
+$$
+
+3. 因此要把 vector field / score network 改成条件形式：
+
+$$
+u_t^\theta(x\mid y)
+$$
+
+或者：
+
+$$
+s_t^\theta(x\mid y)
+$$
+
+4. 条件生成可以直接用 conditional CFM objective 训练。
+
+5. 为了增强条件控制，可以使用 classifier-free guidance。
+
+6. CFG 通过同时计算有条件预测和无条件预测，放大条件方向：
+
+$$
+u_t^{\mathrm{CFG}}(x\mid y)
+=
+u_t^\theta(x\mid \varnothing)
++
+w
+\left(
+u_t^\theta(x\mid y)
+-
+u_t^\theta(x\mid \varnothing)
+\right)
+$$
+
+7. 图像生成模型需要专门的架构，例如 U-Net 或 Diffusion Transformer。
+
+8. 高分辨率图像生成通常在 latent space 中完成。
+
+9. Stable Diffusion 3 可以看作现代 latent-space、text-conditioned、transformer-based flow / diffusion generator 的代表案例之一。
+
+---
+
+##### 37. 最重要的公式速查
+
+######### 条件生成目标
+
+$$
+x\sim p_{\mathrm{data}}(x\mid y)
+$$
+
+---
+
+######### 条件 marginal probability path
+
+$$
+p_t(x\mid y)
+=
+\int
+p_t(x\mid z)
+p_{\mathrm{data}}(z\mid y)
+dz
+$$
+
+---
+
+######### 条件 marginal vector field
+
+$$
+u_t^{\mathrm{target}}(x\mid y)
+=
+\mathbb{E}
+\left[
+u_t^{\mathrm{target}}(x\mid z)
+\mid x,y
+\right]
+$$
+
+---
+
+######### 条件 Flow Matching loss
+
+$$
+\mathcal{L}_{\mathrm{CondCFM}}(\theta)
+=
+\mathbb{E}_{(z,y),t,x}
+\left[
+\left\|
+u_t^\theta(x\mid y)
+-
+u_t^{\mathrm{target}}(x\mid z)
+\right\|^2
+\right]
+$$
+
+---
+
+######### Gaussian path 下的条件 Flow Matching loss
+
+$$
+\mathcal{L}_{\mathrm{CondCFM}}(\theta)
+=
+\mathbb{E}_{(z,y),t,\epsilon}
+\left[
+\left\|
+u_t^\theta(\alpha_tz+\beta_t\epsilon\mid y)
+-
+(\dot{\alpha}_tz+\dot{\beta}_t\epsilon)
+\right\|^2
+\right]
+$$
+
+---
+
+######### Classifier-Free Guidance
+
+$$
+u_t^{\mathrm{CFG}}(x\mid y)
+=
+u_t^\theta(x\mid \varnothing)
++
+w
+\left(
+u_t^\theta(x\mid y)
+-
+u_t^\theta(x\mid \varnothing)
+\right)
+$$
+
+等价于：
+
+$$
+u_t^{\mathrm{CFG}}(x\mid y)
+=
+w u_t^\theta(x\mid y)
++
+(1-w)u_t^\theta(x\mid \varnothing)
+$$
+
+---
+
+######### CFG score 版本
+
+$$
+s_t^{\mathrm{CFG}}(x\mid y)
+=
+s_t^\theta(x\mid \varnothing)
++
+w
+\left(
+s_t^\theta(x\mid y)
+-
+s_t^\theta(x\mid \varnothing)
+\right)
+$$
+
+---
+
+######### CFG training condition dropout
+
+$$
+\tilde y =
+\begin{cases}
+y, & \text{with probability } 1-p_{\mathrm{drop}} \\
+\varnothing, & \text{with probability } p_{\mathrm{drop}}
+\end{cases}
+$$
+
+---
+
+######### Latent generation
+
+$$
+\ell = E(x)
+$$
+
+$$
+\ell_{\mathrm{generated}}
+\sim p_{\mathrm{latent}}
+$$
+
+$$
+x_{\mathrm{generated}}
+=
+D(\ell_{\mathrm{generated}})
+$$
+
+---
+
+##### 38. 一句话总结
+
+Lecture 04 的核心是：
+
+> 把前三讲的 Flow / Diffusion 框架扩展到真实图像生成：用条件输入 $y$ 控制生成，用 classifier-free guidance 增强条件控制，用 U-Net 或 DiT 作为图像生成网络，并通常在 latent space 中训练和采样以提高效率。
