@@ -1478,8 +1478,7 @@ $$
 公式：
 
 $$
-\nabla_x \log p_t(x \mid z)
-=
+\nabla_x \log p_t(x \mid z)=
 -\frac{x-\alpha_t z}{\beta_t^2}
 $$
 
@@ -1563,3 +1562,2694 @@ $$
 
 - conditional score：已知 $z$ 时，哪里概率更高；
 - marginal score：不知道具体 $z$ 时，整体分布中哪里概率更高。
+
+#### 9. SDE 与 Fokker–Planck Equation
+
+##### 9.1 从 ODE 到 SDE
+
+前面 Flow Model 使用的是 ODE：
+
+$$
+dX_t = u_t(X_t)dt
+$$
+
+这个式子表示：
+
+> 样本 $X_t$ 按照向量场 $u_t$ 确定性地运动。
+
+也就是说，如果初始点 $X_0$ 已经确定，那么后面的整条轨迹也是确定的。
+
+Diffusion Model 使用的是 SDE：
+
+$$
+dX_t = u_t(X_t)dt + \sigma_t dW_t
+$$
+
+它比 ODE 多了一项随机噪声：
+
+$$
+\sigma_t dW_t
+$$
+
+其中：
+
+- $u_t(X_t)dt$ 是确定性的运动项，也叫 drift term；
+- $\sigma_t dW_t$ 是随机扩散项，也叫 diffusion term；
+- $\sigma_t$ 是 diffusion coefficient，用来控制随机噪声的强度；
+- $W_t$ 是 Brownian motion，也叫 Wiener process。
+
+所以可以这样理解：
+
+**ODE 描述确定性运动。**
+
+**SDE 描述确定性运动加随机扰动。**
+
+如果：
+
+$$
+\sigma_t = 0
+$$
+
+那么随机项消失，SDE 就退化成 ODE：
+
+$$
+dX_t = u_t(X_t)dt
+$$
+
+##### 9.2 为什么需要 Fokker–Planck Equation？
+
+ODE 和 SDE 描述的是单个样本怎么运动。
+
+例如：
+
+$$
+dX_t = u_t(X_t)dt + \sigma_t dW_t
+$$
+
+这个式子描述的是某一个样本 $X_t$ 的运动过程。
+
+但是生成模型真正关心的不是单个样本，而是整个样本分布。
+
+也就是说，我们真正关心的是：
+
+$$
+X_t \sim p_t
+$$
+
+其中，$p_t$ 表示时间 $t$ 时所有样本形成的概率分布。
+
+因此我们需要一个方程来描述：
+
+> 如果每个样本都按照 SDE 运动，那么整体概率密度 $p_t(x)$ 会如何变化？
+
+这个描述 SDE 下概率密度演化的方程，就是 **Fokker–Planck Equation**。
+
+##### 9.3 先回顾 ODE 对应的 Continuity Equation
+
+对于 ODE：
+
+$$
+dX_t = u_t(X_t)dt
+$$
+
+也可以写作：
+
+$$
+\frac{d}{dt}X_t = u_t(X_t)
+$$
+
+如果：
+
+$$
+X_t \sim p_t
+$$
+
+那么分布 $p_t(x)$ 的变化满足 continuity equation：
+
+$$
+\frac{\partial}{\partial t}p_t(x)
+=
+-\operatorname{div}\left(p_tu_t\right)(x)
+$$
+
+这个式子的直观含义是：
+
+> 概率密度的变化来自概率质量的流动。
+
+其中：
+
+$$
+p_t(x)u_t(x)
+$$
+
+可以理解为概率质量的流量。
+
+如果某个区域流入的概率质量多，流出的概率质量少，那么这个区域的概率密度会上升。
+
+如果某个区域流出的概率质量多，流入的概率质量少，那么这个区域的概率密度会下降。
+
+因此，continuity equation 描述的是：
+
+> 在确定性向量场 $u_t$ 搬运下，概率分布 $p_t$ 如何变化。
+
+##### 9.4 SDE 对应的 Fokker–Planck Equation
+
+对于 SDE：
+
+$$
+dX_t = u_t(X_t)dt + \sigma_t dW_t
+$$
+
+如果：
+
+$$
+X_t \sim p_t
+$$
+
+那么概率密度 $p_t(x)$ 满足：
+
+$$
+\frac{\partial}{\partial t}p_t(x)
+=
+-\operatorname{div}\left(p_tu_t\right)(x)
++
+\frac{\sigma_t^2}{2}\Delta p_t(x)
+$$
+
+这就是 **Fokker–Planck Equation**。
+
+它比 continuity equation 多了一项：
+
+$$
+\frac{\sigma_t^2}{2}\Delta p_t(x)
+$$
+
+因为 SDE 比 ODE 多了随机噪声：
+
+$$
+\sigma_t dW_t
+$$
+
+所以 Fokker–Planck Equation 可以理解为：
+
+> SDE 下的分布变化 = 确定性流动造成的变化 + 随机扩散造成的变化。
+
+##### 9.5 公式中每一项的含义
+
+Fokker–Planck Equation 是：
+
+$$
+\frac{\partial}{\partial t}p_t(x)
+=
+-\operatorname{div}\left(p_tu_t\right)(x)
++
+\frac{\sigma_t^2}{2}\Delta p_t(x)
+$$
+
+第一项：
+
+$$
+-\operatorname{div}\left(p_tu_t\right)(x)
+$$
+
+表示确定性向量场 $u_t$ 对概率质量的搬运。
+
+这一项和 ODE 的 continuity equation 完全一样。
+
+它描述的是：
+
+> 概率质量沿着向量场 $u_t$ 流动。
+
+第二项：
+
+$$
+\frac{\sigma_t^2}{2}\Delta p_t(x)
+$$
+
+表示随机噪声造成的扩散。
+
+其中：
+
+- $\Delta$ 是 Laplacian，可以理解为空间上的二阶导数；
+- $\sigma_t^2$ 控制扩散强度；
+- $\sigma_t$ 越大，随机扩散越强。
+
+所以：
+
+$$
+-\operatorname{div}\left(p_tu_t\right)(x)
+$$
+
+对应 transport，也就是“流动”。
+
+而：
+
+$$
+\frac{\sigma_t^2}{2}\Delta p_t(x)
+$$
+
+对应 diffusion，也就是“扩散”。
+
+##### 9.6 Laplacian $\Delta p_t(x)$ 直观上是什么？
+
+在一维情况下，Laplacian 就是二阶导数：
+
+$$
+\Delta p_t(x)
+=
+\frac{\partial^2}{\partial x^2}p_t(x)
+$$
+
+在高维情况下：
+
+$$
+\Delta p_t(x)
+=
+\sum_{i=1}^d
+\frac{\partial^2}{\partial x_i^2}p_t(x)
+$$
+
+直观上，Laplacian 描述的是一个函数在空间中如何弯曲。
+
+在 Fokker–Planck Equation 中：
+
+$$
+\Delta p_t(x)
+$$
+
+描述的是概率密度如何因为随机噪声而向周围扩散。
+
+随机噪声会让概率质量从高密度区域向周围低密度区域扩散，所以这一项和 heat equation 很像。
+
+这也是为什么有时候会说：
+
+> Fokker–Planck Equation = continuity equation + heat equation。
+
+其中：
+
+- continuity equation 部分来自 drift；
+- heat equation 部分来自 diffusion。
+
+##### 9.7 当 $\sigma_t = 0$ 时会发生什么？
+
+如果：
+
+$$
+\sigma_t = 0
+$$
+
+那么 SDE 变成 ODE：
+
+$$
+dX_t = u_t(X_t)dt
+$$
+
+同时 Fokker–Planck Equation 中的扩散项消失：
+
+$$
+\frac{\sigma_t^2}{2}\Delta p_t(x) = 0
+$$
+
+于是 Fokker–Planck Equation 退化为：
+
+$$
+\frac{\partial}{\partial t}p_t(x)
+=
+-\operatorname{div}\left(p_tu_t\right)(x)
+$$
+
+这正是 ODE 对应的 continuity equation。
+
+所以可以记住：
+
+> Continuity equation 是 ODE 情况下的分布演化方程。
+
+> Fokker–Planck Equation 是 SDE 情况下的分布演化方程。
+
+##### 9.8 为什么这一节对生成模型重要？
+
+生成模型的目标不是只生成一个样本，而是让整体分布从初始分布变成数据分布：
+
+$$
+p_{\mathrm{init}}
+\longrightarrow
+p_{\mathrm{data}}
+$$
+
+也就是说，我们关心的是：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+$$
+
+经过 ODE 或 SDE 演化后：
+
+$$
+X_1 \sim p_{\mathrm{data}}
+$$
+
+因此，我们必须理解：
+
+> 当样本按照某个 ODE 或 SDE 运动时，它们的整体分布 $p_t$ 会如何变化。
+
+对于 Flow Model：
+
+$$
+dX_t = u_t(X_t)dt
+$$
+
+它的分布演化由 continuity equation 描述：
+
+$$
+\frac{\partial}{\partial t}p_t(x)
+=
+-\operatorname{div}\left(p_tu_t\right)(x)
+$$
+
+对于 Diffusion Model：
+
+$$
+dX_t = u_t(X_t)dt + \sigma_t dW_t
+$$
+
+它的分布演化由 Fokker–Planck Equation 描述：
+
+$$
+\frac{\partial}{\partial t}p_t(x)
+=
+-\operatorname{div}\left(p_tu_t\right)(x)
++
+\frac{\sigma_t^2}{2}\Delta p_t(x)
+$$
+
+所以这一节的核心作用是：
+
+> 把“单个样本的随机运动”与“整体概率分布的演化”联系起来。
+
+##### 9.9 和 SDE Extension Trick 的关系
+
+后面会讲到 SDE extension trick。
+
+它会构造这样一个 SDE：
+
+$$
+dX_t =
+\left[
+u_t^{\mathrm{target}}(X_t)
++
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(X_t)
+\right]dt
++
+\sigma_t dW_t
+$$
+
+这个式子看起来比普通 SDE 多了一个 score correction：
+
+$$
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(X_t)
+$$
+
+为什么需要这一项？
+
+原因就来自 Fokker–Planck Equation。
+
+随机噪声项：
+
+$$
+\sigma_t dW_t
+$$
+
+会在 Fokker–Planck Equation 中产生扩散项：
+
+$$
+\frac{\sigma_t^2}{2}\Delta p_t(x)
+$$
+
+如果不加修正，分布会因为随机噪声而跑偏。
+
+而 score correction 会在 Fokker–Planck Equation 中产生一个相反的项，正好抵消这个扩散项。
+
+这样一来，即使加入随机噪声，整体分布仍然可以保持在目标 probability path：
+
+$$
+X_t \sim p_t
+$$
+
+所以 Fokker–Planck Equation 是理解 SDE extension trick 的关键。
+
+##### 9.10 小结
+
+Fokker–Planck Equation 描述的是 SDE 下概率密度的演化。
+
+对于 SDE：
+
+$$
+dX_t = u_t(X_t)dt + \sigma_t dW_t
+$$
+
+如果：
+
+$$
+X_t \sim p_t
+$$
+
+那么：
+
+$$
+\frac{\partial}{\partial t}p_t(x)
+=
+-\operatorname{div}\left(p_tu_t\right)(x)
++
+\frac{\sigma_t^2}{2}\Delta p_t(x)
+$$
+
+其中：
+
+- $-\operatorname{div}(p_tu_t)(x)$ 表示确定性向量场造成的概率质量流动；
+- $\frac{\sigma_t^2}{2}\Delta p_t(x)$ 表示随机噪声造成的概率扩散。
+
+如果 $\sigma_t=0$，Fokker–Planck Equation 就退化成 continuity equation。
+
+一句话总结：
+
+> Fokker–Planck Equation 是描述 SDE 如何改变整体概率分布的方程，它把 drift 引起的流动和 diffusion 引起的扩散统一到一个公式里。
+
+#### 10 SDE Extension Trick
+
+##### 10.1 这一页在讲什么？
+
+前面我们已经知道，Flow Model 的 ODE 是：
+
+$$
+dX_t = u_t^{\mathrm{target}}(X_t)dt
+$$
+
+如果：
+
+$$
+X_0 \sim p_0
+$$
+
+并且 $u_t^{\mathrm{target}}$ 是正确的 marginal vector field，那么：
+
+$$
+X_t \sim p_t
+$$
+
+也就是说，ODE 会让样本分布沿着我们构造好的 probability path $p_t$ 演化。
+
+这一页要说明的是：
+
+> 我们不仅可以用 ODE 产生这条 probability path，也可以用一类 SDE 产生同一条 probability path。
+
+也就是说，除了确定性的 Flow ODE：
+
+$$
+dX_t = u_t^{\mathrm{target}}(X_t)dt
+$$
+
+我们还可以构造带随机噪声的 SDE：
+
+$$
+dX_t =
+\left[
+u_t^{\mathrm{target}}(X_t)
++
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(X_t)
+\right]dt
++
+\sigma_t dW_t
+$$
+
+并且仍然有：
+
+$$
+X_t \sim p_t
+$$
+
+这就是 **SDE extension trick**。
+
+##### 10.2 公式
+
+假设 $u_t^{\mathrm{target}}(x)$ 是前面构造出来的 marginal vector field。
+
+也就是说，ODE：
+
+$$
+dX_t = u_t^{\mathrm{target}}(X_t)dt
+$$
+
+会让样本分布满足：
+
+$$
+X_t \sim p_t
+$$
+
+那么对于任意 diffusion coefficient：
+
+$$
+\sigma_t \geq 0
+$$
+
+我们可以构造下面这个 SDE：
+
+$$
+dX_t =
+\left[
+u_t^{\mathrm{target}}(X_t)
++
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(X_t)
+\right]dt
++
+\sigma_t dW_t
+$$
+
+只要初始分布满足：
+
+$$
+X_0 \sim p_0
+$$
+
+那么这个 SDE 的边缘分布仍然满足：
+
+$$
+X_t \sim p_t,
+\qquad 0 \leq t \leq 1
+$$
+
+##### 10.3 每一项是什么意思？
+
+这个 SDE 中一共有三部分。
+
+第一部分是：
+
+$$
+u_t^{\mathrm{target}}(X_t)
+$$
+
+这是原本 Flow Model 的 marginal vector field。
+
+它负责把样本整体从初始分布 $p_0$ 推向数据分布 $p_1$。
+
+第二部分是：
+
+$$
+\sigma_t dW_t
+$$
+
+这是随机扩散项。
+
+它会给样本运动加入随机扰动。
+
+其中：
+
+- $W_t$ 是 Brownian motion；
+- $\sigma_t$ 是 diffusion coefficient；
+- $\sigma_t$ 越大，随机扰动越强。
+
+第三部分是：
+
+$$
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(X_t)
+$$
+
+这是 score correction，也就是 score 修正项。
+
+其中：
+
+$$
+\nabla_x \log p_t(X_t)
+$$
+
+是 marginal score function。
+
+它表示在当前分布 $p_t$ 下，概率密度上升最快的方向。
+
+##### 10.4 为什么加入噪声后还要加 score correction？
+
+如果我们只是在原本的 ODE 上直接加噪声：
+
+$$
+dX_t =
+u_t^{\mathrm{target}}(X_t)dt
++
+\sigma_t dW_t
+$$
+
+那么随机噪声会让分布额外扩散。
+
+这样一来，$X_t$ 的分布就不一定还是原来的 $p_t$。
+
+也就是说，只加噪声会让样本分布偏离我们设计好的 probability path。
+
+所以需要加入一个修正项：
+
+$$
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(X_t)
+$$
+
+这个 score correction 会把样本往当前分布 $p_t$ 的高概率区域拉回去。
+
+因此可以这样理解：
+
+> 随机噪声项 $\sigma_t dW_t$ 会让分布向外扩散，而 score correction 会把样本往高概率区域拉回。两者配合之后，整体分布仍然保持在目标路径 $p_t$ 上。
+
+##### 10.5 为什么这个公式成立？
+
+这一点可以用 Fokker–Planck Equation 验证。
+
+一般的 SDE 写作：
+
+$$
+dX_t = b_t(X_t)dt + \sigma_t dW_t
+$$
+
+其中 $b_t(x)$ 是 drift。
+
+它对应的 Fokker–Planck Equation 是：
+
+$$
+\frac{\partial}{\partial t}p_t(x)
+=
+-\operatorname{div}(p_t b_t)(x)
++
+\frac{\sigma_t^2}{2}
+\Delta p_t(x)
+$$
+
+现在我们把 drift 设成：
+
+$$
+b_t(x)
+=
+u_t^{\mathrm{target}}(x)
++
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(x)
+$$
+
+代入 Fokker–Planck Equation：
+
+$$
+\frac{\partial}{\partial t}p_t(x)
+=
+-\operatorname{div}
+\left(
+p_t
+\left[
+u_t^{\mathrm{target}}
++
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t
+\right]
+\right)(x)
++
+\frac{\sigma_t^2}{2}
+\Delta p_t(x)
+$$
+
+展开第一项：
+
+$$
+\frac{\partial}{\partial t}p_t(x)
+=
+-\operatorname{div}
+\left(
+p_t u_t^{\mathrm{target}}
+\right)(x)
+-
+\frac{\sigma_t^2}{2}
+\operatorname{div}
+\left(
+p_t \nabla_x \log p_t
+\right)(x)
++
+\frac{\sigma_t^2}{2}
+\Delta p_t(x)
+$$
+
+注意：
+
+$$
+\nabla_x \log p_t(x)
+=
+\frac{\nabla_x p_t(x)}{p_t(x)}
+$$
+
+所以：
+
+$$
+p_t(x)\nabla_x \log p_t(x)
+=
+\nabla_x p_t(x)
+$$
+
+因此：
+
+$$
+\operatorname{div}
+\left(
+p_t \nabla_x \log p_t
+\right)(x)
+=
+\operatorname{div}
+\left(
+\nabla_x p_t
+\right)(x)
+=
+\Delta p_t(x)
+$$
+
+代回去：
+
+$$
+\frac{\partial}{\partial t}p_t(x)
+=
+-\operatorname{div}
+\left(
+p_t u_t^{\mathrm{target}}
+\right)(x)
+-
+\frac{\sigma_t^2}{2}
+\Delta p_t(x)
++
+\frac{\sigma_t^2}{2}
+\Delta p_t(x)
+$$
+
+后两项正好抵消：
+
+$$
+-
+\frac{\sigma_t^2}{2}
+\Delta p_t(x)
++
+\frac{\sigma_t^2}{2}
+\Delta p_t(x)
+=
+0
+$$
+
+所以最后只剩下：
+
+$$
+\frac{\partial}{\partial t}p_t(x)
+=
+-\operatorname{div}
+\left(
+p_t u_t^{\mathrm{target}}
+\right)(x)
+$$
+
+这正是原本 ODE 对应的 continuity equation。
+
+也就是说，这个 SDE 和原来的 Flow ODE 会产生同一条 marginal probability path：
+
+$$
+X_t \sim p_t
+$$
+
+##### 10.6 这个 trick 的核心意义
+
+这个公式说明：
+
+> 同一条 probability path $p_t$，既可以由一个确定性的 ODE 生成，也可以由一族带随机噪声的 SDE 生成。
+
+原来的 ODE 是：
+
+$$
+dX_t = u_t^{\mathrm{target}}(X_t)dt
+$$
+
+扩展后的 SDE 是：
+
+$$
+dX_t =
+\left[
+u_t^{\mathrm{target}}(X_t)
++
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(X_t)
+\right]dt
++
+\sigma_t dW_t
+$$
+
+其中 $\sigma_t$ 可以控制随机性的大小。
+
+如果：
+
+$$
+\sigma_t = 0
+$$
+
+那么 SDE 退化成 ODE：
+
+$$
+dX_t = u_t^{\mathrm{target}}(X_t)dt
+$$
+
+如果：
+
+$$
+\sigma_t > 0
+$$
+
+那么生成过程会带有随机性，但由于加入了 score correction，边缘分布仍然是 $p_t$。
+
+##### 10.7 为什么这和 Diffusion Model 有关？
+
+Flow Model 主要学习的是 marginal vector field：
+
+$$
+u_t^{\mathrm{target}}(x)
+$$
+
+Diffusion Model 还需要 score function：
+
+$$
+\nabla_x \log p_t(x)
+$$
+
+从这个 SDE extension trick 可以看到，score function 出现在 SDE 的 drift 里面：
+
+$$
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(X_t)
+$$
+
+也就是说，如果我们想用带噪声的 SDE 来采样，就需要知道：
+
+$$
+\nabla_x \log p_t(x)
+$$
+
+这就是为什么 diffusion model 要学习 score function。
+
+可以这样理解：
+
+- Flow Model 学 $u_t^{\mathrm{target}}(x)$，用于确定性 ODE 采样；
+- Diffusion Model 学 $\nabla_x \log p_t(x)$，用于带随机噪声的 SDE 采样；
+- SDE extension trick 把 marginal vector field 和 marginal score function 连接了起来。
+
+##### 10.8 直观总结
+
+原本的 Flow ODE 是：
+
+$$
+dX_t = u_t^{\mathrm{target}}(X_t)dt
+$$
+
+它的作用是：
+
+> 按照确定性速度场，把分布从 $p_0$ 搬运到 $p_1$。
+
+SDE extension trick 告诉我们，也可以加入随机噪声：
+
+$$
+\sigma_t dW_t
+$$
+
+但为了不让分布跑偏，必须同时加入 score correction：
+
+$$
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(X_t)
+$$
+
+所以最终得到：
+
+$$
+dX_t =
+\left[
+u_t^{\mathrm{target}}(X_t)
++
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(X_t)
+\right]dt
++
+\sigma_t dW_t
+$$
+
+一句话总结：
+
+> SDE extension trick 说明：在 Flow ODE 中加入随机噪声后，只要再加入正确的 score correction，就可以得到一个边缘分布仍然沿着 $p_t$ 演化的 Diffusion SDE。
+
+![20260430165700](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20260430165700.png)
+![20260430165722](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20260430165722.png)
+
+### 如何训练生成式AI
+
+#### 该部分目标
+
+对于 Flow Model，我们希望训练神经网络：
+
+$$
+u_t^\theta(x)
+$$
+
+让它逼近：
+
+$$
+u_t^{\mathrm{target}}(x)
+$$
+
+也就是：
+
+$$
+u_t^\theta(x)
+\approx
+u_t^{\mathrm{target}}(x)
+$$
+
+对于 Diffusion Model，我们希望训练神经网络：
+
+$$
+s_t^\theta(x)
+$$
+
+让它逼近：
+
+$$
+\nabla_x \log p_t(x)
+$$
+
+也就是：
+
+$$
+s_t^\theta(x)
+\approx
+\nabla_x \log p_t(x)
+$$
+
+> Flow Matching 训练 $u_t^\theta(x)$。
+
+> Score Matching 训练 $s_t^\theta(x)$。
+
+#### Flow Matching
+
+##### Flow Model 的采样
+
+如果我们已经训练好了 vector field network：
+
+$$
+u_t^\theta(x)
+$$
+
+那么 Flow Model 的采样过程是：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+$$
+
+然后解 ODE：
+
+$$
+\frac{d}{dt}X_t = u_t^\theta(X_t)
+$$
+
+最后返回：
+
+$$
+X_1
+$$
+
+如果模型训练得好，那么：
+
+$$
+X_1 \sim p_{\mathrm{data}}
+$$
+
+实际计算时通常用 Euler method：
+
+$$
+X_{t+h} = X_t + h u_t^\theta(X_t)
+$$
+
+其中：
+
+$$
+h = \frac{1}{n}
+$$
+
+$n$ 是采样步数。
+
+采样流程可以理解为：
+
+1. 从噪声分布中采样：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+$$
+
+2. 用神经网络预测当前位置的速度：
+
+$$
+u_t^\theta(X_t)
+$$
+
+3. 沿着这个速度走一小步：
+
+$$
+X_{t+h}=X_t+h u_t^\theta(X_t)
+$$
+
+4. 重复直到 $t=1$。
+
+##### 理想的 Flow Matching Loss
+
+我们真正想学的是 marginal vector field：
+
+$$
+u_t^{\mathrm{target}}(x)
+$$
+
+所以最直接的 loss 是：
+
+$$
+\mathcal{L}_{\mathrm{FM}}(\theta) =
+\mathbb{E}_{t\sim \mathrm{Unif}[0,1],\ x\sim p_t}
+\left[
+\left\|
+u_t^\theta(x) -
+u_t^{\mathrm{target}}(x)
+\right\|^2
+\right]
+$$
+
+这个 loss 的意思是：
+
+> 在任意时间 $t$ 和任意中间点 $x$，让神经网络预测的速度接近真实的 marginal vector field。
+
+但是这个目标有一个问题：
+
+$$
+u_t^{\mathrm{target}}(x)
+$$
+
+通常不好直接计算。
+
+因为它是 marginal vector field：
+
+$$
+u_t^{\mathrm{target}}(x) =
+\int
+u_t^{\mathrm{target}}(x \mid z)
+\frac{
+p_t(x \mid z)p_{\mathrm{data}}(z)
+}{
+p_t(x)
+}
+dz
+$$
+
+里面有对所有数据点 $z$ 的积分。
+
+所以直接训练：
+
+$$
+u_t^\theta(x)
+\approx
+u_t^{\mathrm{target}}(x)
+$$
+
+不太现实。
+
+虽然 marginal vector field 不好直接算，但是 conditional vector field 好算。
+
+因此 Flow Matching 的想法是：
+
+> 训练时不用 marginal target，而是使用 conditional target。
+
+也就是训练：
+
+$$
+u_t^\theta(x)
+\approx
+u_t^{\mathrm{target}}(x \mid z)
+$$
+
+于是定义训练 loss：
+
+$$
+\mathcal{L}_{\mathrm{CFM}}(\theta)=
+\mathbb{E}_{z\sim p_{\mathrm{data}},\ t\sim \mathrm{Unif}[0,1],\ x\sim p_t(\cdot\mid z)}
+\left[
+\left\|
+u_t^\theta(x)-
+u_t^{\mathrm{target}}(x \mid z)
+\right\|^2
+\right]
+$$
+
+这叫 Conditional Flow Matching。
+
+##### 为什么用 conditional target 也能学到 marginal vector field？
+
+训练时，我们采样：
+
+$$
+z \sim p_{\mathrm{data}}
+$$
+
+$$
+x \sim p_t(\cdot \mid z)
+$$
+
+也就是说，训练数据中的 $x$ 是通过某个隐藏的 $z$ 生成出来的。
+
+但是神经网络输入的是：
+
+$$
+(x,t)
+$$
+
+不是：
+
+$$
+(x,t,z)
+$$
+
+也就是说，网络不知道当前 $x$ 到底来自哪个 $z$。
+
+当同一个 $x$ 可能来自多个不同的 $z$ 时，网络为了最小化均方误差，最优预测会是这些 conditional vector field 的条件平均：
+
+$$
+u_t^\theta(x)=
+\mathbb{E}
+\left[
+u_t^{\mathrm{target}}(x \mid z)
+\mid x
+\right]
+$$
+
+而第二讲已经证明：
+
+$$
+\mathbb{E}
+\left[
+u_t^{\mathrm{target}}(x \mid z)
+\mid x
+\right]=
+u_t^{\mathrm{target}}(x) + C
+$$
+
+即
+
+$$
+\boxed{
+\mathcal{L}_{\mathrm{FM}}
+\text{ 和 }
+\mathcal{L}_{\mathrm{CFM}}
+\text{ 只差一个与 } \theta \text{ 无关的常数}
+}
+$$
+
+所以，虽然训练时用的是 conditional target：
+
+$$
+u_t^{\mathrm{target}}(x \mid z)
+$$
+
+但最优情况下，网络学到的是 marginal vector field：
+
+$$
+u_t^{\mathrm{target}}(x)
+$$
+
+这就是 marginalization trick 在训练中的作用。
+
+##### Flow Matching 训练流程
+
+Flow Matching 的训练算法如下。
+
+给定：
+
+- 数据集：
+
+$$
+z \sim p_{\mathrm{data}}
+$$
+
+- 神经网络 vector field：
+
+$$
+u_t^\theta(x)
+$$
+
+每次训练：
+
+1. 从数据集中采样一个真实数据点：
+
+$$
+z \sim p_{\mathrm{data}}
+$$
+
+2. 采样随机时间：
+
+$$
+t \sim \mathrm{Unif}[0,1]
+$$
+
+3. 从 conditional probability path 中采样中间点：
+
+$$
+x \sim p_t(\cdot \mid z)
+$$
+
+4. 计算 conditional vector field：
+
+$$
+u_t^{\mathrm{target}}(x \mid z)
+$$
+
+5. 计算 loss：
+
+$$
+\mathcal{L}(\theta)=
+\left\|
+u_t^\theta(x)-
+u_t^{\mathrm{target}}(x \mid z)
+\right\|^2
+$$
+
+6. 用梯度下降更新参数 $\theta$。
+
+这就是 Flow Matching 的训练过程。
+
+##### Gaussian Probability Path 下的 Flow Matching
+
+常用的 Gaussian probability path 是：
+
+$$
+p_t(x \mid z)=
+\mathcal{N}(\alpha_t z,\beta_t^2 I_d)
+$$
+
+等价采样形式是：
+
+$$
+x_t = \alpha_t z + \beta_t \epsilon
+$$
+
+其中：
+
+$$
+\epsilon \sim \mathcal{N}(0,I_d)
+$$
+
+对于这条 path，conditional vector field 是：
+
+$$
+u_t^{\mathrm{target}}(x \mid z) =
+\left(
+\dot{\alpha}_t -
+\frac{\dot{\beta}_t}{\beta_t}\alpha_t
+\right)z +
+\frac{\dot{\beta}_t}{\beta_t}x
+$$
+
+所以 Gaussian path 下的 Flow Matching loss 是：
+
+$$
+\mathcal{L}_{\mathrm{CFM}}(\theta) =
+\mathbb{E}_{t,z,\epsilon}
+\left[
+\left\|
+u_t^\theta(\alpha_t z+\beta_t\epsilon) -
+u_t^{\mathrm{target}}(\alpha_t z+\beta_t\epsilon \mid z)
+\right\|^2
+\right]
+$$
+
+##### Straight Line Path 的特殊情况
+
+一个非常直观的选择是 straight line path：
+
+$$
+\alpha_t = t
+$$
+
+$$
+\beta_t = 1-t
+$$
+
+此时：
+
+$$
+x_t = tz + (1-t)\epsilon
+$$
+
+它表示从噪声 $\epsilon$ 到数据点 $z$ 的直线插值。
+
+当 $t=0$：
+
+$$
+x_0 = \epsilon
+$$
+
+当 $t=1$：
+
+$$
+x_1 = z
+$$
+
+对时间求导：
+
+$$
+\frac{d}{dt}x_t
+=
+z-\epsilon
+$$
+
+所以 conditional vector field 可以写成：
+
+$$
+u_t^{\mathrm{target}}(x_t \mid z)
+=
+z-\epsilon
+$$
+
+也可以把 $\epsilon$ 消掉。
+
+由：
+
+$$
+x = tz+(1-t)\epsilon
+$$
+
+得到：
+
+$$
+\epsilon
+=
+\frac{x-tz}{1-t}
+$$
+
+代入：
+
+$$
+z-\epsilon
+=
+\frac{z-x}{1-t}
+$$
+
+所以：
+
+$$
+u_t^{\mathrm{target}}(x \mid z)
+=
+\frac{z-x}{1-t}
+$$
+
+这个公式的直观意义是：
+
+> 当前在 $x$，目标是 $z$，剩余时间是 $1-t$，所以速度应该是目标位置减当前位置，再除以剩余时间。
+
+也就是：
+
+$$
+\text{速度}
+=
+\frac{\text{目标位置}-\text{当前位置}}{\text{剩余时间}}
+$$
+
+---
+
+##### 10. Flow Matching 训练完成后怎么生成？
+
+训练完成后，我们得到了：
+
+$$
+u_t^\theta(x)
+$$
+
+然后生成时不再需要数据点 $z$。
+
+采样过程是：
+
+1. 从初始分布采样：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+$$
+
+2. 解 ODE：
+
+$$
+\frac{d}{dt}X_t
+=
+u_t^\theta(X_t)
+$$
+
+3. 从 $t=0$ 积分到 $t=1$。
+
+4. 返回：
+
+$$
+X_1
+$$
+
+如果训练得好：
+
+$$
+X_1 \sim p_{\mathrm{data}}
+$$
+
+所以 Flow Matching 的完整逻辑是：
+
+> 训练时用数据点 $z$ 构造 conditional target；生成时只使用学到的 marginal vector field，从噪声走到数据。
+
+---
+
+# Part 2：Score Matching
+
+##### 11. Diffusion Model 为什么需要 Score？
+
+第二讲里我们知道，Diffusion Model 需要 marginal score function：
+
+$$
+\nabla_x \log p_t(x)
+$$
+
+它表示当前分布 $p_t$ 中概率密度增加最快的方向。
+
+从 SDE extension trick 可以看到，如果要用带噪声的 SDE 采样，需要：
+
+$$
+dX_t =
+\left[
+u_t^{\mathrm{target}}(X_t)
++
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(X_t)
+\right]dt
++
+\sigma_t dW_t
+$$
+
+这里的：
+
+$$
+\nabla_x \log p_t(X_t)
+$$
+
+就是 score function。
+
+因此，Diffusion Model 需要训练一个 score network：
+
+$$
+s_t^\theta(x)
+$$
+
+让它逼近：
+
+$$
+\nabla_x \log p_t(x)
+$$
+
+也就是：
+
+$$
+s_t^\theta(x)
+\approx
+\nabla_x \log p_t(x)
+$$
+
+---
+
+##### 12. 理想的 Score Matching Loss
+
+最直接的训练目标是：
+
+$$
+\mathcal{L}_{\mathrm{SM}}(\theta)
+=
+\mathbb{E}_{t\sim \mathrm{Unif}[0,1],\ x\sim p_t}
+\left[
+\left\|
+s_t^\theta(x)
+-
+\nabla_x \log p_t(x)
+\right\|^2
+\right]
+$$
+
+这个 loss 的意思是：
+
+> 在任意时间 $t$ 和任意中间点 $x$，让神经网络预测的 score 接近真实的 marginal score。
+
+但是问题是：
+
+$$
+\nabla_x \log p_t(x)
+$$
+
+不好直接算。
+
+因为：
+
+$$
+p_t(x)
+=
+\int p_t(x \mid z)p_{\mathrm{data}}(z)dz
+$$
+
+所以 marginal score 也涉及对所有数据点 $z$ 的积分。
+
+---
+
+##### 13. Score Matching 的关键想法
+
+虽然 marginal score 不好算，但是 conditional score 好算。
+
+也就是说：
+
+$$
+\nabla_x \log p_t(x)
+$$
+
+不好算。
+
+但是：
+
+$$
+\nabla_x \log p_t(x \mid z)
+$$
+
+通常可以算。
+
+所以 Score Matching 的训练目标是：
+
+$$
+\mathcal{L}_{\mathrm{DSM}}(\theta)
+=
+\mathbb{E}_{z,t,x}
+\left[
+\left\|
+s_t^\theta(x)
+-
+\nabla_x \log p_t(x \mid z)
+\right\|^2
+\right]
+$$
+
+其中：
+
+$$
+z \sim p_{\mathrm{data}}
+$$
+
+$$
+t \sim \mathrm{Unif}[0,1]
+$$
+
+$$
+x \sim p_t(\cdot \mid z)
+$$
+
+这就是 Denoising Score Matching。
+
+它和 Flow Matching 的结构非常像。
+
+Flow Matching 是：
+
+$$
+u_t^\theta(x)
+\approx
+u_t^{\mathrm{target}}(x \mid z)
+$$
+
+Score Matching 是：
+
+$$
+s_t^\theta(x)
+\approx
+\nabla_x \log p_t(x \mid z)
+$$
+
+---
+
+##### 14. 为什么用 conditional score 能学到 marginal score？
+
+原因和 Flow Matching 一样。
+
+训练时，神经网络看到的是：
+
+$$
+(x,t)
+$$
+
+但它不知道当前 $x$ 来自哪个 $z$。
+
+对于固定的 $x$ 和 $t$，最小化均方误差的最优预测是 conditional score 的条件期望：
+
+$$
+s_t^\theta(x)
+=
+\mathbb{E}
+\left[
+\nabla_x \log p_t(x \mid z)
+\mid x
+\right]
+$$
+
+而第二讲已经得到：
+
+$$
+\mathbb{E}
+\left[
+\nabla_x \log p_t(x \mid z)
+\mid x
+\right]
+=
+\nabla_x \log p_t(x)
+$$
+
+所以最优情况下：
+
+$$
+s_t^\theta(x)
+=
+\nabla_x \log p_t(x)
+$$
+
+也就是说：
+
+> 虽然训练时使用 conditional score，但网络最终学到的是 marginal score。
+
+---
+
+##### 15. Score Matching 训练流程
+
+给定：
+
+- 数据集：
+
+$$
+z \sim p_{\mathrm{data}}
+$$
+
+- score network：
+
+$$
+s_t^\theta(x)
+$$
+
+每次训练：
+
+1. 从数据集中采样真实数据点：
+
+$$
+z \sim p_{\mathrm{data}}
+$$
+
+2. 采样随机时间：
+
+$$
+t \sim \mathrm{Unif}[0,1]
+$$
+
+3. 从 conditional probability path 中采样中间点：
+
+$$
+x \sim p_t(\cdot \mid z)
+$$
+
+4. 计算 conditional score：
+
+$$
+\nabla_x \log p_t(x \mid z)
+$$
+
+5. 计算 loss：
+
+$$
+\mathcal{L}(\theta)
+=
+\left\|
+s_t^\theta(x)
+-
+\nabla_x \log p_t(x \mid z)
+\right\|^2
+$$
+
+6. 用梯度下降更新参数 $\theta$。
+
+---
+
+##### 16. Gaussian Path 下的 Conditional Score
+
+对于 Gaussian probability path：
+
+$$
+p_t(x \mid z)
+=
+\mathcal{N}(\alpha_t z,\beta_t^2 I_d)
+$$
+
+conditional score 有显式公式：
+
+$$
+\nabla_x \log p_t(x \mid z)
+=
+-\frac{x-\alpha_t z}{\beta_t^2}
+$$
+
+如果：
+
+$$
+x = \alpha_t z + \beta_t \epsilon
+$$
+
+其中：
+
+$$
+\epsilon \sim \mathcal{N}(0,I_d)
+$$
+
+那么：
+
+$$
+x-\alpha_t z
+=
+\beta_t \epsilon
+$$
+
+所以：
+
+$$
+\nabla_x \log p_t(x \mid z)
+=
+-\frac{\beta_t \epsilon}{\beta_t^2}
+=
+-\frac{\epsilon}{\beta_t}
+$$
+
+因此 Gaussian path 下的 denoising score matching loss 是：
+
+$$
+\mathcal{L}_{\mathrm{DSM}}(\theta)
+=
+\mathbb{E}_{t,z,\epsilon}
+\left[
+\left\|
+s_t^\theta(\alpha_t z+\beta_t\epsilon)
++
+\frac{\epsilon}{\beta_t}
+\right\|^2
+\right]
+$$
+
+这里是加号，因为目标是：
+
+$$
+s_t^\theta(x)
+\approx
+-\frac{\epsilon}{\beta_t}
+$$
+
+所以：
+
+$$
+s_t^\theta(x)
++
+\frac{\epsilon}{\beta_t}
+\approx
+0
+$$
+
+---
+
+##### 17. 为什么叫 Denoising Score Matching？
+
+因为训练时输入的：
+
+$$
+x_t = \alpha_t z + \beta_t \epsilon
+$$
+
+是一个被噪声污染的版本。
+
+其中：
+
+- $z$ 是干净数据；
+- $\epsilon$ 是噪声；
+- $\beta_t$ 控制噪声强度。
+
+score network 要学习：
+
+$$
+s_t^\theta(x_t)
+\approx
+-\frac{\epsilon}{\beta_t}
+$$
+
+也就是说，它要从 noisy sample 中推断噪声方向，或者推断如何往更高概率区域移动。
+
+所以这个过程可以理解为：
+
+> 给模型一个带噪声的样本，让它学习如何去噪。
+
+这就是 denoising 的含义。
+
+---
+
+##### 18. Noise Predictor 的写法
+
+很多 diffusion model 不直接预测 score：
+
+$$
+s_t^\theta(x)
+$$
+
+而是预测噪声：
+
+$$
+\epsilon_t^\theta(x)
+$$
+
+因为在 Gaussian path 下：
+
+$$
+s_t^\theta(x)
+\approx
+-\frac{\epsilon}{\beta_t}
+$$
+
+所以可以定义：
+
+$$
+\epsilon_t^\theta(x)
+=
+-\beta_t s_t^\theta(x)
+$$
+
+这样训练目标可以改写成预测噪声：
+
+$$
+\epsilon_t^\theta(x_t)
+\approx
+\epsilon
+$$
+
+对应的 loss 是：
+
+$$
+\mathcal{L}(\theta)
+=
+\left\|
+\epsilon_t^\theta(x_t)
+-
+\epsilon
+\right\|^2
+$$
+
+这也是很多实际 diffusion model 训练时常见的形式。
+
+---
+
+##### 19. 低 $\beta_t$ 时的数值不稳定
+
+在 Gaussian path 下，score target 是：
+
+$$
+-\frac{\epsilon}{\beta_t}
+$$
+
+如果：
+
+$$
+\beta_t
+$$
+
+很小，那么：
+
+$$
+\frac{\epsilon}{\beta_t}
+$$
+
+会变得很大。
+
+这会导致训练数值不稳定。
+
+尤其在 $t$ 接近 1 时，通常：
+
+$$
+\beta_t \rightarrow 0
+$$
+
+所以这个 target 可能会爆炸。
+
+这也是为什么实际 diffusion model 里经常会使用不同的参数化方式，例如预测噪声、预测 clean data，或者对 loss 加权。
+
+---
+
+# Part 3：Stochastic Sampling with Diffusion Models
+
+##### 20. SDE Extension Trick 回顾
+
+第二讲里已经讲过 SDE extension trick。
+
+如果：
+
+$$
+u_t^{\mathrm{target}}(x)
+$$
+
+是正确的 marginal vector field，并且：
+
+$$
+\nabla_x \log p_t(x)
+$$
+
+是正确的 marginal score function，那么对于任意 diffusion coefficient：
+
+$$
+\sigma_t \geq 0
+$$
+
+下面这个 SDE 仍然会让样本分布沿着 $p_t$ 走：
+
+$$
+dX_t =
+\left[
+u_t^{\mathrm{target}}(X_t)
++
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(X_t)
+\right]dt
++
+\sigma_t dW_t
+$$
+
+也就是说：
+
+$$
+X_t \sim p_t
+$$
+
+---
+
+##### 21. 训练后如何用神经网络采样？
+
+训练完成后，我们用神经网络替换真实 target。
+
+用：
+
+$$
+u_t^\theta(x)
+$$
+
+近似：
+
+$$
+u_t^{\mathrm{target}}(x)
+$$
+
+用：
+
+$$
+s_t^\theta(x)
+$$
+
+近似：
+
+$$
+\nabla_x \log p_t(x)
+$$
+
+于是 SDE 采样公式变成：
+
+$$
+dX_t =
+\left[
+u_t^\theta(X_t)
++
+\frac{\sigma_t^2}{2}
+s_t^\theta(X_t)
+\right]dt
++
+\sigma_t dW_t
+$$
+
+从：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+$$
+
+开始，模拟这个 SDE 到 $t=1$，得到：
+
+$$
+X_1
+$$
+
+如果训练得好，那么：
+
+$$
+X_1 \sim p_{\mathrm{data}}
+$$
+
+---
+
+##### 22. Euler-Maruyama 采样
+
+对于 SDE：
+
+$$
+dX_t =
+\left[
+u_t^\theta(X_t)
++
+\frac{\sigma_t^2}{2}
+s_t^\theta(X_t)
+\right]dt
++
+\sigma_t dW_t
+$$
+
+可以用 Euler-Maruyama method 离散化。
+
+设步长为：
+
+$$
+h = \frac{1}{n}
+$$
+
+则更新公式是：
+
+$$
+X_{t+h}
+=
+X_t
++
+h
+\left[
+u_t^\theta(X_t)
++
+\frac{\sigma_t^2}{2}
+s_t^\theta(X_t)
+\right]
++
+\sigma_t \sqrt{h}\xi
+$$
+
+其中：
+
+$$
+\xi \sim \mathcal{N}(0,I_d)
+$$
+
+这里比 ODE 的 Euler method 多了一项随机噪声：
+
+$$
+\sigma_t \sqrt{h}\xi
+$$
+
+如果：
+
+$$
+\sigma_t=0
+$$
+
+那么就退化成 Flow Model 的 ODE 采样：
+
+$$
+X_{t+h}
+=
+X_t
++
+h u_t^\theta(X_t)
+$$
+
+---
+
+##### 23. Diffusion coefficient 的作用
+
+在 SDE 采样公式中：
+
+$$
+dX_t =
+\left[
+u_t^\theta(X_t)
++
+\frac{\sigma_t^2}{2}
+s_t^\theta(X_t)
+\right]dt
++
+\sigma_t dW_t
+$$
+
+其中：
+
+$$
+\sigma_t
+$$
+
+是 diffusion coefficient。
+
+它控制随机性的大小。
+
+如果：
+
+$$
+\sigma_t=0
+$$
+
+那么采样是确定性的，等价于 Flow ODE。
+
+如果：
+
+$$
+\sigma_t>0
+$$
+
+那么采样是随机的。
+
+此时：
+
+- $\sigma_t dW_t$ 会让样本随机扩散；
+- $\frac{\sigma_t^2}{2}s_t^\theta(X_t)$ 会把样本往高概率区域拉回。
+
+所以可以这样理解：
+
+> diffusion coefficient 控制“扩散得有多厉害”，score term 负责“把扩散后的样本拉回正确分布”。
+
+---
+
+# Part 4：Denoising Diffusion Models
+
+##### 24. DDM 是什么？
+
+课程中说的 DDM 指的是 Denoising Diffusion Model。
+
+很多人会直接把 Denoising Diffusion Model 简称为 Diffusion Model。
+
+在这门课的框架里：
+
+> Denoising Diffusion Model = 使用 Gaussian probability path 的 Diffusion Model。
+
+也就是使用：
+
+$$
+p_t(x \mid z)
+=
+\mathcal{N}(\alpha_t z,\beta_t^2I_d)
+$$
+
+作为 conditional probability path。
+
+这是课程里一直使用的标准例子。
+
+---
+
+##### 25. DDM 的特殊性质：Score for Free
+
+对于 Gaussian probability path，我们有两个公式。
+
+第一个是 conditional vector field：
+
+$$
+u_t^{\mathrm{target}}(x \mid z)
+=
+\left(
+\dot{\alpha}_t
+-
+\frac{\dot{\beta}_t}{\beta_t}\alpha_t
+\right)z
++
+\frac{\dot{\beta}_t}{\beta_t}x
+$$
+
+第二个是 conditional score：
+
+$$
+\nabla_x \log p_t(x \mid z)
+=
+-\frac{x-\alpha_t z}{\beta_t^2}
+$$
+
+这两个公式都有一个共同点：
+
+> 它们都是 $x$ 和 $z$ 的线性组合。
+
+因此，在 Gaussian path 下，conditional vector field 和 conditional score 可以互相转换。
+
+这就是 slides 里说的：
+
+> Score for free.
+
+意思是：
+
+> 对 Denoising Diffusion Models 来说，不一定需要分别训练 vector field network 和 score network，因为二者可以通过公式互相转换。
+
+---
+
+##### 26. Conditional 版本的转换公式
+
+对于 Gaussian path，可以推导出：
+
+$$
+u_t^{\mathrm{target}}(x \mid z)
+=
+\left(
+\beta_t^2\frac{\dot{\alpha}_t}{\alpha_t}
+-
+\dot{\beta}_t\beta_t
+\right)
+\nabla_x \log p_t(x \mid z)
++
+\frac{\dot{\alpha}_t}{\alpha_t}x
+$$
+
+这个公式表示：
+
+> 如果知道 conditional score，就可以得到 conditional vector field。
+
+注意，这个公式里有：
+
+$$
+\frac{\dot{\alpha}_t}{\alpha_t}
+$$
+
+所以在 $\alpha_t=0$ 的端点附近需要小心处理。
+
+---
+
+##### 27. Marginal 版本的转换公式
+
+对所有 $z$ 做 marginalization 后，可以得到 marginal 版本：
+
+$$
+u_t^{\mathrm{target}}(x)
+=
+\left(
+\beta_t^2\frac{\dot{\alpha}_t}{\alpha_t}
+-
+\dot{\beta}_t\beta_t
+\right)
+\nabla_x \log p_t(x)
++
+\frac{\dot{\alpha}_t}{\alpha_t}x
+$$
+
+也就是说：
+
+> marginal vector field 可以由 marginal score function 转换得到。
+
+如果我们训练的是 score network：
+
+$$
+s_t^\theta(x)
+\approx
+\nabla_x \log p_t(x)
+$$
+
+那么可以得到一个 vector field network：
+
+$$
+u_t^\theta(x)
+=
+\left(
+\beta_t^2\frac{\dot{\alpha}_t}{\alpha_t}
+-
+\dot{\beta}_t\beta_t
+\right)
+s_t^\theta(x)
++
+\frac{\dot{\alpha}_t}{\alpha_t}x
+$$
+
+这说明：
+
+> 在 DDM 中，训练 score network 后，也可以后处理得到 vector field network。
+
+---
+
+##### 28. 为什么早期 diffusion model 只做 score matching？
+
+因为在 DDM 中，score 和 vector field 可以互相转换。
+
+所以早期 diffusion model 主要训练 score network：
+
+$$
+s_t^\theta(x)
+$$
+
+也就是做 Score Matching。
+
+训练完 score network 之后，可以用 score 来构造 SDE 采样，也可以通过转换公式得到对应的 vector field。
+
+因此课程里说：
+
+> 第一代 diffusion models 只做 score matching。
+
+---
+
+# Part 5：完整算法总结
+
+##### 29. Flow Matching 完整流程
+
+训练阶段：
+
+1. 采样数据：
+
+$$
+z \sim p_{\mathrm{data}}
+$$
+
+2. 采样时间：
+
+$$
+t \sim \mathrm{Unif}[0,1]
+$$
+
+3. 采样中间点：
+
+$$
+x \sim p_t(\cdot \mid z)
+$$
+
+4. 计算 conditional vector field：
+
+$$
+u_t^{\mathrm{target}}(x \mid z)
+$$
+
+5. 训练：
+
+$$
+\mathcal{L}(\theta)
+=
+\left\|
+u_t^\theta(x)
+-
+u_t^{\mathrm{target}}(x \mid z)
+\right\|^2
+$$
+
+采样阶段：
+
+1. 采样噪声：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+$$
+
+2. 解 ODE：
+
+$$
+dX_t = u_t^\theta(X_t)dt
+$$
+
+3. 返回：
+
+$$
+X_1
+$$
+
+---
+
+##### 30. Score Matching 完整流程
+
+训练阶段：
+
+1. 采样数据：
+
+$$
+z \sim p_{\mathrm{data}}
+$$
+
+2. 采样时间：
+
+$$
+t \sim \mathrm{Unif}[0,1]
+$$
+
+3. 采样中间点：
+
+$$
+x \sim p_t(\cdot \mid z)
+$$
+
+4. 计算 conditional score：
+
+$$
+\nabla_x \log p_t(x \mid z)
+$$
+
+5. 训练：
+
+$$
+\mathcal{L}(\theta)
+=
+\left\|
+s_t^\theta(x)
+-
+\nabla_x \log p_t(x \mid z)
+\right\|^2
+$$
+
+对于 Gaussian path，可以写成：
+
+$$
+x_t = \alpha_t z+\beta_t\epsilon
+$$
+
+$$
+\mathcal{L}_{\mathrm{DSM}}(\theta)
+=
+\left\|
+s_t^\theta(x_t)
++
+\frac{\epsilon}{\beta_t}
+\right\|^2
+$$
+
+采样阶段：
+
+1. 采样噪声：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+$$
+
+2. 解 SDE：
+
+$$
+dX_t =
+\left[
+u_t^\theta(X_t)
++
+\frac{\sigma_t^2}{2}s_t^\theta(X_t)
+\right]dt
++
+\sigma_t dW_t
+$$
+
+3. 返回：
+
+$$
+X_1
+$$
+
+---
+
+##### 31. Flow Matching 和 Score Matching 的对比
+
+| 方法 | 学什么 | 网络 | 训练 target | 采样方式 |
+|---|---|---|---|---|
+| Flow Matching | 速度场 | $u_t^\theta(x)$ | $u_t^{\mathrm{target}}(x\mid z)$ | ODE |
+| Score Matching | score function | $s_t^\theta(x)$ | $\nabla_x\log p_t(x\mid z)$ | SDE |
+| DDM 特殊情况 | score 和 vector field 可互转 | $s_t^\theta$ 或 $u_t^\theta$ | Gaussian path 下的 target | ODE 或 SDE |
+
+---
+
+##### 32. 第三讲的主线总结
+
+第三讲可以按下面这条线理解。
+
+第二讲已经构造出了两个理论目标：
+
+$$
+u_t^{\mathrm{target}}(x)
+$$
+
+和：
+
+$$
+\nabla_x \log p_t(x)
+$$
+
+但是这两个 marginal target 都不好直接算。
+
+第三讲的核心 trick 是：
+
+> 不直接训练 marginal target，而是训练 conditional target。
+
+对于 Flow Matching：
+
+$$
+u_t^\theta(x)
+\approx
+u_t^{\mathrm{target}}(x\mid z)
+$$
+
+虽然训练时使用 conditional vector field，但最优解是 marginal vector field：
+
+$$
+u_t^\theta(x)
+\approx
+u_t^{\mathrm{target}}(x)
+$$
+
+对于 Score Matching：
+
+$$
+s_t^\theta(x)
+\approx
+\nabla_x \log p_t(x\mid z)
+$$
+
+虽然训练时使用 conditional score，但最优解是 marginal score：
+
+$$
+s_t^\theta(x)
+\approx
+\nabla_x \log p_t(x)
+$$
+
+因此，这一讲真正完成了从理论到算法的转变：
+
+> 第二讲构造 target，第三讲把 target 变成可以训练的 loss。
+
+---
+
+##### 33. 最重要的公式速查
+
+###### Flow Matching Loss
+
+$$
+\mathcal{L}_{\mathrm{CFM}}(\theta)
+=
+\mathbb{E}_{z,t,x}
+\left[
+\left\|
+u_t^\theta(x)
+-
+u_t^{\mathrm{target}}(x \mid z)
+\right\|^2
+\right]
+$$
+
+其中：
+
+$$
+z \sim p_{\mathrm{data}}
+$$
+
+$$
+t \sim \mathrm{Unif}[0,1]
+$$
+
+$$
+x \sim p_t(\cdot\mid z)
+$$
+
+---
+
+###### Gaussian Path
+
+$$
+x_t = \alpha_t z+\beta_t\epsilon
+$$
+
+$$
+\epsilon \sim \mathcal{N}(0,I_d)
+$$
+
+---
+
+###### Gaussian Conditional Vector Field
+
+$$
+u_t^{\mathrm{target}}(x \mid z)
+=
+\left(
+\dot{\alpha}_t
+-
+\frac{\dot{\beta}_t}{\beta_t}\alpha_t
+\right)z
++
+\frac{\dot{\beta}_t}{\beta_t}x
+$$
+
+---
+###### Score Matching Loss
+
+$$
+\mathcal{L}_{\mathrm{DSM}}(\theta)
+=
+\mathbb{E}_{z,t,x}
+\left[
+\left\|
+s_t^\theta(x)
+-
+\nabla_x \log p_t(x\mid z)
+\right\|^2
+\right]
+$$
+
+---
+
+###### Gaussian Conditional Score
+
+$$
+\nabla_x \log p_t(x\mid z)
+=
+-\frac{x-\alpha_tz}{\beta_t^2}
+$$
+
+---
+
+###### Gaussian Denoising Score Matching Loss
+
+$$
+\mathcal{L}_{\mathrm{DSM}}(\theta)
+=
+\mathbb{E}_{t,z,\epsilon}
+\left[
+\left\|
+s_t^\theta(\alpha_t z+\beta_t\epsilon)
++
+\frac{\epsilon}{\beta_t}
+\right\|^2
+\right]
+$$
+
+---
+
+###### Stochastic Sampling SDE
+
+$$
+dX_t =
+\left[
+u_t^\theta(X_t)
++
+\frac{\sigma_t^2}{2}s_t^\theta(X_t)
+\right]dt
++
+\sigma_t dW_t
+$$
+
+---
+
+###### DDM 中 score 到 vector field 的转换
+
+$$
+u_t^\theta(x)
+=
+\left(
+\beta_t^2\frac{\dot{\alpha}_t}{\alpha_t}
+-
+\dot{\beta}_t\beta_t
+\right)
+s_t^\theta(x)
++
+\frac{\dot{\alpha}_t}{\alpha_t}x
+$$
+
+---
+
+##### 34. 一句话总结
+
+第三讲的核心是：
+
+> Flow Matching 用 conditional vector field 训练出 marginal vector field；Score Matching 用 conditional score 训练出 marginal score。前者得到 ODE 采样算法，后者得到 SDE 采样算法。在 Gaussian probability path，也就是 DDM 中，score 和 vector field 还可以互相转换，所以不一定需要分别训练两个网络。
