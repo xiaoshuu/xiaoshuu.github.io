@@ -132,9 +132,6 @@ $$
 例如，当 $y=\text{“dog”}$ 时，我们希望采样得到的是狗的图片；  
 当 $y=\text{“cat”}$ 时，我们希望采样得到的是猫的图片。
 
-在生成模型中，通常我们有的是初始分布$p_{init}$,可以视作高斯分布，均值为0，以对角单位矩阵作为协方差矩阵，而生成模型从初始分布中取样（大多为白噪声），最后输出一个数据矩阵，可以看作为生成模型将初始分布转换为数据分布
-![20260424172239](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20260424172239.png)
-
 #### 4. 生成模型的基本形式
 
 虽然我们的目标是从 $p_{\mathrm{data}}$ 中采样，但真实的数据分布通常非常复杂，我们无法直接采样。
@@ -174,12 +171,12 @@ $$
 p_{\mathrm{init}} \longrightarrow p_{\mathrm{data}}
 $$
 
-这也是 Flow Models 和 Diffusion Models 的共同出发点。
+![20260424172239](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20260424172239.png)
 
 
 #### 5. Flow Models
 
-###### 5.1 Flow Model 的核心思想
+##### 5.1 Flow Model 的核心思想
 
 Flow Model 的基本思想是：
 
@@ -308,7 +305,7 @@ $$
 
 
 ##### 5.5 Flow Map
-对于每一个初始点 $x_0$，ODE 都会给出一个对应的运动结果。，Flow map 可以看作由向量场产生的一族映射：
+对于每一个初始点 $x_0$，ODE 都会给出一个对应的运动结果，Flow map 可以看作由向量场产生的一族映射：
 
 $$
 \psi:\mathbb{R}^d \times [0,1] \to \mathbb{R}^d
@@ -527,18 +524,6 @@ $$
 \epsilon \sim \mathcal{N}(0, I)
 $$
 
-这里可以看到，SDE 的更新比 ODE 多了一项随机噪声：
-
-$$
-\sigma_t \sqrt{h}\epsilon
-$$
-
-如果 $\sigma_t=0$，这一项消失，就回到了 Euler Method：
-
-$$
-X_{t+h} = X_t + h u_t(X_t)
-$$
-
 ##### 6.4 Diffusion Model 如何生成样本
 
 Diffusion Model 的生成过程可以理解为：
@@ -659,7 +644,7 @@ $$
 ### 生成式AI的训练目标
 
 #### 区分Conditional 和 Marginal
-- > conditional表示围绕某一个具体数据点$z$的情况
+- conditional表示围绕某一个具体数据点$z$的情况
 - marginal表示对整个数据分布平均之后的整体情况
 
 #### 1. Probability Path：从噪声分布到数据分布的路径
@@ -699,10 +684,6 @@ $p_t$是一种分布，可以从中取样
 也可以写成：$p_t(x \mid z)$
 表示时间 $t$ 时，样本位于 $x$ 附近的概率密度。
 
-它的作用是：
-
-> 把初始分布 $p_{\mathrm{init}}$ 插值到某一个具体数据点 $z$。
-
 ##### 2.2 高斯条件路径
 式子如下： 
 
@@ -721,9 +702,9 @@ $$
 X_t = \alpha_t z + \beta_t \epsilon,\epsilon \sim \mathcal{N}(0,I_d)
 $$
 
-为了让它从噪声走到数据点，我们通常希望：$\alpha_0 = 0,\qquad \beta_0 = 1$,这样$X_0 = \epsilon \sim \mathcal{N}(0,I_d)$也就是初始噪声。
+为了让它从噪声走到数据点，我们通常希望：$\alpha_0 = 0,\beta_0 = 1$,这样$X_0 = \epsilon \sim \mathcal{N}(0,I_d)$也就是初始噪声。
 
-同时希望：$\alpha_1 = 1,\qquad \beta_1 = 0$,这样有$X_1 = z$,也就是最终到达数据点本身。
+同时希望：$\alpha_1 = 1,\beta_1 = 0$,这样有$X_1 = z$,也就是最终到达数据点本身。
 
 所以 Gaussian conditional probability path 可以理解为：
 > 用一个逐渐移动、逐渐收缩的高斯分布，把噪声分布变成某一个具体数据点。
@@ -1087,6 +1068,14 @@ p_t(x \mid z)p_{\mathrm{data}}(z)
 }{
 p_t(x)
 }
+dz 
+$$
+即
+$$
+u_t^{\mathrm{target}}(x) =
+\int
+u_t^{\mathrm{target}}(x \mid z)
+p_t(z\mid x)
 dz
 $$
 
@@ -1097,11 +1086,17 @@ p_t(x)=
 \int p_t(x \mid z)p_{\mathrm{data}}(z)dz
 $$
 
-是 marginal probability path。
+$$
+p_t(z \mid x)
+$$
+
+表示：
+
+> 在时间 $t$，观察到当前中间点 $x$ 时，它可能来自哪个数据点 $z$。
 
 这个公式的含义是：
 
-> marginal vector field 是所有 conditional vector field 的加权平均。
+> marginal vector field 是在当前点 $x$ 处，对所有可能的目标数据点 $z$ 的 conditional vector field 做后验加权平均
 
 也就是说，在当前点 $x$ 处，可能有很多个数据点 $z$ 的 conditional path 会经过这里。  
 每个数据点 $z$ 都会给出一个速度：
@@ -1112,46 +1107,7 @@ $$
 
 marginal vector field 就是把这些可能速度按照权重平均起来。
 
-##### 5.3 权重是什么意思？
-
-公式中的权重是：
-
-$$
-\frac{
-p_t(x \mid z)p_{\mathrm{data}}(z)
-}{
-p_t(x)
-}
-$$
-
-根据贝叶斯公式，它可以理解为：
-
-$$
-p_t(z \mid x)
-$$
-
-也就是：
-
-> 在时间 $t$，观察到当前中间点 $x$ 时，它可能来自哪个数据点 $z$。
-
-因此，marginal vector field 可以写成条件期望的形式：
-
-$$
-u_t^{\mathrm{target}}(x)=
-\mathbb{E}
-\left[
-u_t^{\mathrm{target}}(x \mid z)
-\mid x
-\right]
-$$
-
-这句话很重要。
-
-它表示：
-
-> marginal vector field 是 conditional vector field 在给定当前点 $x$ 后，对所有可能数据来源 $z$ 的平均。
-
-##### 5.4 直观理解
+##### 5.3 直观理解
 
 可以这样想：
 
@@ -1197,7 +1153,7 @@ conditional vector field：给定某个 z 时应该怎么走
 marginal vector field：不知道具体 z 时，综合所有可能 z 后应该怎么走
 ```
 
-##### 5.5 Marginal Vector Field 的推导
+##### 5.4 Marginal Vector Field 的推导
 
 已知每个 conditional path 满足 conditional continuity equation：
 
@@ -1396,18 +1352,6 @@ $$
 
 > 在给定数据点 $z$ 的情况下，时间 $t$ 时，当前位置 $x$ 的概率密度上升最快的方向。
 
-这里的梯度是对 $x$ 求的，所以更严格地写是：
-
-$$
-\nabla_x \log p_t(x \mid z)
-$$
-
-但有时候为了简洁，也会写成：
-
-$$
-\nabla \log p_t(x \mid z)
-$$
-
 ##### 7.2 score function 的直观理解
 
 score function 是 log probability density 的梯度：
@@ -1455,7 +1399,7 @@ $$
 \beta_t^2I_d
 $$
 
-因此它的 log density 中和 $x$ 有关的部分是：
+因此它的 log density（先取概率密度函数 $p(x)$，再对它取对数，得到 $\log p(x)$） 中和 $x$ 有关的部分是：
 
 $$
 -\frac{1}{2\beta_t^2}
@@ -1471,16 +1415,7 @@ $$
 
 这就是 Gaussian path 下的 conditional score function。
 
-##### 7.4 这个公式怎么理解？
-
-公式：
-
-$$
-\nabla_x \log p_t(x \mid z)=
--\frac{x-\alpha_t z}{\beta_t^2}
-$$
-
-可以这样理解：
+该公式中：
 
 - $\alpha_t z$ 是当前 conditional Gaussian 的中心；
 - $x-\alpha_t z$ 表示当前点 $x$ 偏离中心的方向；
@@ -1494,36 +1429,6 @@ $$
 所以 Gaussian conditional score 的作用是：
 
 > 把当前点 $x$ 往 conditional distribution 的中心 $\alpha_t z$ 拉回去。
-
-##### 7.5 和 Conditional Vector Field 的区别
-
-Conditional vector field 是：
-
-$$
-u_t^{\mathrm{target}}(x \mid z)
-$$
-
-它描述的是：
-
-> 样本在时间 $t$、位置 $x$ 时，应该以什么速度运动，才能让分布沿着 conditional probability path 演化。
-
-Conditional score function 是：
-
-$$
-\nabla_x \log p_t(x \mid z)
-$$
-
-它描述的是：
-
-> 在 conditional distribution 中，当前位置 $x$ 的概率密度往哪个方向增加最快。
-
-所以二者的关注点不同：
-
-```text
-conditional vector field：描述样本如何随时间运动
-
-conditional score function：描述概率密度往哪里变大
-```
 
 #### 8. Marginal Score Function
 
@@ -1828,156 +1733,7 @@ $$
 - continuity equation 部分来自 drift；
 - heat equation 部分来自 diffusion。
 
-##### 9.7 当 $\sigma_t = 0$ 时会发生什么？
-
-如果：
-
-$$
-\sigma_t = 0
-$$
-
-那么 SDE 变成 ODE：
-
-$$
-dX_t = u_t(X_t)dt
-$$
-
-同时 Fokker–Planck Equation 中的扩散项消失：
-
-$$
-\frac{\sigma_t^2}{2}\Delta p_t(x) = 0
-$$
-
-于是 Fokker–Planck Equation 退化为：
-
-$$
-\frac{\partial}{\partial t}p_t(x)
-=
--\operatorname{div}\left(p_tu_t\right)(x)
-$$
-
-这正是 ODE 对应的 continuity equation。
-
-所以可以记住：
-
-> Continuity equation 是 ODE 情况下的分布演化方程。
-
-> Fokker–Planck Equation 是 SDE 情况下的分布演化方程。
-
-##### 9.8 为什么这一节对生成模型重要？
-
-生成模型的目标不是只生成一个样本，而是让整体分布从初始分布变成数据分布：
-
-$$
-p_{\mathrm{init}}
-\longrightarrow
-p_{\mathrm{data}}
-$$
-
-也就是说，我们关心的是：
-
-$$
-X_0 \sim p_{\mathrm{init}}
-$$
-
-经过 ODE 或 SDE 演化后：
-
-$$
-X_1 \sim p_{\mathrm{data}}
-$$
-
-因此，我们必须理解：
-
-> 当样本按照某个 ODE 或 SDE 运动时，它们的整体分布 $p_t$ 会如何变化。
-
-对于 Flow Model：
-
-$$
-dX_t = u_t(X_t)dt
-$$
-
-它的分布演化由 continuity equation 描述：
-
-$$
-\frac{\partial}{\partial t}p_t(x)
-=
--\operatorname{div}\left(p_tu_t\right)(x)
-$$
-
-对于 Diffusion Model：
-
-$$
-dX_t = u_t(X_t)dt + \sigma_t dW_t
-$$
-
-它的分布演化由 Fokker–Planck Equation 描述：
-
-$$
-\frac{\partial}{\partial t}p_t(x)
-=
--\operatorname{div}\left(p_tu_t\right)(x)
-+
-\frac{\sigma_t^2}{2}\Delta p_t(x)
-$$
-
-所以这一节的核心作用是：
-
-> 把“单个样本的随机运动”与“整体概率分布的演化”联系起来。
-
-##### 9.9 和 SDE Extension Trick 的关系
-
-后面会讲到 SDE extension trick。
-
-它会构造这样一个 SDE：
-
-$$
-dX_t =
-\left[
-u_t^{\mathrm{target}}(X_t)
-+
-\frac{\sigma_t^2}{2}
-\nabla_x \log p_t(X_t)
-\right]dt
-+
-\sigma_t dW_t
-$$
-
-这个式子看起来比普通 SDE 多了一个 score correction：
-
-$$
-\frac{\sigma_t^2}{2}
-\nabla_x \log p_t(X_t)
-$$
-
-为什么需要这一项？
-
-原因就来自 Fokker–Planck Equation。
-
-随机噪声项：
-
-$$
-\sigma_t dW_t
-$$
-
-会在 Fokker–Planck Equation 中产生扩散项：
-
-$$
-\frac{\sigma_t^2}{2}\Delta p_t(x)
-$$
-
-如果不加修正，分布会因为随机噪声而跑偏。
-
-而 score correction 会在 Fokker–Planck Equation 中产生一个相反的项，正好抵消这个扩散项。
-
-这样一来，即使加入随机噪声，整体分布仍然可以保持在目标 probability path：
-
-$$
-X_t \sim p_t
-$$
-
-所以 Fokker–Planck Equation 是理解 SDE extension trick 的关键。
-
-##### 9.10 小结
+##### 9.7 小结
 
 Fokker–Planck Equation 描述的是 SDE 下概率密度的演化。
 
@@ -2018,7 +1774,13 @@ $$
 
 ##### 10.1 定义
 
-前面我们已经知道，Flow Model 的 ODE 是：
+前面 Flow Model 里有一个目标向量场：
+
+$$
+u_t^{\mathrm{target}}(x)
+$$
+
+它满足：
 
 $$
 dX_t = u_t^{\mathrm{target}}(X_t)dt
@@ -2030,26 +1792,55 @@ $$
 X_0 \sim p_0
 $$
 
-并且 $u_t^{\mathrm{target}}$ 是正确的 marginal vector field，那么：
+那么这个 ODE 会让样本分布沿着 probability path 走：
 
 $$
 X_t \sim p_t
 $$
 
-也就是说，ODE 会让样本分布沿着我们构造好的 probability path $p_t$ 演化。
-
-> 我们不仅可以用 ODE 产生这条 probability path，也可以用一类 SDE 产生同一条 probability path。
-
-也就是说，除了确定性的 Flow ODE：
+也就是说：
 
 $$
-dX_t = u_t^{\mathrm{target}}(X_t)dt
+p_0 \longrightarrow p_t \longrightarrow p_1
 $$
 
-我们还可以构造带随机噪声的 SDE：
+这是一条确定性的路径。
+
+现在我们希望把 ODE 改成 SDE，也就是加入随机噪声：
 
 $$
-dX_t =
+dX_t=
+u_t^{\mathrm{target}}(X_t)dt
++
+\sigma_t dW_t
+$$
+
+这里：
+
+- $u_t^{\mathrm{target}}(X_t)dt$ 是原来的确定性运动；
+- $\sigma_t dW_t$ 是随机噪声项；
+- $\sigma_t$ 是 diffusion coefficient，用来控制噪声强度；
+- $W_t$ 是 Brownian motion / Wiener process。
+
+但是问题来了：
+
+> 如果只加随机噪声，分布会被额外扩散，原来的 $p_t$ 路径就会被破坏。
+
+SDE extension trick 说：
+
+不要只写成：
+
+$$
+dX_t=
+u_t^{\mathrm{target}}(X_t)dt
++
+\sigma_t dW_t
+$$
+
+而是写成：
+
+$$
+dX_t=
 \left[
 u_t^{\mathrm{target}}(X_t)
 +
@@ -2060,13 +1851,20 @@ u_t^{\mathrm{target}}(X_t)
 \sigma_t dW_t
 $$
 
-并且仍然有：
+这样仍然可以保证：
 
 $$
 X_t \sim p_t
 $$
 
-这就是 **SDE extension trick**。
+这里多出来的这一项：
+
+$$
+\frac{\sigma_t^2}{2}
+\nabla_x \log p_t(X_t)
+$$
+
+就叫 **score correction**。
 
 ##### 10.2 公式
 
@@ -2117,8 +1915,6 @@ X_t \sim p_t,
 \qquad 0 \leq t \leq 1
 $$
 
-##### 10.3 每一项是什么意思？
-
 这个 SDE 中一共有三部分。
 
 第一部分是：
@@ -2166,37 +1962,7 @@ $$
 
 它表示在当前分布 $p_t$ 下，概率密度上升最快的方向。
 
-##### 10.4 为什么加入噪声后还要加 score correction？
-
-如果我们只是在原本的 ODE 上直接加噪声：
-
-$$
-dX_t =
-u_t^{\mathrm{target}}(X_t)dt
-+
-\sigma_t dW_t
-$$
-
-那么随机噪声会让分布额外扩散。
-
-这样一来，$X_t$ 的分布就不一定还是原来的 $p_t$。
-
-也就是说，只加噪声会让样本分布偏离我们设计好的 probability path。
-
-所以需要加入一个修正项：
-
-$$
-\frac{\sigma_t^2}{2}
-\nabla_x \log p_t(X_t)
-$$
-
-这个 score correction 会把样本往当前分布 $p_t$ 的高概率区域拉回去。
-
-因此可以这样理解：
-
-> 随机噪声项 $\sigma_t dW_t$ 会让分布向外扩散，而 score correction 会把样本往高概率区域拉回。两者配合之后，整体分布仍然保持在目标路径 $p_t$ 上。
-
-##### 10.5 为什么这个公式成立？
+##### 10.3 为什么这个公式成立？
 
 这一点可以用 Fokker–Planck Equation 验证。
 
@@ -2211,8 +1977,7 @@ $$
 它对应的 Fokker–Planck Equation 是：
 
 $$
-\frac{\partial}{\partial t}p_t(x)
-=
+\frac{\partial}{\partial t}p_t(x) =
 -\operatorname{div}(p_t b_t)(x)
 +
 \frac{\sigma_t^2}{2}
@@ -2222,8 +1987,7 @@ $$
 现在我们把 drift 设成：
 
 $$
-b_t(x)
-=
+b_t(x) =
 u_t^{\mathrm{target}}(x)
 +
 \frac{\sigma_t^2}{2}
@@ -2233,8 +1997,7 @@ $$
 代入 Fokker–Planck Equation：
 
 $$
-\frac{\partial}{\partial t}p_t(x)
-=
+\frac{\partial}{\partial t}p_t(x)=
 -\operatorname{div}
 \left(
 p_t
@@ -2253,8 +2016,7 @@ $$
 展开第一项：
 
 $$
-\frac{\partial}{\partial t}p_t(x)
-=
+\frac{\partial}{\partial t}p_t(x)=
 -\operatorname{div}
 \left(
 p_t u_t^{\mathrm{target}}
@@ -2273,16 +2035,14 @@ $$
 注意：
 
 $$
-\nabla_x \log p_t(x)
-=
+\nabla_x \log p_t(x)=
 \frac{\nabla_x p_t(x)}{p_t(x)}
 $$
 
 所以：
 
 $$
-p_t(x)\nabla_x \log p_t(x)
-=
+p_t(x)\nabla_x \log p_t(x)=
 \nabla_x p_t(x)
 $$
 
@@ -2292,21 +2052,18 @@ $$
 \operatorname{div}
 \left(
 p_t \nabla_x \log p_t
-\right)(x)
-=
+\right)(x)=
 \operatorname{div}
 \left(
 \nabla_x p_t
-\right)(x)
-=
+\right)(x)=
 \Delta p_t(x)
 $$
 
 代回去：
 
 $$
-\frac{\partial}{\partial t}p_t(x)
-=
+\frac{\partial}{\partial t}p_t(x)=
 -\operatorname{div}
 \left(
 p_t u_t^{\mathrm{target}}
@@ -2335,8 +2092,7 @@ $$
 所以最后只剩下：
 
 $$
-\frac{\partial}{\partial t}p_t(x)
-=
+\frac{\partial}{\partial t}p_t(x)=
 -\operatorname{div}
 \left(
 p_t u_t^{\mathrm{target}}
@@ -2351,7 +2107,7 @@ $$
 X_t \sim p_t
 $$
 
-##### 10.6 这个 trick 的核心意义
+##### 10.4 这个 trick 的核心意义
 
 这个公式说明：
 
@@ -2399,84 +2155,6 @@ $$
 
 那么生成过程会带有随机性，但由于加入了 score correction，边缘分布仍然是 $p_t$。
 
-##### 10.7 为什么这和 Diffusion Model 有关？
-
-Flow Model 主要学习的是 marginal vector field：
-
-$$
-u_t^{\mathrm{target}}(x)
-$$
-
-Diffusion Model 还需要 score function：
-
-$$
-\nabla_x \log p_t(x)
-$$
-
-从这个 SDE extension trick 可以看到，score function 出现在 SDE 的 drift 里面：
-
-$$
-\frac{\sigma_t^2}{2}
-\nabla_x \log p_t(X_t)
-$$
-
-也就是说，如果我们想用带噪声的 SDE 来采样，就需要知道：
-
-$$
-\nabla_x \log p_t(x)
-$$
-
-这就是为什么 diffusion model 要学习 score function。
-
-可以这样理解：
-
-- Flow Model 学 $u_t^{\mathrm{target}}(x)$，用于确定性 ODE 采样；
-- Diffusion Model 学 $\nabla_x \log p_t(x)$，用于带随机噪声的 SDE 采样；
-- SDE extension trick 把 marginal vector field 和 marginal score function 连接了起来。
-
-##### 10.8 直观总结
-
-原本的 Flow ODE 是：
-
-$$
-dX_t = u_t^{\mathrm{target}}(X_t)dt
-$$
-
-它的作用是：
-
-> 按照确定性速度场，把分布从 $p_0$ 搬运到 $p_1$。
-
-SDE extension trick 告诉我们，也可以加入随机噪声：
-
-$$
-\sigma_t dW_t
-$$
-
-但为了不让分布跑偏，必须同时加入 score correction：
-
-$$
-\frac{\sigma_t^2}{2}
-\nabla_x \log p_t(X_t)
-$$
-
-所以最终得到：
-
-$$
-dX_t =
-\left[
-u_t^{\mathrm{target}}(X_t)
-+
-\frac{\sigma_t^2}{2}
-\nabla_x \log p_t(X_t)
-\right]dt
-+
-\sigma_t dW_t
-$$
-
-一句话总结：
-
-> SDE extension trick 说明：在 Flow ODE 中加入随机噪声后，只要再加入正确的 score correction，就可以得到一个边缘分布仍然沿着 $p_t$ 演化的 Diffusion SDE。
-
 ![20260430165700](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20260430165700.png)
 ![20260430165722](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20260430165722.png)
 
@@ -2523,10 +2201,6 @@ s_t^\theta(x)
 \approx
 \nabla_x \log p_t(x)
 $$
-
-> Flow Matching 训练 $u_t^\theta(x)$。
-
-> Score Matching 训练 $s_t^\theta(x)$。
 
 #### Flow Matching
 
