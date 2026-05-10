@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>cs188课堂笔记 | Xiaoshuu</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous"><style>@import"https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap";:root{--bg-color: #f7f7f5;--card-bg: #ffffff;--text-main: #333333;--text-sub: #666666;--accent-library: #8da399;--accent-thoughts: #8fa4b8;--accent-workshop: #b8a08f}body{background-color:var(--bg-color);color:var(--text-main);font-family:Inter,system-ui,sans-serif;margin:0;display:flex;flex-direction:column;min-height:100vh;line-height:1.6}a{text-decoration:none;color:inherit;transition:all .2s ease}.clean-card{background:var(--card-bg);border:1px solid rgba(0,0,0,.04);box-shadow:0 4px 6px #00000005;border-radius:12px;transition:transform .2s ease,box-shadow .2s ease}.clean-card:hover{transform:translateY(-4px);box-shadow:0 12px 20px #0000000f;border-color:#00000014}body.layout-wide{max-width:100%!important;padding-left:0!important;padding-right:0!important}
+.folder-group[data-astro-cid-c62rl6pb]{margin-top:.5rem}.folder-name[data-astro-cid-c62rl6pb]{font-size:.75rem;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;padding-left:.5rem}.file-link[data-astro-cid-c62rl6pb]{display:flex;align-items:center;padding:6px 10px;margin:2px 0;border-radius:6px;color:var(--text-sub);transition:all .2s;text-decoration:none;font-size:.9rem;line-height:1.4}.file-link[data-astro-cid-c62rl6pb]:hover{background-color:#0000000a;color:var(--text-main)}.file-link[data-astro-cid-c62rl6pb].active{background-color:#8da39926;color:#4a5d53;font-weight:500}.toc-container[data-astro-cid-xvrfupwn]{position:sticky;top:2rem;padding-left:1rem;border-left:1px solid rgba(0,0,0,.05)}.toc-title[data-astro-cid-xvrfupwn]{font-size:.75rem;font-weight:700;letter-spacing:1px;color:#aaa;margin-bottom:1rem;text-transform:uppercase}.toc-list[data-astro-cid-xvrfupwn]{list-style:none;padding:0;margin:0}.toc-group[data-astro-cid-xvrfupwn]{margin-bottom:.35rem}.toc-link[data-astro-cid-xvrfupwn]{font-size:.85rem;color:var(--text-sub);text-decoration:none;transition:color .2s;display:block;line-height:1.4;padding:.25rem 0}.toc-link[data-astro-cid-xvrfupwn]:hover,.toc-link[data-astro-cid-xvrfupwn].is-active,.toc-group[data-astro-cid-xvrfupwn].is-active-group>.toc-link-parent[data-astro-cid-xvrfupwn]{color:var(--accent-library)}.toc-link-parent[data-astro-cid-xvrfupwn]{font-weight:600}.toc-sublist[data-astro-cid-xvrfupwn]{list-style:none;margin:.2rem 0 .45rem;padding:0 0 0 1rem;border-left:1px solid rgba(0,0,0,.06);display:none}.toc-group[data-astro-cid-xvrfupwn].is-expanded .toc-sublist[data-astro-cid-xvrfupwn]{display:block}.toc-subitem[data-astro-cid-xvrfupwn]{margin-bottom:.15rem}.toc-link-child[data-astro-cid-xvrfupwn]{font-size:.8rem}.doc-layout[data-astro-cid-5eggoaxc]{display:grid;grid-template-columns:260px minmax(0,1fr) 240px;max-width:1400px;margin:0 auto;min-height:100vh}.sidebar-left[data-astro-cid-5eggoaxc]{padding:2rem 1.5rem;background:#fbfbfb;border-right:1px solid rgba(0,0,0,.05);position:sticky;top:0;height:100vh;overflow-y:auto}.back-link[data-astro-cid-5eggoaxc]{font-size:.85rem;color:#888;font-weight:600;display:block;margin-bottom:1.5rem}.doc-content[data-astro-cid-5eggoaxc]{padding:3rem 4rem}.doc-header[data-astro-cid-5eggoaxc]{margin-bottom:3rem;border-bottom:1px solid #eee;padding-bottom:2rem}.doc-header[data-astro-cid-5eggoaxc] h1[data-astro-cid-5eggoaxc]{font-family:Playfair Display,serif;font-size:2.5rem;margin:.5rem 0 0;line-height:1.2;color:var(--text-main)}.doc-meta[data-astro-cid-5eggoaxc]{display:flex;gap:1rem;align-items:center;margin-bottom:.5rem}.doc-date[data-astro-cid-5eggoaxc]{font-family:monospace;color:#999;font-size:.9rem}.doc-tags[data-astro-cid-5eggoaxc] span[data-astro-cid-5eggoaxc]{color:var(--accent-library);font-size:.85rem;font-weight:600;margin-right:5px}.markdown-body[data-astro-cid-5eggoaxc]{line-height:1.8;color:#333}.markdown-body[data-astro-cid-5eggoaxc] h2{font-size:1.8rem;margin-top:3rem;margin-bottom:1rem;font-weight:600;color:#222}.markdown-body[data-astro-cid-5eggoaxc] img{border-radius:8px;box-shadow:0 4px 12px #00000014}.markdown-body[data-astro-cid-5eggoaxc] pre{border-radius:8px;padding:1.2rem;font-size:.9rem;background:#2d2d2d}.comments-wrapper[data-astro-cid-5eggoaxc]{margin-top:4rem;padding-top:2rem;border-top:1px solid #eee}.sidebar-right[data-astro-cid-5eggoaxc]{padding:2rem 1rem;position:sticky;top:0;height:100vh}@media(max-width:1024px){.doc-layout[data-astro-cid-5eggoaxc]{grid-template-columns:240px 1fr}.sidebar-right[data-astro-cid-5eggoaxc]{display:none}}@media(max-width:768px){.doc-layout[data-astro-cid-5eggoaxc]{grid-template-columns:1fr}.sidebar-left[data-astro-cid-5eggoaxc],.sidebar-right[data-astro-cid-5eggoaxc]{display:none}.doc-content[data-astro-cid-5eggoaxc]{padding:2rem 1.5rem}}
+.gt-container .gt-btn-login,.gt-container .gt-btn-public,.gt-container .gt-btn-preview{background-color:var(--accent-library);border-color:var(--accent-library)}.gt-container .gt-btn-login:hover{background-color:#7a8e85;border-color:#7a8e85}
+</style></head> <body class> <div style="padding: 0;"></div>  <div class="doc-layout" data-astro-cid-5eggoaxc> <aside class="sidebar-left" data-astro-cid-5eggoaxc> <div class="sidebar-header" data-astro-cid-5eggoaxc> <a href="/notes" class="back-link" data-astro-cid-5eggoaxc>← Library Index</a> </div> <nav class="tree-nav" data-astro-cid-5eggoaxc> <div style="margin-left: 0px" data-astro-cid-c62rl6pb> <div class="folder-group" data-astro-cid-c62rl6pb> <div class="folder-name" data-astro-cid-c62rl6pb>CHIP</div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/chip/2022-12-16-interrupt" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>中断</span> </a> </div>  </div> </div> <div style="margin-left: 0px" data-astro-cid-c62rl6pb> <div class="folder-group" data-astro-cid-c62rl6pb> <div class="folder-name" data-astro-cid-c62rl6pb>CPP</div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/cpp/2026-04-14-cpp_trick" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>可能是一些使用cpp开发时注意的事情</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/cpp/2022-12-19-virtual" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>基类与派生类构造和析构中混了虚函数和指针的顺序</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/cpp/2022-12-11-sort" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>sort函数</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <div class="folder-group" data-astro-cid-c62rl6pb> <div class="folder-name" data-astro-cid-c62rl6pb>CS106B</div> <div style="margin-left: 24px" data-astro-cid-c62rl6pb> <a href="/notes/cpp/cs106b/2024-11-06-1" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>cs106b课堂笔记</span> </a> </div> <div style="margin-left: 24px" data-astro-cid-c62rl6pb> <a href="/notes/cpp/cs106b/2024-11-06-code" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>cs106b作业</span> </a> </div>  </div> </div>  </div> </div> <div style="margin-left: 0px" data-astro-cid-c62rl6pb> <div class="folder-group" data-astro-cid-c62rl6pb> <div class="folder-name" data-astro-cid-c62rl6pb>ML</div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/ml/2026-04-24-flow-matching-and-diffusion" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>流匹配与扩散模型</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/ml/2026-04-14-dl_trick" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>可能是一些深度学习的trick</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/ml/2026-01-27-ml_with_graphs" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>图机器学习cs224</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/ml/2025-07-04-limuai" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>跟李沐学AI</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/ml/2022-12-08-andrew-ng" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>吴恩达机器学习笔记</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/ml/2025-4-4-cs188" class="file-link active" data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>cs188课堂笔记</span> </a> </div>  </div> </div> <div style="margin-left: 0px" data-astro-cid-c62rl6pb> <div class="folder-group" data-astro-cid-c62rl6pb> <div class="folder-name" data-astro-cid-c62rl6pb>PAPERS</div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/papers/2025-09-09-dynamic-human-centric-scenes" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>Active Perception and Long-term Understanding of Dynamic Human-Centric Scenes</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/papers/2025-07-12-nerf-in-robotics" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>NeRF in Robotics</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/papers/2025-07-11-sort3d" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>SORT3D</span> </a> </div>  </div> </div> <div style="margin-left: 0px" data-astro-cid-c62rl6pb> <div class="folder-group" data-astro-cid-c62rl6pb> <div class="folder-name" data-astro-cid-c62rl6pb>PYTHON</div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/python/2022-12-24-numpy" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>numpy库</span> </a> </div>  </div> </div>  </nav> </aside> <main class="doc-content" data-astro-cid-5eggoaxc> <article class="prose-container" data-astro-cid-5eggoaxc> <header class="doc-header" data-astro-cid-5eggoaxc> <div class="doc-meta" data-astro-cid-5eggoaxc>  <div class="doc-tags" data-astro-cid-5eggoaxc> <span data-astro-cid-5eggoaxc>#机器学习</span> </div> </div> <h1 data-astro-cid-5eggoaxc>cs188课堂笔记</h1> </header> <div class="markdown-body" data-astro-cid-5eggoaxc> <p>劈里啪啦</p>
+<!--more-->
+<h2 id="search-problems">Search Problems</h2>
+<ul>
+<li>A search problem consists of:
+<ul>
+<li>A state space</li>
+<li>A successor function(with actions, costs)</li>
+<li>A start state and a goal test</li>
+</ul>
+</li>
+<li>A solution is a sequence of actions (a plan) which transforms the start state to a goal state</li>
+<li>The world state includes every last detail of the environment.</li>
+<li>A search state keeps only the details needed for planning(abstraction)</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Problem:Pathing</span></span>
+<span class="line"><span> States:(x,y)location</span></span>
+<span class="line"><span> Actions:NSEW</span></span>
+<span class="line"><span> Successor:update location only</span></span>
+<span class="line"><span> Goal test:is(x,y) = END</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Problem: Eat-All-Dots</span></span>
+<span class="line"><span> States:{(x,y),dot booleans}</span></span>
+<span class="line"><span> Actions:NSEW</span></span>
+<span class="line"><span> Successor:update location and possibly a dot boolean</span></span>
+<span class="line"><span> Goal test:dots all false</span></span></code></pre>
+<h3 id="state-space-graph">State space graph</h3>
+<p>A mathematical representation of a search problem</p>
+<ul>
+<li>Nodes are (abstracted) world configurations</li>
+<li>Arcs represent successors(action results)</li>
+<li>The goal test is a set of goal nodes(maybe only one)</li>
+</ul>
+<p>In a state space graph, each state occurs only once <br>
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250404213857.png" alt="20250404213857"></p>
+<h3 id="search-trees">Search Trees</h3>
+<ul>
+<li>A “what if” tree of plans and their outcomes</li>
+<li>The start state is the root node</li>
+<li>Children correspond to successors</li>
+<li>Nodes show states, but correspond to PLANS that achieve those states</li>
+<li>For most problems, we can never actually build the whole tree</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250404214735.png" alt="20250404214735"></p>
+<h4 id="searching-with-a-search-tree">Searching with a Search Tree</h4>
+<ul>
+<li>Expand out potential plans(tree nodes)</li>
+<li>Maintain a fringe of partial plans under consideration</li>
+<li>Try to expand as few tree nodes as possible</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250404215037.png" alt="20250404215037"></p>
+<h3 id="dfs">DFS</h3>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250404220129.png" alt="20250404220129"> <br>
+先进后出，扩展最后加入边缘的那个节点 <br>
+在实现中一般使用stack即栈存储探索过的节点，再pop选择下一个扩展的节点，同时栈符合先进后出的原则，故使用栈</p>
+<h3 id="bfs">BFS</h3>
+<p>先进先出，在边缘等待时间最长的节点会优先被扩展 <br>
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250404220543.png" alt="20250404220543"> <br>
+使用queue即队列存储探索过的节点</p>
+<h3 id="iterative-deepening">Iterative Deepening</h3>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250404220900.png" alt="20250404220900"></p>
+<h3 id="uniform-cost-searchdijkstra">Uniform Cost Search(Dijkstra)</h3>
+<p>不再遵循先进后出或先进先出的原则，而是按照当前最小代价进行扩展 <br>
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250404221557.png" alt="20250404221557"> <br>
+Remember:UCS explores increasing cost contours <br>
+The good:UCS is complete and optimal
+The bad:</p>
+<ul>
+<li>Explores options in every “direction”</li>
+<li>No information about goal location</li>
+</ul>
+<h3 id="greedy-best-first-search">Greedy Best-First Search</h3>
+<p>贪婪算法直接向目标所在方向寻找，可能在有障碍物的情况下无法找到代价最小的路，或找不到路</p>
+<h3 id="a-search">A* Search</h3>
+<ul>
+<li>Uniform-cost orders by path cost, or backward cost g(n)</li>
+<li>Greedy orders by goal proximity,or forward cost h(n)</li>
+<li>A* Search orders by the sum: f(n) = g(n) + h(n)</li>
+</ul>
+<p>一个可接受的代价函数的特质：低估从给定状态到达目标的成本 <br>
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250615161253.png" alt="20250615161253"> <br></p>
+<p>总结一个好的启发式函数的特征：</p>
+<ul>
+<li>可采纳
+当且仅当对于每个节点n，h(n)都不会高估从n到目标的实际最小代价</li>
+<li>一致性
+当且仅当对于每个节点n及其任意后续节点m，满足三角不等式 <br>
+数学表达： h(n) ≤ c(n,m) + h(m)
+c(n,m):从n到m的实际代价
+h(m):后续节点的启发式值</li>
+</ul>
+<p>证明a星可以找到最优路径 <br>
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250615164706.png" alt="20250615164706"> <br></p>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250615211106.png" alt="20250615211106"> <br></p>
+<h3 id="graph-search">Graph Search</h3>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250615203252.png" alt="20250615203252"> <br></p>
+<p>每拓展一个新的点就把该点加入探索过的点集合中，之后不再拓展以该点结尾的路径</p>
+<h3 id="a-search-plus-graph-search">A* Search plus Graph Search</h3>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250615204317.png" alt="20250615204317"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250615204346.png" alt="20250615204346"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250615211122.png" alt="20250615211122"></p>
+<h3 id="local-search">Local search</h3>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250615211435.png" alt="20250615211435"> <br></p>
+<p>局部搜索的general idea</p>
+<ul>
+<li>Start wherever</li>
+<li>Repeat move to the best neighboring state</li>
+<li>If no neighbors better than current，quit</li>
+</ul>
+<p>容易陷入局部最优，可通过引入在陷入局部最优时随机移动的方法来摆脱局部最优，但允许随机移动的次数难以选择 <br>
+方案一 退火算法 <br>
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250615212745.png" alt="20250615212745"> <br></p>
+<p>方案二 束搜索 <br>
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250615213420.png" alt="20250615213420"> <br>
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250615213458.png" alt="20250615213458"> <br></p> </div> <div class="comments-wrapper" data-astro-cid-5eggoaxc> <div id="gitalk-container" data-astro-cid-ksttp56e></div> <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script> <script>(function(){const siteConfig = {"author":"Xiaoshuu","title":"Xiaoshuu's Blog","description":"A student","social":{"github":"https://github.com/xiaoshuu"}};
+
+  // 等待页面加载完成
+  document.addEventListener('DOMContentLoaded', () => {
+    const gitalk = new Gitalk({
+      clientID: 'dff9fde3eab645bdb0b2', 
+      clientSecret: 'c073b1dce5f5d3a4d5273681b49a779c9ae6f9de',
+      repo: 'xiaoshuu.github.io',      // 你的博客仓库名 (存放评论 issue 的地方)
+      owner: 'xiaoshuu',              // 你的 GitHub 用户名
+      admin: ['xiaoshuu'],            // 管理员用户 (通常就是你自己)
+      id: location.pathname.slice(0, 50), // 用网址作为 issue 的唯一标识，限制长度
+      distractionFreeMode: false
+    });
+
+    gitalk.render('gitalk-container');
+  });
+})();</script>  </div> </article> </main> <aside class="sidebar-right" data-astro-cid-5eggoaxc> <nav class="toc-container" data-astro-cid-xvrfupwn> <h3 class="toc-title" data-astro-cid-xvrfupwn>ON THIS PAGE</h3> <ul class="toc-list" data-astro-cid-xvrfupwn> <li class="toc-group" data-toc-group="search-problems" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-parent" href="#search-problems" data-astro-cid-xvrfupwn> Search Problems </a> <ul class="toc-sublist" data-astro-cid-xvrfupwn> <li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#state-space-graph" data-parent-slug="search-problems" data-astro-cid-xvrfupwn> State space graph </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#search-trees" data-parent-slug="search-problems" data-astro-cid-xvrfupwn> Search Trees </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#dfs" data-parent-slug="search-problems" data-astro-cid-xvrfupwn> DFS </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#bfs" data-parent-slug="search-problems" data-astro-cid-xvrfupwn> BFS </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#iterative-deepening" data-parent-slug="search-problems" data-astro-cid-xvrfupwn> Iterative Deepening </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#uniform-cost-searchdijkstra" data-parent-slug="search-problems" data-astro-cid-xvrfupwn> Uniform Cost Search(Dijkstra) </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#greedy-best-first-search" data-parent-slug="search-problems" data-astro-cid-xvrfupwn> Greedy Best-First Search </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#a-search" data-parent-slug="search-problems" data-astro-cid-xvrfupwn> A* Search </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#graph-search" data-parent-slug="search-problems" data-astro-cid-xvrfupwn> Graph Search </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#a-search-plus-graph-search" data-parent-slug="search-problems" data-astro-cid-xvrfupwn> A* Search plus Graph Search </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#local-search" data-parent-slug="search-problems" data-astro-cid-xvrfupwn> Local search </a> </li> </ul> </li> </ul> </nav> <script type="module">const r=Array.from(document.querySelectorAll("[data-toc-group]")),s=Array.from(document.querySelectorAll(".toc-link")),a=Array.from(document.querySelectorAll(".markdown-body h2[id], .markdown-body h3[id]")),d=new Map(s.filter(e=>e.dataset.parentSlug).map(e=>[decodeURIComponent(e.hash.slice(1)),e.dataset.parentSlug])),i=e=>{const o=d.get(e)??e;r.forEach(t=>{const c=t.dataset.tocGroup===o;t.classList.toggle("is-expanded",c),t.classList.toggle("is-active-group",c)}),s.forEach(t=>{const c=decodeURIComponent(t.hash.slice(1));t.classList.toggle("is-active",c===e)})},l=()=>{let o=a[0];for(const t of a)if(t.getBoundingClientRect().top<=120)o=t;else break;return o?.id},n=()=>{const e=l();e&&i(e)};s.forEach(e=>{e.addEventListener("click",()=>{const o=decodeURIComponent(e.hash.slice(1));o&&i(o)})});n();window.addEventListener("scroll",n,{passive:!0});window.addEventListener("resize",n);</script>  </aside> </div>  </body></html> 

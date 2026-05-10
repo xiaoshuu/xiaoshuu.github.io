@@ -1,0 +1,666 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>cs106b课堂笔记 | Xiaoshuu</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous"><style>@import"https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap";:root{--bg-color: #f7f7f5;--card-bg: #ffffff;--text-main: #333333;--text-sub: #666666;--accent-library: #8da399;--accent-thoughts: #8fa4b8;--accent-workshop: #b8a08f}body{background-color:var(--bg-color);color:var(--text-main);font-family:Inter,system-ui,sans-serif;margin:0;display:flex;flex-direction:column;min-height:100vh;line-height:1.6}a{text-decoration:none;color:inherit;transition:all .2s ease}.clean-card{background:var(--card-bg);border:1px solid rgba(0,0,0,.04);box-shadow:0 4px 6px #00000005;border-radius:12px;transition:transform .2s ease,box-shadow .2s ease}.clean-card:hover{transform:translateY(-4px);box-shadow:0 12px 20px #0000000f;border-color:#00000014}body.layout-wide{max-width:100%!important;padding-left:0!important;padding-right:0!important}
+.folder-group[data-astro-cid-c62rl6pb]{margin-top:.5rem}.folder-name[data-astro-cid-c62rl6pb]{font-size:.75rem;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;padding-left:.5rem}.file-link[data-astro-cid-c62rl6pb]{display:flex;align-items:center;padding:6px 10px;margin:2px 0;border-radius:6px;color:var(--text-sub);transition:all .2s;text-decoration:none;font-size:.9rem;line-height:1.4}.file-link[data-astro-cid-c62rl6pb]:hover{background-color:#0000000a;color:var(--text-main)}.file-link[data-astro-cid-c62rl6pb].active{background-color:#8da39926;color:#4a5d53;font-weight:500}.toc-container[data-astro-cid-xvrfupwn]{position:sticky;top:2rem;padding-left:1rem;border-left:1px solid rgba(0,0,0,.05)}.toc-title[data-astro-cid-xvrfupwn]{font-size:.75rem;font-weight:700;letter-spacing:1px;color:#aaa;margin-bottom:1rem;text-transform:uppercase}.toc-list[data-astro-cid-xvrfupwn]{list-style:none;padding:0;margin:0}.toc-group[data-astro-cid-xvrfupwn]{margin-bottom:.35rem}.toc-link[data-astro-cid-xvrfupwn]{font-size:.85rem;color:var(--text-sub);text-decoration:none;transition:color .2s;display:block;line-height:1.4;padding:.25rem 0}.toc-link[data-astro-cid-xvrfupwn]:hover,.toc-link[data-astro-cid-xvrfupwn].is-active,.toc-group[data-astro-cid-xvrfupwn].is-active-group>.toc-link-parent[data-astro-cid-xvrfupwn]{color:var(--accent-library)}.toc-link-parent[data-astro-cid-xvrfupwn]{font-weight:600}.toc-sublist[data-astro-cid-xvrfupwn]{list-style:none;margin:.2rem 0 .45rem;padding:0 0 0 1rem;border-left:1px solid rgba(0,0,0,.06);display:none}.toc-group[data-astro-cid-xvrfupwn].is-expanded .toc-sublist[data-astro-cid-xvrfupwn]{display:block}.toc-subitem[data-astro-cid-xvrfupwn]{margin-bottom:.15rem}.toc-link-child[data-astro-cid-xvrfupwn]{font-size:.8rem}.doc-layout[data-astro-cid-5eggoaxc]{display:grid;grid-template-columns:260px minmax(0,1fr) 240px;max-width:1400px;margin:0 auto;min-height:100vh}.sidebar-left[data-astro-cid-5eggoaxc]{padding:2rem 1.5rem;background:#fbfbfb;border-right:1px solid rgba(0,0,0,.05);position:sticky;top:0;height:100vh;overflow-y:auto}.back-link[data-astro-cid-5eggoaxc]{font-size:.85rem;color:#888;font-weight:600;display:block;margin-bottom:1.5rem}.doc-content[data-astro-cid-5eggoaxc]{padding:3rem 4rem}.doc-header[data-astro-cid-5eggoaxc]{margin-bottom:3rem;border-bottom:1px solid #eee;padding-bottom:2rem}.doc-header[data-astro-cid-5eggoaxc] h1[data-astro-cid-5eggoaxc]{font-family:Playfair Display,serif;font-size:2.5rem;margin:.5rem 0 0;line-height:1.2;color:var(--text-main)}.doc-meta[data-astro-cid-5eggoaxc]{display:flex;gap:1rem;align-items:center;margin-bottom:.5rem}.doc-date[data-astro-cid-5eggoaxc]{font-family:monospace;color:#999;font-size:.9rem}.doc-tags[data-astro-cid-5eggoaxc] span[data-astro-cid-5eggoaxc]{color:var(--accent-library);font-size:.85rem;font-weight:600;margin-right:5px}.markdown-body[data-astro-cid-5eggoaxc]{line-height:1.8;color:#333}.markdown-body[data-astro-cid-5eggoaxc] h2{font-size:1.8rem;margin-top:3rem;margin-bottom:1rem;font-weight:600;color:#222}.markdown-body[data-astro-cid-5eggoaxc] img{border-radius:8px;box-shadow:0 4px 12px #00000014}.markdown-body[data-astro-cid-5eggoaxc] pre{border-radius:8px;padding:1.2rem;font-size:.9rem;background:#2d2d2d}.comments-wrapper[data-astro-cid-5eggoaxc]{margin-top:4rem;padding-top:2rem;border-top:1px solid #eee}.sidebar-right[data-astro-cid-5eggoaxc]{padding:2rem 1rem;position:sticky;top:0;height:100vh}@media(max-width:1024px){.doc-layout[data-astro-cid-5eggoaxc]{grid-template-columns:240px 1fr}.sidebar-right[data-astro-cid-5eggoaxc]{display:none}}@media(max-width:768px){.doc-layout[data-astro-cid-5eggoaxc]{grid-template-columns:1fr}.sidebar-left[data-astro-cid-5eggoaxc],.sidebar-right[data-astro-cid-5eggoaxc]{display:none}.doc-content[data-astro-cid-5eggoaxc]{padding:2rem 1.5rem}}
+.gt-container .gt-btn-login,.gt-container .gt-btn-public,.gt-container .gt-btn-preview{background-color:var(--accent-library);border-color:var(--accent-library)}.gt-container .gt-btn-login:hover{background-color:#7a8e85;border-color:#7a8e85}
+</style></head> <body class> <div style="padding: 0;"></div>  <div class="doc-layout" data-astro-cid-5eggoaxc> <aside class="sidebar-left" data-astro-cid-5eggoaxc> <div class="sidebar-header" data-astro-cid-5eggoaxc> <a href="/notes" class="back-link" data-astro-cid-5eggoaxc>← Library Index</a> </div> <nav class="tree-nav" data-astro-cid-5eggoaxc> <div style="margin-left: 0px" data-astro-cid-c62rl6pb> <div class="folder-group" data-astro-cid-c62rl6pb> <div class="folder-name" data-astro-cid-c62rl6pb>CHIP</div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/chip/2022-12-16-interrupt" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>中断</span> </a> </div>  </div> </div> <div style="margin-left: 0px" data-astro-cid-c62rl6pb> <div class="folder-group" data-astro-cid-c62rl6pb> <div class="folder-name" data-astro-cid-c62rl6pb>CPP</div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/cpp/2026-04-14-cpp_trick" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>可能是一些使用cpp开发时注意的事情</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/cpp/2022-12-19-virtual" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>基类与派生类构造和析构中混了虚函数和指针的顺序</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/cpp/2022-12-11-sort" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>sort函数</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <div class="folder-group" data-astro-cid-c62rl6pb> <div class="folder-name" data-astro-cid-c62rl6pb>CS106B</div> <div style="margin-left: 24px" data-astro-cid-c62rl6pb> <a href="/notes/cpp/cs106b/2024-11-06-1" class="file-link active" data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>cs106b课堂笔记</span> </a> </div> <div style="margin-left: 24px" data-astro-cid-c62rl6pb> <a href="/notes/cpp/cs106b/2024-11-06-code" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>cs106b作业</span> </a> </div>  </div> </div>  </div> </div> <div style="margin-left: 0px" data-astro-cid-c62rl6pb> <div class="folder-group" data-astro-cid-c62rl6pb> <div class="folder-name" data-astro-cid-c62rl6pb>ML</div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/ml/2026-04-24-flow-matching-and-diffusion" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>流匹配与扩散模型</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/ml/2026-04-14-dl_trick" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>可能是一些深度学习的trick</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/ml/2026-01-27-ml_with_graphs" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>图机器学习cs224</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/ml/2025-07-04-limuai" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>跟李沐学AI</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/ml/2022-12-08-andrew-ng" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>吴恩达机器学习笔记</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/ml/2025-4-4-cs188" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>cs188课堂笔记</span> </a> </div>  </div> </div> <div style="margin-left: 0px" data-astro-cid-c62rl6pb> <div class="folder-group" data-astro-cid-c62rl6pb> <div class="folder-name" data-astro-cid-c62rl6pb>PAPERS</div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/papers/2025-09-09-dynamic-human-centric-scenes" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>Active Perception and Long-term Understanding of Dynamic Human-Centric Scenes</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/papers/2025-07-12-nerf-in-robotics" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>NeRF in Robotics</span> </a> </div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/papers/2025-07-11-sort3d" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>SORT3D</span> </a> </div>  </div> </div> <div style="margin-left: 0px" data-astro-cid-c62rl6pb> <div class="folder-group" data-astro-cid-c62rl6pb> <div class="folder-name" data-astro-cid-c62rl6pb>PYTHON</div> <div style="margin-left: 12px" data-astro-cid-c62rl6pb> <a href="/notes/python/2022-12-24-numpy" class="file-link " data-astro-cid-c62rl6pb> <span class="link-text" data-astro-cid-c62rl6pb>numpy库</span> </a> </div>  </div> </div>  </nav> </aside> <main class="doc-content" data-astro-cid-5eggoaxc> <article class="prose-container" data-astro-cid-5eggoaxc> <header class="doc-header" data-astro-cid-5eggoaxc> <div class="doc-meta" data-astro-cid-5eggoaxc> <time class="doc-date" data-astro-cid-5eggoaxc>2024年11月6日</time> <div class="doc-tags" data-astro-cid-5eggoaxc> <span data-astro-cid-5eggoaxc>#cpp</span> </div> </div> <h1 data-astro-cid-5eggoaxc>cs106b课堂笔记</h1> </header> <div class="markdown-body" data-astro-cid-5eggoaxc> <p>惭愧了 这么久才又开始学习</p>
+<!--more-->
+<h2 id="abstration">abstration</h2>
+<h3 id="defination">defination</h3>
+<p>Design that hides the details of how something works while still allowing the user to access complex functionality</p>
+<h3 id="what-is-an-abstraction">what is an abstraction</h3>
+<p>Key idea:Through a simpler interface, users are able to take full advantage of a complex system without needing to know how it works or how it was made.</p>
+<h2 id="includes">includes</h2>
+<h3 id="angle-bracket">angle bracket</h3>
+<p>use of the angle bracket operators is usually reserved for code from the C++ Standard library</p>
+<h3 id="quote">quote</h3>
+<p>use of the quotes is usually reserved for code from the Stanford C++ libraries, or code in files that you have written yourself</p>
+<h2 id="variables-and-types">variables and types</h2>
+<h3 id="variables">variables</h3>
+<p>A way for code to store information by associating a value with a name  <br>
+we will think of a variable as a named container storing a value</p>
+<h3 id="types">types</h3>
+<p>All variables have a type associated with them, where the type describes the representation of the variable. <br>
+In C++,all types must be explicitly defined when the variable is created, and a variable cannot change its type.</p>
+<h2 id="funtion">funtion</h2>
+<h3 id="anatomy-of-a-function">anatomy of a function</h3>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/function.png" alt="function"></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>definition:</span></span>
+<span class="line"><span>parameter(s):</span></span>
+<span class="line"><span>one or more variables that your function expects as input.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>argument(s):</span></span>
+<span class="line"><span>the values passed into your function and assigned to its parameter variables.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>return value:</span></span>
+<span class="line"><span>the value that your function hands back to the "calling" function.</span></span></code></pre>
+<p><font color="blue">can think parameters as a special set of local variables that belong to a function</font></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>returnType functionName(varType parameter1, varType parameter2, ...){</span></span>
+<span class="line"><span>    returnType variable = /* Some fancy code */</span></span>
+<span class="line"><span>    /* more code */</span></span>
+<span class="line"><span>    return variable;</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<p><font color="blue">a function must always be defined before it is called</font></p>
+<p>Pass-by-value is the default mode of operation when it comes to parameters in C++,which means that parameter is passed to function by value,variable is a copy of the variable passed in,changing it inside the function does not change the value in the calling function.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>defenition:</span></span>
+<span class="line"><span>pass by value:When a parameter is passed into a function, the new variable stores a copy of the passed in value in memory.</span></span>
+<span class="line"><span>pass by reference:When a parameter is passed into a function, the new variable stores a reference to the passed in value, which allows you to directly edit the original value.</span></span></code></pre>
+<h3 id="when-we-use-references">When we use references</h3>
+<ul>
+<li>To allow helper functions to edit data stuctures in other functions</li>
+<li>To avoid making new copies of large data structures in memory</li>
+<li>References also provide a workaround for multiple return values
+<ul>
+<li>Your function can both have a return value and also directly edit a Vector object passed in as a parameter.This makes it as if your function is returning both the vector and the actual return value</li>
+</ul>
+</li>
+</ul>
+<h3 id="when-we-dont-use-references">When we don’t use references</h3>
+<ul>
+<li>If we always used references,functions would all be able to edit one another’s variables, and scoping would get confusing</li>
+<li>When the data itself is small(i.e. the cost of copying by value is low)</li>
+<li>Note: You can’t provide a literal as an argument if you are passing a parameter by reference.</li>
+</ul>
+<h2 id="循环什么的不想记瘫">循环什么的不想记（瘫</h2>
+<h2 id="string">string</h2>
+<ul>
+<li>Strings are mutable in C++</li>
+<li>You can add characters to strings and strings to strings using += and +
+<ul>
+<li>Strings must use double quotes("")while characters use single(”)</li>
+</ul>
+</li>
+<li>You can use logical operators to compare strings(and characters)(only comparing the first letter)</li>
+</ul>
+<p>when running</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>string hiThere = "hi"+"there";</span></span></code></pre>
+<p>you would get <font color="red">a error</font> <br>
+cause there are cpp string and c string in cpp,when declare a string like “hi” you would get a c string,which is not allowed to be added together. <br></p>
+<p>when running</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>string hiThere = "hi"+'!';</span></span></code></pre>
+<p>you would get <font color="red">a garbage</font> <br>
+cause when add a different type to a c string, it would point to random garbage.</p>
+<h3 id="c-strings-vs-c-strings-summary">C strings vs C++ strings summary</h3>
+<ul>
+<li>C strings have no methods
+<ul>
+<li>This is why you can’t do something like “hi”.length() in C++</li>
+</ul>
+</li>
+<li>Conversion fixes
+<ul>
+<li>Store the C string in a variable first to convert it to a C++ string</li>
+<li>Use a conversion function
+<ul>
+<li>string(“text”); // converts the C string literal into a C++ string</li>
+<li>strig.c_str(); // return a C string from a C++ string <br></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Takeaway:Beware of C string</p>
+<h2 id="abstract-data-types">Abstract Data Types</h2>
+<h3 id="vector">Vector</h3>
+<ul>
+<li>At a high level,a vector is an ordered collection of elements of the same type that can grow and shrink in size.
+<ul>
+<li>Each element in the collection has a specific location, or index</li>
+<li>All elements in a vector must be of the same type.Unlike in other programming languages, a single vector cannot contain elements of mixed types.</li>
+<li>Vectors are fixible when it comes to the number of elements they can store.You can easily add and remove elements from a vector.Vectors also know their size, meaning you can query them to see how many elements they currently contain.
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/vector.png" alt="vector"></li>
+</ul>
+</li>
+</ul>
+<h3 id="gridin-stanford-library">Grid(In Stanford library)</h3>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/grid.png" alt="grid"></p>
+<ul>
+<li>A 2D array, defined with a particular width and height
+<ul>
+<li>we say array instead of vector here because the dimensions are established when the grid is created</li>
+</ul>
+</li>
+<li>useful for spreadsheets,game boards,etc</li>
+<li>Three ways to declare a grid
+<ul>
+<li>Grid<type> gridName;
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#E1E4E8">Grid</span><span style="color:#F97583">&#x3C;int></span><span style="color:#E1E4E8"> board; \\ </span><span style="color:#F97583">if</span><span style="color:#E1E4E8"> you declare a board with no initialization,you must resize it </span><span style="color:#F97583">or</span><span style="color:#E1E4E8"> reassign it before </span><span style="color:#F97583">using</span><span style="color:#E1E4E8"> it.Resizing will fill it with </span><span style="color:#F97583">default</span><span style="color:#E1E4E8"> values </span><span style="color:#F97583">for</span><span style="color:#E1E4E8"> that type.</span></span>
+<span class="line"><span style="color:#E1E4E8">board.</span><span style="color:#B392F0">resize</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">board[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">][</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">;</span></span></code></pre>
+</type></li>
+<li>Grid<type> gridName(numRows,numCols);
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#B392F0">Grid</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">> </span><span style="color:#B392F0">board</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">);</span></span></code></pre>
+</type></li>
+<li>Grid<type> gridName = {% raw %}{{r0c0,r0c1,r0c2},{r1c0,r1c1,r1c2},…}{% endraw %};
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#E1E4E8">Grid</span><span style="color:#F97583">&#x3C;int></span><span style="color:#E1E4E8"> board </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span><span style="color:#F97583">%</span><span style="color:#E1E4E8"> raw </span><span style="color:#F97583">%</span><span style="color:#E1E4E8">}{{</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">},{</span><span style="color:#79B8FF">6</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">}}{</span><span style="color:#F97583">%</span><span style="color:#E1E4E8"> endraw </span><span style="color:#F97583">%</span><span style="color:#E1E4E8">};</span></span></code></pre>
+</type></li>
+</ul>
+</li>
+<li>We could use a combination of Vectors to simulate a 2D matrix,but a Grid is easier</li>
+</ul>
+<h3 id="tradeoffs-with-vectors-and-gridsvs-other-adts">Tradeoffs with vectors and grids(vs. other ADTs)</h3>
+<ul>
+<li>Easily able to search through all elements</li>
+<li>Can use the indices as a way of structuring the data</li>
+</ul>
+<h3 id="struct">Struct</h3>
+<p>A way to bundle different types of information in C++,like creating a custom data structure.</p>
+<ul>
+<li>To declare a struct,you can either assign each of its members separately or assign it when it’s created</li>
+</ul>
+<h3 id="queue">Queue</h3>
+<ul>
+<li>First person In is the First person Out(FIFO)
+<ul>
+<li>When you remove(dequeue)people from the queue, you remove them from the front of the line</li>
+</ul>
+</li>
+<li>Last person in is the last person served
+<ul>
+<li>When you insert(enqueue)people into a queue, you insert them at the back(the end of the line)</li>
+</ul>
+</li>
+</ul>
+<h3 id="stack">Stack</h3>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/stack.png" alt="stack"></p>
+<ul>
+<li>Modeled like an actual pancakes🥞</li>
+<li>Only the top element in a stack is accessible
+<ul>
+<li>The Last item In is the First one Out(LIFO)</li>
+</ul>
+</li>
+<li>The push, pop, and top operations are the only operations allowed by the stack ADT</li>
+</ul>
+<p>Common bugs: <br></p>
+<ul>
+<li>If you edit the ADT within a loop,don’t use .size() in the loop’s conditions!The size changes while the loop runs.</li>
+<li>Unlike with queues,you can’t iterate over a stack without destroying it</li>
+</ul>
+<h3 id="tradeoffs-with-queues-and-stacksvs-other-adts">Tradeoffs with queues and stacks(vs. other ADTs)</h3>
+<ul>
+<li>What are some downsides to using a queue/stack?
+<ul>
+<li>No random access.You get the front/top,or nothing.</li>
+<li>No side-effect-free traversal — you can only iterate over all elements in the structure by removing previous elements first.</li>
+<li>No easy way to search through a queue/stack</li>
+</ul>
+</li>
+<li>What are some benefits?
+<ul>
+<li>Useful for lots of problem — many real-world problems can be solved with either a LIFO or FIFO model</li>
+<li>Very easy to build one from array such that access is guaranteed to be fast.</li>
+</ul>
+</li>
+</ul>
+<h3 id="set">Set</h3>
+<ul>
+<li>A set is a collection of elements with no duplicates</li>
+<li>Sets are faster than ordered data structures like vectors — since there are no duplicate, it’s faster for them to find things</li>
+<li>Sets don’t have indices</li>
+</ul>
+<h4 id="set-operands">Set operands</h4>
+<p>Sets can be compared,combined,etc.</p>
+<ul>
+<li>s1 == s2 <br>
+true if the sets contain exactly the same elements</li>
+<li>s1 != s2 <br>
+true if the sets don’t contain the exact same elements</li>
+<li>s1 + s2 <br>
+returns the union of s1 and s2(i.e.,all elements in both)</li>
+<li>s1 * s2 <br>
+return the intersection of s1 and s2(i.e.,only the elements in both sets)</li>
+<li>s1 - s2 <br>
+returns the different of s1 and s2(the elemenets in s1 but not in s2)</li>
+</ul>
+<h4 id="common-set-patterns-and-pitfalls">Common Set patterns and pitfalls</h4>
+<ul>
+<li>Use for each loops to iterate over sets
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>for(type currElem : set){</span></span>
+<span class="line"><span>  // process elements one at a time</span></span>
+<span class="line"><span>}</span></span></code></pre>
+</li>
+<li>You cannot use anything that attempts to index into the set(e.g.for(int i = 0; .. ) or set[i])</li>
+</ul>
+<h3 id="map">Map</h3>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/map.png" alt="map"></p>
+<ul>
+<li>A map is a collection of key/value pairs, and the key is used to quickly find the value</li>
+<li>A map is an alternative to ordered data structure, where the “indices” no longer need to be integers.</li>
+</ul>
+<h4 id="map-exampleusing-stanford-library">Map example(Using Stanford library)</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>// maps from string keys to string values</span></span>
+<span class="line"><span>Map&#x3C;string, string> phoneBook;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>//          key         value</span></span>
+<span class="line"><span>phoneBook["Jenny"] = "867-5309"; //or</span></span>
+<span class="line"><span>phoneBook.put("Jenny", "867-5309");</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>string jennyNumber = phoneBook["Jenny"]; // or</span></span>
+<span class="line"><span>string jennyNumber = phoneBook.get("Jenny");</span></span>
+<span class="line"><span>cout &#x3C;&#x3C; jennyNumber &#x3C;&#x3C; endl;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>// maps from string keys to Vector&#x3C;double> values</span></span>
+<span class="line"><span>Map&#x3C;string, Vector&#x3C;double>> accounts;</span></span></code></pre>
+<h4 id="common-map-patterns-and-pitfalls">Common Map patterns and pitfalls</h4>
+<ul>
+<li>
+<p>Use for each loops to iterate over maps</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>for (type curKey : map){</span></span>
+<span class="line"><span>  // see map values using map[curKey]</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<p>Don’t remove keys within the loop as you’re iterating</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>for (type curKey : map.keys()){</span></span>
+<span class="line"><span>  // see map values using map[curKey]</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<p>Okay to edit map within this loop because .values()/.keys() makes a Vector copy of the values/keys.</p>
+</li>
+<li>
+<p>How to check whether the key is in the map:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Map&#x3C;string, int> freqMap;</span></span>
+<span class="line"><span>...</span></span>
+<span class="line"><span>// get key to test if it's in the map</span></span>
+<span class="line"><span>if (freqMap.containsKey(key)){</span></span>
+<span class="line"><span>  cout &#x3C;&#x3C; key &#x3C;&#x3C; " is in the map" &#x3C;&#x3C; endl;</span></span>
+<span class="line"><span>}</span></span></code></pre>
+</li>
+</ul>
+<h2 id="breadth-first-searchbfs">Breadth-First Search(BFS)</h2>
+<p>引入的问题：如何每次变换一个字母且每次变换后都是一个存在的英语单词，让一个单词变为另一个单词</p>
+<h3 id="data-structures">Data Structures</h3>
+<ul>
+<li>A data structue to represent(partial word)ladders
+<ul>
+<li>Stack<string></string></li>
+</ul>
+</li>
+<li>A data structure to store all the partial word ladders that we have generated so far and have yets to explore
+<ul>
+<li>Queue&#x3C;Stack<string>></string></li>
+</ul>
+</li>
+<li>A data structure to keep track of all the words that we’ve explored so far, so that we avoid getting stuck in loops
+<ul>
+<li>Set<string></string></li>
+</ul>
+</li>
+</ul>
+<h3 id="pseudocode">Pseudocode</h3>
+<p>Create an empty queue and an empty set of visited locations <br>
+Create an initial word ladder containing the starting word and add it to the queue <br>
+While the queue is not empty <br>
+ Remove the next partial ladder from the queue <br>
+ Set the current search word to be the word at the top of the ladder <br>
+ If the current word is the destination, then return the current ladder <br>
+ Generate all “neighboring” words that are valid English words and one letter away from the current word <br>
+ Loop over all neighbor words <br>
+  If the neighbor hasn’t been visited <br>
+   Create a copy of the current ladder <br>
+   Add the neighbor to the top of the new ladder and mark it visited <br>
+   Add the new ladder to the back of the queue of partial ladders</p>
+<h3 id="bfs-vs-dfs-comparison">BFS vs DFS comparison</h3>
+<ul>
+<li>BFS is typically iterative while DFS is naturally expressed recursively.</li>
+<li>BFS looks at all paths of a particular case, which search strategy to use depends on the problem you’re solving.</li>
+<li>DFS doesn’t need to store all partial paths along the way, so it has a smaller memory footprint than BFS does.</li>
+</ul>
+<h2 id="big-o-notation-and-algorithmic-analysis">Big-O Notation and Algorithmic Analysis</h2>
+<h3 id="nested-data-structures嵌套数据结构">Nested Data Structures（嵌套数据结构）</h3>
+<p>Nesting data structures(using one ADTs as the data type inside of another ADT)is a great way of organizing data with complex structure</p>
+<h4 id="example">example</h4>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241110163247.png" alt="20241110163247">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241110163601.png" alt="20241110163601">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241110163713.png" alt="20241110163713"></p>
+<h4 id="summary">Summary</h4>
+<ul>
+<li>Powerful
+<ul>
+<li>Can express highly structured and complex data</li>
+<li>Used in many real-world systems</li>
+</ul>
+</li>
+<li>Tricky
+<ul>
+<li>With increased complexity comes increased cognitive load in differentiating between the levels of information stored at each level of the Nesting</li>
+<li>Specially in cpp, working with nested data structures can be tricky due to the fact that references and copies show up at different points in time.</li>
+</ul>
+</li>
+</ul>
+<h3 id="big-o-noatation">Big-O Noatation</h3>
+<ul>
+<li>Big-O notation is a way of quantifying the rate at which quantity grows.</li>
+<li>Example:
+<ul>
+<li>A square of side length r has area O(<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>r</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">r^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span>)</li>
+<li>A circle of radius r has area O(<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>r</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">r^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span>)</li>
+<li><font color="red">the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>r</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">r^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span> just says that these quantities grow at the same relative rates.It does not say that they are equal.</font></li>
+</ul>
+</li>
+</ul>
+<h4 id="example-1">Example</h4>
+<p>Manufacturing <br>
+You’re working at a compony producing cat toys.It costs you some amount of money to produce a cat toy, and there was some one-time cost to set-up the factory. <br>
+What data would you need to gather to estimate the cost of producing ten million cat toys? <br></p>
+<p>cost(n) = n * costPerWidget(This term grows as a function of n) + startupCost(This term does not grow)
+= O(n)</p>
+<h4 id="nuances-of-big-o">Nuances of Big-O</h4>
+<ul>
+<li>Big-O notation is designed to capture the rate at which a quantity grows.It does not capture information about
+<ul>
+<li>leading coefficients: the area of a square and a circle are both O(<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>r</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">r^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span>)</li>
+<li>lower-order terms: there may be other factors contributing to growth that get glossed over</li>
+</ul>
+</li>
+<li>However,it’s still a very powerful tool for predicting behavior</li>
+</ul>
+<h4 id="why-runtime-isnt-enough">Why runtime isn’t enough?</h4>
+<ul>
+<li>What is runtime?
+<ul>
+<li>Runtime is simply the amount of real time it takes for a program to run</li>
+</ul>
+</li>
+<li>Measuring wall-clock runtime is less than ideal, since
+<ul>
+<li>It depends on what computer you’re using,</li>
+<li>What else is running on that computer,</li>
+<li>Whether that computer is conserving power,</li>
+<li>etc</li>
+</ul>
+</li>
+<li>Worse, individual runtimes can’t predict future runtimes</li>
+</ul>
+<h4 id="analyze">Analyze</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>int vectorMax(Vector&#x3C;int> &#x26;v){ // 1 time unit</span></span>
+<span class="line"><span>  int currentMax = v[0];       // 1 time unit</span></span>
+<span class="line"><span>  int n = v.size();            // 1 time unit</span></span>
+<span class="line"><span>  for(int i = 1; i &#x3C; n; i++){  // (N+1)time units</span></span>
+<span class="line"><span>    if(currentMax &#x3C; v[i]){     // N time units</span></span>
+<span class="line"><span>      currentMax = v[i];       // N time units</span></span>
+<span class="line"><span>    }                          // (up to)N time units</span></span>
+<span class="line"><span>  }                            // 1 time unit</span></span>
+<span class="line"><span>  return currentMax;</span></span>
+<span class="line"><span>} </span></span>
+<span class="line"><span>// doubling the size of the input roughly doubles the runtime.Therefore, the input and runtime have a linear(O(N))relationship. </span></span></code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241111154545.png" alt="20241111154545"></p>
+<h3 id="recursion">Recursion</h3>
+<h4 id="definition">definition</h4>
+<p>A problem-solving technique in which tasks are completed by reducing them into repeated, smaller tasks of the same form.</p>
+<h4 id="two-main-cases-components-of-recursion">Two main cases (components) of recursion</h4>
+<ul>
+<li>Base case
+<ul>
+<li>The simplest version(s) of your problem that all other cases reduce to</li>
+<li>An occurrance that can be answered directly</li>
+</ul>
+</li>
+<li>Recursive case
+<ul>
+<li>The step at which you break down more complex versions of the task into smaller occurrances</li>
+<li>Cannot be answered directly</li>
+<li>Take the “recursive leap of faith” and trust the smaller tasks will solve the problem for you</li>
+</ul>
+</li>
+</ul>
+<h4 id="stack-frame">Stack Frame</h4>
+<p>gets created each time a function is called. <br></p>
+<ul>
+<li>The “stack” is where in your computer’s memory the information is created.</li>
+<li>A “frame” stores all of the data(variables)for that particular function call.</li>
+</ul>
+<h4 id="approaching-recursive-problems">Approaching recursive problems</h4>
+<ul>
+<li>Look for self-similarity(An object is self-similar if it contains a smaller copy of itself)</li>
+<li>Try out an example
+<ul>
+<li>Work through a simple example and then increase the complexity</li>
+<li>Think about what information needs to be “stored” at each step in the recursive case</li>
+</ul>
+</li>
+<li>Ask yourself:
+<ul>
+<li>What is the base case?(What is the simplest case?)</li>
+<li>What is the recursive case?(What pattern of self-similarity do you see?)</li>
+</ul>
+</li>
+</ul>
+<h5 id="how-can-we-reserve-a-string">How can we reserve a string</h5>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241111210807.png" alt="20241111210807">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241111210935.png" alt="20241111210935">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241111211027.png" alt="20241111211027"></p>
+<h4 id="summary-1">Summary</h4>
+<ul>
+<li>Recursion is a problem-solving technique in which tasks are completed by reducing them into repeated,smaller tasks of the same form</li>
+<li>Recursion has two main parts: the base case and the recursive case</li>
+<li>The solution will get built up as you come back up the call stack
+<ul>
+<li>The base case will define the “base” of the solution you’re building up.</li>
+<li>Each previous recursive call contributes a little bit to the final solution</li>
+<li>The initial call to your recursive function is what will return the completely constructed answer.</li>
+</ul>
+</li>
+</ul>
+<h4 id="fractals">Fractals</h4>
+<ul>
+<li>A fractal is any repeated, graphical pattern</li>
+<li>A fractal is composed of repeated instances of the same shape or pattern, arranged in a structured way</li>
+<li>Fractals and self-similar structures are often difined in terms of some parameter called the order, which indicates the complexity of the overall structure.</li>
+</ul>
+<h5 id="g-window-and-g-point">G-window and G-point</h5>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241111215005.png" alt="20241111215005">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241111215039.png" alt="20241111215039"></p>
+<h4 id="why-do-we-use-recursion">Why do we use recursion</h4>
+<ul>
+<li>Elegance
+<ul>
+<li>Allows us to solve problems with very clean and concise code</li>
+</ul>
+</li>
+<li>Efficiency
+<ul>
+<li>Allows us to accomplish better runtimes when solving problems</li>
+</ul>
+</li>
+<li>Dynamic
+-Allows us to solve problems that are hard to solve iteratively</li>
+</ul>
+<h4 id="an-efficient-example-binary-search">An efficient example: Binary Search</h4>
+<p>Finding a number in a sorted list: <br>
+1.Go through the whole vector. Linear Search is O(n)</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Note:</span></span>
+<span class="line"><span>Sets and Maps don't actually use a sorted list to store information, but the general idea of searching sorted data is similar.</span></span></code></pre>
+<p>2.Binary search</p>
+<ul>
+<li>Eliminate half of the data at each step.</li>
+<li>Algorithm:Check the middle element at(startIndex + endIndex) / 2
+<ul>
+<li>If the middle element is bigger than your desired value, eliminate the right half of the data and repeat.</li>
+<li>If the middle element is smaller than your desired value, eliminate the left half of the data and repeat.</li>
+<li>Otherwise,you’ve found your element!</li>
+</ul>
+</li>
+<li>Recursive cases
+<ul>
+<li>Element at middle is too small -> binarySearch(right half of data)</li>
+<li>Element at middle is too large -> binarySearch(left halt of data)</li>
+</ul>
+</li>
+<li>Base cases
+<ul>
+<li>Element at middle == desired element</li>
+<li>Desired element is not in your data</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241119204231.png" alt="20241119204231">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241119204259.png" alt="20241119204259">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241119204502.png" alt="20241119204502"></p>
+<h4 id="a-dynamic-examle-exploring-many-possiblities">A dynamic examle: Exploring many possiblities</h4>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241119205908.png" alt="20241119205908"></p>
+<h4 id="two-kinds-of-recursive">Two kinds of recursive</h4>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20241119210118.png" alt="20241119210118"></p>
+<h5 id="when-use-backtracking-recursion">When use backtracking recursion</h5>
+<ul>
+<li>We can generate all possible solutions to a problem or count the total number of possible solutions</li>
+<li>We can find one specific solution to a problem or prove that one exists</li>
+<li>We can find the best possible solution to a given problem</li>
+</ul>
+<h4 id="permutations">Permutations</h4>
+<p>A permutations of a sequence is a sequence with the same elements,though possibly in a different order.</p>
+<h4 id="a-conclusion-about-decision-trees-recursive">A conclusion about decision tree’s recursive</h4>
+<ul>
+<li>The specific model of the general “choose/explore/unchoose”pattern in backtracking recursion that we applied here can be thought of as “copy,edit,recurse”</li>
+<li>At each step of the recursive backtracking process, it is important to keep track of the decision we’ve made so far and the decisions we have left to make</li>
+<li>Backtracking recursion can have variable branching factors at each level</li>
+<li>Use of helper functions and initial empty params that get built up is common</li>
+</ul>
+<h4 id="what-defines-our-shrinkable-decision-tree">What defines our shrinkable decision tree</h4>
+<ul>
+<li>Decision at each step(each level of the tree)</li>
+<li>Options at each decision(branches from each node)</li>
+<li>Information we need to store along the way</li>
+</ul>
+<h2 id="data-struct">Data Struct</h2>
+<h3 id="arrays">Arrays</h3>
+<ul>
+<li>Storage space on computers, which we often refer to as memory, is allocated in organized chunks called arrays.</li>
+<li>An array is a contiguous chunk of space in the computer’s memory, split into slots, each of which can contain one piece of information.
+<ul>
+<li>Contiguous means that each slot is located directly next to the others. There are no “gaps”.</li>
+<li>All arrays have a specific type. Their type dictates what information can be held in each slot.</li>
+<li>Each slot has an “index” by which we can refer to it.</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250312184606.png" alt="20250312184606"></p>
+<h3 id="pointers">Pointers</h3>
+<ul>
+<li>Pointers take up space in memory and can store specific values.</li>
+<li>A pointer always stores a memory address, which is like the specific coordinates of where a piece of memory exists on the computer.</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250312185435.png" alt="20250312185435"></p>
+<h3 id="priority-queue">Priority queue</h3>
+<ul>
+<li>A queue that orders its elements based on a provided “priority”</li>
+<li>Like regular queues, you cannot index into them to get an item at a particular position.</li>
+</ul>
+<h3 id="binary-heap">Binary heap</h3>
+<ul>
+<li>A heap is a tree-based structure that satisfies the heap property that parents have a higher priority than any of their children.</li>
+<li>Additional properties
+<ul>
+<li>Binary: Two children per parent(but no implied orderings between siblings)</li>
+<li>Completely filled(each parents must have 2 children)except for the bottom level,which gets populated from <font color="red"> left to right </font></li>
+</ul>
+</li>
+<li>Two types -> which we use depends on what we define as a “higher” priority
+<ul>
+<li>Min-heap: smaller numbers = higher priority(closer to the root)</li>
+<li>Max-heap: larger numbers = higher priority(closer to the root)</li>
+</ul>
+</li>
+</ul>
+<h3 id="linked-list">Linked list</h3>
+<ul>
+<li>A linked list is a chain of nodes, used to store a sequence of data.</li>
+<li>Each node contains two pieces of information:
+<ul>
+<li>Some piece of data that is stored in the sequence</li>
+<li>A link to the next node in the list</li>
+</ul>
+</li>
+<li>We can traverse the list by starting at the first node and repeatedly following its link.</li>
+<li>The end of the list is marked with some special indicator.</li>
+</ul>
+<h4 id="something-about-list">Something about list</h4>
+<ul>
+<li>Linked lists are chains of Node structs, which are connected by pointers.
+<ul>
+<li>Since the memory is not contiguous, they allow for fast rewiring between nodes(without moving all the other Nodes like an array might)</li>
+</ul>
+</li>
+<li>Common traversal strategy
+<ul>
+<li>While loop with a pointer that starts at the front of your list</li>
+<li>Inside the while loop, reassign the pointer to the next node</li>
+</ul>
+</li>
+<li>Common bugs
+<ul>
+<li>Be careful about the order in which you delete and rewire pointers!</li>
+<li>It’s easy to end up with dangling pointers or memory leaks(memory that hasn’t been deallocated but that you not longer have a pointer to)</li>
+</ul>
+</li>
+</ul>
+<h4 id="pointers-by-reference-summary">Pointers by Reference Summary</h4>
+<ul>
+<li>If you passed a pointer into a function by value, you can change the contenets at the object you point at, but not which object you point at.</li>
+<li>If you pass a pointer into a function by reference, you can also change which object is pointed at.</li>
+<li>When passing in pointers by reference, be careful not to change the pointer unless you really want to change where it’s pointing.</li>
+</ul>
+<h3 id="tree">Tree</h3>
+<p>Key Idea: The distance from each element (node) in a tree to the top of the tree (the root) is small, even if there are many elements. <br></p>
+<p>A tree is hierarchical data organization structure composed of a root value linked to zero or more non-empty subtrees.</p>
+<h4 id="tree-terminology-summary">Tree Terminology Summary</h4>
+<ul>
+<li>Every non-empty tree has a <font color="blue"> root node </font> that defines the “top” of the tree.</li>
+<li>Every node has 0 or more <font color="blue"> children </font> nodes descended from it.Nodes with no children are called <font color="blue"> leaf nodes </font>.</li>
+<li>Every node in a tree has exactly one <font color="blue"> parent </font> node(except for the root node)</li>
+<li>A <font color="blue"> path </font> through the tree traverses adges between parents and their children.</li>
+<li>The <font color="blue"> depth </font> of a node is the length of the path between the root and that node.A tree’s <font color="blue"> height </font> is the number of nodes in the longest path through the tree.</li>
+</ul>
+<h4 id="tree-properties">Tree Properties</h4>
+<ul>
+<li>Any node in a tree can only have one parent.</li>
+<li>The tree cannot have any cycles.There should be no way to make a complete loop through the tree.</li>
+</ul>
+<h4 id="binary-trees">Binary Trees</h4>
+<ul>
+<li>In general, we’ve seen that nodes in a tree can have variable numbers of children(subtrees) and sometimes very, very many.</li>
+<li>However, when working with trees in computer programs, it is common to work mostly with binary trees.</li>
+<li>A binary tree is a tree where every node has either 0,1 or 2 children.No node in a binary tree can have more than 2 children.</li>
+<li>Typically, the two children of a node in a binary tree are refrerred to as the left child and the right child.</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250316205755.png" alt="20250316205755"></p>
+<h5 id="building-a-bst">Building a BST</h5>
+<p>BST即右节点值大于左节点的值的二叉树 <br>
+An optimal BST is built by repeatedly choosing the median element as the root node of a given subtree and then separating elements into groups less than and greater than that median. <br>
+There are multiple valid BSTs for the same set of data.</p>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250316213325.png" alt="20250316213325"></p>
+<h2 id="some-other-thing">Some other thing</h2>
+<h3 id="hash-function">hash function</h3>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250316221302.png" alt="20250316221302">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250316221456.png" alt="20250316221456">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250316221619.png" alt="20250316221619">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250316221718.png" alt="20250316221718">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250316221743.png" alt="20250316221743">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250316222453.png" alt="20250316222453"></p>
+<h3 id="graph">Graph</h3>
+<p>A structured way to represent relationships between different entities.</p>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250320171929.png" alt="20250320171929"></p>
+<p>Two nodes are neighbors if they are directly connected by an edge. <br>
+A path between two nodes is defined be a sequence of edges that can be followed to traverse between the two nodes. <br>
+The length of a path is the number of edges that make up the path.This path has length 2. <br>
+A cycle is a path that begins and ends at the same node. <br>
+A loop is an edge directly from a node back to itself. <br>
+A node is reachable from another node if a path exists between the two nodes. <br>
+A graph is connected if all nodes are reachable from all other nodes. <br>
+A graph is complete if every node has an edge connecting it to every other node.</p>
+<h4 id="different-types-of-graphs">Different types of graphs</h4>
+<p><img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250320173216.png" alt="20250320173216">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250320173313.png" alt="20250320173313">
+<img src="https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20250320173414.png" alt="20250320173414"></p> </div> <div class="comments-wrapper" data-astro-cid-5eggoaxc> <div id="gitalk-container" data-astro-cid-ksttp56e></div> <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script> <script>(function(){const siteConfig = {"author":"Xiaoshuu","title":"Xiaoshuu's Blog","description":"A student","social":{"github":"https://github.com/xiaoshuu"}};
+
+  // 等待页面加载完成
+  document.addEventListener('DOMContentLoaded', () => {
+    const gitalk = new Gitalk({
+      clientID: 'dff9fde3eab645bdb0b2', 
+      clientSecret: 'c073b1dce5f5d3a4d5273681b49a779c9ae6f9de',
+      repo: 'xiaoshuu.github.io',      // 你的博客仓库名 (存放评论 issue 的地方)
+      owner: 'xiaoshuu',              // 你的 GitHub 用户名
+      admin: ['xiaoshuu'],            // 管理员用户 (通常就是你自己)
+      id: location.pathname.slice(0, 50), // 用网址作为 issue 的唯一标识，限制长度
+      distractionFreeMode: false
+    });
+
+    gitalk.render('gitalk-container');
+  });
+})();</script>  </div> </article> </main> <aside class="sidebar-right" data-astro-cid-5eggoaxc> <nav class="toc-container" data-astro-cid-xvrfupwn> <h3 class="toc-title" data-astro-cid-xvrfupwn>ON THIS PAGE</h3> <ul class="toc-list" data-astro-cid-xvrfupwn> <li class="toc-group" data-toc-group="abstration" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-parent" href="#abstration" data-astro-cid-xvrfupwn> abstration </a> <ul class="toc-sublist" data-astro-cid-xvrfupwn> <li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#defination" data-parent-slug="abstration" data-astro-cid-xvrfupwn> defination </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#what-is-an-abstraction" data-parent-slug="abstration" data-astro-cid-xvrfupwn> what is an abstraction </a> </li> </ul> </li><li class="toc-group" data-toc-group="includes" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-parent" href="#includes" data-astro-cid-xvrfupwn> includes </a> <ul class="toc-sublist" data-astro-cid-xvrfupwn> <li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#angle-bracket" data-parent-slug="includes" data-astro-cid-xvrfupwn> angle bracket </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#quote" data-parent-slug="includes" data-astro-cid-xvrfupwn> quote </a> </li> </ul> </li><li class="toc-group" data-toc-group="variables-and-types" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-parent" href="#variables-and-types" data-astro-cid-xvrfupwn> variables and types </a> <ul class="toc-sublist" data-astro-cid-xvrfupwn> <li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#variables" data-parent-slug="variables-and-types" data-astro-cid-xvrfupwn> variables </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#types" data-parent-slug="variables-and-types" data-astro-cid-xvrfupwn> types </a> </li> </ul> </li><li class="toc-group" data-toc-group="funtion" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-parent" href="#funtion" data-astro-cid-xvrfupwn> funtion </a> <ul class="toc-sublist" data-astro-cid-xvrfupwn> <li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#anatomy-of-a-function" data-parent-slug="funtion" data-astro-cid-xvrfupwn> anatomy of a function </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#when-we-use-references" data-parent-slug="funtion" data-astro-cid-xvrfupwn> When we use references </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#when-we-dont-use-references" data-parent-slug="funtion" data-astro-cid-xvrfupwn> When we don’t use references </a> </li> </ul> </li><li class="toc-group" data-toc-group="循环什么的不想记瘫" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-parent" href="#循环什么的不想记瘫" data-astro-cid-xvrfupwn> 循环什么的不想记（瘫 </a>  </li><li class="toc-group" data-toc-group="string" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-parent" href="#string" data-astro-cid-xvrfupwn> string </a> <ul class="toc-sublist" data-astro-cid-xvrfupwn> <li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#c-strings-vs-c-strings-summary" data-parent-slug="string" data-astro-cid-xvrfupwn> C strings vs C++ strings summary </a> </li> </ul> </li><li class="toc-group" data-toc-group="abstract-data-types" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-parent" href="#abstract-data-types" data-astro-cid-xvrfupwn> Abstract Data Types </a> <ul class="toc-sublist" data-astro-cid-xvrfupwn> <li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#vector" data-parent-slug="abstract-data-types" data-astro-cid-xvrfupwn> Vector </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#gridin-stanford-library" data-parent-slug="abstract-data-types" data-astro-cid-xvrfupwn> Grid(In Stanford library) </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#tradeoffs-with-vectors-and-gridsvs-other-adts" data-parent-slug="abstract-data-types" data-astro-cid-xvrfupwn> Tradeoffs with vectors and grids(vs. other ADTs) </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#struct" data-parent-slug="abstract-data-types" data-astro-cid-xvrfupwn> Struct </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#queue" data-parent-slug="abstract-data-types" data-astro-cid-xvrfupwn> Queue </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#stack" data-parent-slug="abstract-data-types" data-astro-cid-xvrfupwn> Stack </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#tradeoffs-with-queues-and-stacksvs-other-adts" data-parent-slug="abstract-data-types" data-astro-cid-xvrfupwn> Tradeoffs with queues and stacks(vs. other ADTs) </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#set" data-parent-slug="abstract-data-types" data-astro-cid-xvrfupwn> Set </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#map" data-parent-slug="abstract-data-types" data-astro-cid-xvrfupwn> Map </a> </li> </ul> </li><li class="toc-group" data-toc-group="breadth-first-searchbfs" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-parent" href="#breadth-first-searchbfs" data-astro-cid-xvrfupwn> Breadth-First Search(BFS) </a> <ul class="toc-sublist" data-astro-cid-xvrfupwn> <li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#data-structures" data-parent-slug="breadth-first-searchbfs" data-astro-cid-xvrfupwn> Data Structures </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#pseudocode" data-parent-slug="breadth-first-searchbfs" data-astro-cid-xvrfupwn> Pseudocode </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#bfs-vs-dfs-comparison" data-parent-slug="breadth-first-searchbfs" data-astro-cid-xvrfupwn> BFS vs DFS comparison </a> </li> </ul> </li><li class="toc-group" data-toc-group="big-o-notation-and-algorithmic-analysis" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-parent" href="#big-o-notation-and-algorithmic-analysis" data-astro-cid-xvrfupwn> Big-O Notation and Algorithmic Analysis </a> <ul class="toc-sublist" data-astro-cid-xvrfupwn> <li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#nested-data-structures嵌套数据结构" data-parent-slug="big-o-notation-and-algorithmic-analysis" data-astro-cid-xvrfupwn> Nested Data Structures（嵌套数据结构） </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#big-o-noatation" data-parent-slug="big-o-notation-and-algorithmic-analysis" data-astro-cid-xvrfupwn> Big-O Noatation </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#recursion" data-parent-slug="big-o-notation-and-algorithmic-analysis" data-astro-cid-xvrfupwn> Recursion </a> </li> </ul> </li><li class="toc-group" data-toc-group="data-struct" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-parent" href="#data-struct" data-astro-cid-xvrfupwn> Data Struct </a> <ul class="toc-sublist" data-astro-cid-xvrfupwn> <li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#arrays" data-parent-slug="data-struct" data-astro-cid-xvrfupwn> Arrays </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#pointers" data-parent-slug="data-struct" data-astro-cid-xvrfupwn> Pointers </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#priority-queue" data-parent-slug="data-struct" data-astro-cid-xvrfupwn> Priority queue </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#binary-heap" data-parent-slug="data-struct" data-astro-cid-xvrfupwn> Binary heap </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#linked-list" data-parent-slug="data-struct" data-astro-cid-xvrfupwn> Linked list </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#tree" data-parent-slug="data-struct" data-astro-cid-xvrfupwn> Tree </a> </li> </ul> </li><li class="toc-group" data-toc-group="some-other-thing" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-parent" href="#some-other-thing" data-astro-cid-xvrfupwn> Some other thing </a> <ul class="toc-sublist" data-astro-cid-xvrfupwn> <li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#hash-function" data-parent-slug="some-other-thing" data-astro-cid-xvrfupwn> hash function </a> </li><li class="toc-subitem" data-astro-cid-xvrfupwn> <a class="toc-link toc-link-child" href="#graph" data-parent-slug="some-other-thing" data-astro-cid-xvrfupwn> Graph </a> </li> </ul> </li> </ul> </nav> <script type="module">const r=Array.from(document.querySelectorAll("[data-toc-group]")),s=Array.from(document.querySelectorAll(".toc-link")),a=Array.from(document.querySelectorAll(".markdown-body h2[id], .markdown-body h3[id]")),d=new Map(s.filter(e=>e.dataset.parentSlug).map(e=>[decodeURIComponent(e.hash.slice(1)),e.dataset.parentSlug])),i=e=>{const o=d.get(e)??e;r.forEach(t=>{const c=t.dataset.tocGroup===o;t.classList.toggle("is-expanded",c),t.classList.toggle("is-active-group",c)}),s.forEach(t=>{const c=decodeURIComponent(t.hash.slice(1));t.classList.toggle("is-active",c===e)})},l=()=>{let o=a[0];for(const t of a)if(t.getBoundingClientRect().top<=120)o=t;else break;return o?.id},n=()=>{const e=l();e&&i(e)};s.forEach(e=>{e.addEventListener("click",()=>{const o=decodeURIComponent(e.hash.slice(1));o&&i(o)})});n();window.addEventListener("scroll",n,{passive:!0});window.addEventListener("resize",n);</script>  </aside> </div>  </body></html> 

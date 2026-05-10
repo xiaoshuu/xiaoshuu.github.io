@@ -8,20 +8,110 @@ interface Props {
 
 const { headings } = Astro.props;
 
-// 只显示 h2 和 h3，避免太乱 
 const toc = headings.filter(h => h.depth > 1 && h.depth <= 3);
+
+const groups = toc.reduce<{
+  heading: MarkdownHeading;
+  children: MarkdownHeading[];
+}[]>((acc, heading) => {
+  if (heading.depth === 2 || acc.length === 0) {
+    acc.push({ heading, children: [] });
+    return acc;
+  }
+
+  acc[acc.length - 1].children.push(heading);
+  return acc;
+}, []);
 ---
 
 <nav class="toc-container">
   <h3 class="toc-title">ON THIS PAGE</h3>
   <ul class="toc-list">
-    {toc.map(heading => (
-      <li class={`toc-item depth-${heading.depth}`}>
-        <a href={`#${heading.slug}`}>{heading.text}</a>
+    {groups.map(group => (
+      <li class="toc-group" data-toc-group={group.heading.slug}>
+        <a class="toc-link toc-link-parent" href={`#${group.heading.slug}`}>
+          {group.heading.text}
+        </a>
+
+        {group.children.length > 0 && (
+          <ul class="toc-sublist">
+            {group.children.map(child => (
+              <li class="toc-subitem">
+                <a
+                  class="toc-link toc-link-child"
+                  href={`#${child.slug}`}
+                  data-parent-slug={group.heading.slug}
+                >
+                  {child.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
       </li>
     ))}
   </ul>
 </nav>
+
+<script>
+  const tocGroups = Array.from(document.querySelectorAll<HTMLElement>('[data-toc-group]'));
+  const tocLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.toc-link'));
+  const articleHeadings = Array.from(
+    document.querySelectorAll<HTMLElement>('.markdown-body h2[id], .markdown-body h3[id]')
+  );
+
+  const childToParent = new Map(
+    tocLinks
+      .filter(link => link.dataset.parentSlug)
+      .map(link => [decodeURIComponent(link.hash.slice(1)), link.dataset.parentSlug as string])
+  );
+
+  const setActiveHeading = (slug: string) => {
+    const parentSlug = childToParent.get(slug) ?? slug;
+
+    tocGroups.forEach(group => {
+      const isActiveGroup = group.dataset.tocGroup === parentSlug;
+      group.classList.toggle('is-expanded', isActiveGroup);
+      group.classList.toggle('is-active-group', isActiveGroup);
+    });
+
+    tocLinks.forEach(link => {
+      const linkSlug = decodeURIComponent(link.hash.slice(1));
+      link.classList.toggle('is-active', linkSlug === slug);
+    });
+  };
+
+  const getActiveHeadingSlug = () => {
+    const scrollOffset = 120;
+    let activeHeading = articleHeadings[0];
+
+    for (const heading of articleHeadings) {
+      if (heading.getBoundingClientRect().top <= scrollOffset) {
+        activeHeading = heading;
+      } else {
+        break;
+      }
+    }
+
+    return activeHeading?.id;
+  };
+
+  const updateActiveHeading = () => {
+    const slug = getActiveHeadingSlug();
+    if (slug) setActiveHeading(slug);
+  };
+
+  tocLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      const slug = decodeURIComponent(link.hash.slice(1));
+      if (slug) setActiveHeading(slug);
+    });
+  });
+
+  updateActiveHeading();
+  window.addEventListener('scroll', updateActiveHeading, { passive: true });
+  window.addEventListener('resize', updateActiveHeading);
+</script>
 
 <style>
   .toc-container {
@@ -46,19 +136,47 @@ const toc = headings.filter(h => h.depth > 1 && h.depth <= 3);
     margin: 0;
   }
 
-  .toc-item { margin-bottom: 0.6rem; }
+  .toc-group {
+    margin-bottom: 0.35rem;
+  }
 
-  .toc-item a {
+  .toc-link {
     font-size: 0.85rem;
     color: var(--text-sub);
     text-decoration: none;
     transition: color 0.2s;
     display: block;
     line-height: 1.4;
+    padding: 0.25rem 0;
   }
 
-  .toc-item a:hover { color: var(--accent-library); }
+  .toc-link:hover,
+  .toc-link.is-active,
+  .toc-group.is-active-group > .toc-link-parent {
+    color: var(--accent-library);
+  }
 
-  /* 缩进 h3 */
-  .depth-3 { padding-left: 1rem; font-size: 0.8rem; }
+  .toc-link-parent {
+    font-weight: 600;
+  }
+
+  .toc-sublist {
+    list-style: none;
+    margin: 0.2rem 0 0.45rem;
+    padding: 0 0 0 1rem;
+    border-left: 1px solid rgba(0,0,0,0.06);
+    display: none;
+  }
+
+  .toc-group.is-expanded .toc-sublist {
+    display: block;
+  }
+
+  .toc-subitem {
+    margin-bottom: 0.15rem;
+  }
+
+  .toc-link-child {
+    font-size: 0.8rem;
+  }
 </style>

@@ -2404,10 +2404,18 @@ $$
 $$
 \mathbb{E}
 \left[
-u_t^{\mathrm{target}}(x \mid z)
-\mid x
+\left\|
+u_t^\theta(x)-
+u_t^{\mathrm{target}}(x\mid z)
+\right\|^2
 \right]=
-u_t^{\mathrm{target}}(x) + C
+\mathbb{E}
+\left[
+\left\|
+u_t^\theta(x)-
+u_t^{\mathrm{target}}(x)
+\right\|^2
+\right]+C
 $$
 
 即
