@@ -13,7 +13,7 @@ interface TocNode {
   children: TocNode[];
 }
 
-const toc = headings.filter(h => h.depth >= 1 && h.depth <= 3);
+const toc = headings.filter(h => h.depth >= 1 && h.depth <= 4);
 
 const roots: TocNode[] = [];
 const stack: TocNode[] = [];
@@ -68,6 +68,22 @@ for (const heading of toc) {
                         <a class="toc-link" href={`#${grandchild.heading.slug}`}>
                           {grandchild.heading.text}
                         </a>
+
+                        {grandchild.children.length > 0 && (
+                          <ul class="toc-sublist">
+                            {grandchild.children.map(greatGrandchild => (
+                              <li
+                                class={`toc-node depth-${greatGrandchild.heading.depth}`}
+                                data-toc-node={greatGrandchild.heading.slug}
+                                data-parent-slug={grandchild.heading.slug}
+                              >
+                                <a class="toc-link" href={`#${greatGrandchild.heading.slug}`}>
+                                  {greatGrandchild.heading.text}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -85,7 +101,7 @@ for (const heading of toc) {
   const tocNodes = Array.from(document.querySelectorAll<HTMLElement>('[data-toc-node]'));
   const tocLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.toc-link'));
   const articleHeadings = Array.from(
-    document.querySelectorAll<HTMLElement>('.markdown-body h1[id], .markdown-body h2[id], .markdown-body h3[id]')
+    document.querySelectorAll<HTMLElement>('.markdown-body h1[id], .markdown-body h2[id], .markdown-body h3[id], .markdown-body h4[id]')
   );
 
   const nodeBySlug = new Map(
@@ -217,6 +233,11 @@ for (const heading of toc) {
 
   .depth-3 > .toc-link {
     font-size: 0.8rem;
+  }
+
+  .depth-4 > .toc-link {
+    font-size: 0.78rem;
+    color: #999;
   }
 
   .toc-sublist {
