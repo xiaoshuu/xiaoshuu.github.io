@@ -8,42 +8,70 @@ interface Props {
 
 const { headings } = Astro.props;
 
-const toc = headings.filter(h => h.depth > 1 && h.depth <= 3);
-
-const groups = toc.reduce<{
+interface TocNode {
   heading: MarkdownHeading;
-  children: MarkdownHeading[];
-}[]>((acc, heading) => {
-  if (heading.depth === 2 || acc.length === 0) {
-    acc.push({ heading, children: [] });
-    return acc;
+  children: TocNode[];
+}
+
+const toc = headings.filter(h => h.depth >= 1 && h.depth <= 3);
+
+const roots: TocNode[] = [];
+const stack: TocNode[] = [];
+
+for (const heading of toc) {
+  const node: TocNode = { heading, children: [] };
+
+  while (stack.length > 0 && stack[stack.length - 1].heading.depth >= heading.depth) {
+    stack.pop();
   }
 
-  acc[acc.length - 1].children.push(heading);
-  return acc;
-}, []);
+  const parent = stack[stack.length - 1];
+  if (parent) {
+    parent.children.push(node);
+  } else {
+    roots.push(node);
+  }
+
+  stack.push(node);
+}
 ---
 
 <nav class="toc-container">
   <h3 class="toc-title">ON THIS PAGE</h3>
   <ul class="toc-list">
-    {groups.map(group => (
-      <li class="toc-group" data-toc-group={group.heading.slug}>
-        <a class="toc-link toc-link-parent" href={`#${group.heading.slug}`}>
-          {group.heading.text}
+    {roots.map(node => (
+      <li class={`toc-node depth-${node.heading.depth}`} data-toc-node={node.heading.slug}>
+        <a class="toc-link" href={`#${node.heading.slug}`}>
+          {node.heading.text}
         </a>
 
-        {group.children.length > 0 && (
+        {node.children.length > 0 && (
           <ul class="toc-sublist">
-            {group.children.map(child => (
-              <li class="toc-subitem">
-                <a
-                  class="toc-link toc-link-child"
-                  href={`#${child.slug}`}
-                  data-parent-slug={group.heading.slug}
-                >
-                  {child.text}
+            {node.children.map(child => (
+              <li
+                class={`toc-node depth-${child.heading.depth}`}
+                data-toc-node={child.heading.slug}
+                data-parent-slug={node.heading.slug}
+              >
+                <a class="toc-link" href={`#${child.heading.slug}`}>
+                  {child.heading.text}
                 </a>
+
+                {child.children.length > 0 && (
+                  <ul class="toc-sublist">
+                    {child.children.map(grandchild => (
+                      <li
+                        class={`toc-node depth-${grandchild.heading.depth}`}
+                        data-toc-node={grandchild.heading.slug}
+                        data-parent-slug={child.heading.slug}
+                      >
+                        <a class="toc-link" href={`#${grandchild.heading.slug}`}>
+                          {grandchild.heading.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>
@@ -54,25 +82,51 @@ const groups = toc.reduce<{
 </nav>
 
 <script>
-  const tocGroups = Array.from(document.querySelectorAll<HTMLElement>('[data-toc-group]'));
+  const tocNodes = Array.from(document.querySelectorAll<HTMLElement>('[data-toc-node]'));
   const tocLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.toc-link'));
   const articleHeadings = Array.from(
-    document.querySelectorAll<HTMLElement>('.markdown-body h2[id], .markdown-body h3[id]')
+    document.querySelectorAll<HTMLElement>('.markdown-body h1[id], .markdown-body h2[id], .markdown-body h3[id]')
   );
 
-  const childToParent = new Map(
-    tocLinks
-      .filter(link => link.dataset.parentSlug)
-      .map(link => [decodeURIComponent(link.hash.slice(1)), link.dataset.parentSlug as string])
+  const nodeBySlug = new Map(
+    tocNodes.map(node => [node.dataset.tocNode as string, node])
   );
+
+  const getAncestorSlugs = (slug: string) => {
+    const slugs = new Set([slug]);
+    let current = nodeBySlug.get(slug);
+
+    while (current?.dataset.parentSlug) {
+      const parentSlug = current.dataset.parentSlug;
+      slugs.add(parentSlug);
+      current = nodeBySlug.get(parentSlug);
+    }
+
+    return slugs;
+  };
+
+  const getDescendantSlugs = (slug: string) => {
+    const slugs = new Set<string>();
+    const current = nodeBySlug.get(slug);
+
+    current?.querySelectorAll<HTMLElement>('[data-toc-node]').forEach(node => {
+      if (node.dataset.tocNode) slugs.add(node.dataset.tocNode);
+    });
+
+    return slugs;
+  };
 
   const setActiveHeading = (slug: string) => {
-    const parentSlug = childToParent.get(slug) ?? slug;
+    const activeBranchSlugs = getAncestorSlugs(slug);
+    const expandedSlugs = new Set([
+      ...activeBranchSlugs,
+      ...getDescendantSlugs(slug),
+    ]);
 
-    tocGroups.forEach(group => {
-      const isActiveGroup = group.dataset.tocGroup === parentSlug;
-      group.classList.toggle('is-expanded', isActiveGroup);
-      group.classList.toggle('is-active-group', isActiveGroup);
+    tocNodes.forEach(node => {
+      const nodeSlug = node.dataset.tocNode;
+      node.classList.toggle('is-expanded', Boolean(nodeSlug && expandedSlugs.has(nodeSlug)));
+      node.classList.toggle('is-active-branch', Boolean(nodeSlug && activeBranchSlugs.has(nodeSlug)));
     });
 
     tocLinks.forEach(link => {
@@ -136,7 +190,7 @@ const groups = toc.reduce<{
     margin: 0;
   }
 
-  .toc-group {
+  .toc-node {
     margin-bottom: 0.35rem;
   }
 
@@ -152,12 +206,17 @@ const groups = toc.reduce<{
 
   .toc-link:hover,
   .toc-link.is-active,
-  .toc-group.is-active-group > .toc-link-parent {
+  .toc-node.is-active-branch > .toc-link {
     color: var(--accent-library);
   }
 
-  .toc-link-parent {
+  .depth-1 > .toc-link,
+  .depth-2 > .toc-link {
     font-weight: 600;
+  }
+
+  .depth-3 > .toc-link {
+    font-size: 0.8rem;
   }
 
   .toc-sublist {
@@ -168,15 +227,7 @@ const groups = toc.reduce<{
     display: none;
   }
 
-  .toc-group.is-expanded .toc-sublist {
+  .toc-node.is-expanded > .toc-sublist {
     display: block;
-  }
-
-  .toc-subitem {
-    margin-bottom: 0.15rem;
-  }
-
-  .toc-link-child {
-    font-size: 0.8rem;
   }
 </style>

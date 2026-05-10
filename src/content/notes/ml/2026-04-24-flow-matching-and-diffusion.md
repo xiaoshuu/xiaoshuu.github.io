@@ -2403,30 +2403,24 @@ $$
 
 $$
 \mathbb{E}
-\left[
-\left\|
-u_t^\theta(x)-
-u_t^{\mathrm{target}}(x\mid z)
-\right\|^2
-\right]=
-\mathbb{E}
-\left[
-\left\|
-u_t^\theta(x)-
-u_t^{\mathrm{target}}(x)
-\right\|^2
-\right]+C
+[
+u_t^{\text{target}}(x\mid z)
+\mid x
+]=
+u_t^{\text{target}}(x)
 $$
 
 即
 
 $$
-\boxed{
-\mathcal{L}_{\mathrm{FM}}
-\text{ 和 }
-\mathcal{L}_{\mathrm{CFM}}
-\text{ 只差一个与 } \theta \text{ 无关的常数}
-}
+\text{conditional target 的条件平均}=
+\text{marginal target}
+$$
+
+$$
+L_{\text{CFM}}(\theta)=
+L_{\text{FM}}(\theta)+
+C
 $$
 
 所以，虽然训练时用的是 conditional target：
