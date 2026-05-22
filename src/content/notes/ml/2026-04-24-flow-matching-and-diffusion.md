@@ -362,33 +362,7 @@ $$
 
 > 只要向量场足够规整，从每个初始点出发的 ODE 轨迹就存在且唯一，因此 Flow Model 中的 flow map 是可以被正确定义的。
 
-##### 5.6 Flow Model 如何生成样本
-
-Flow Model 的采样过程如下：
-
-1. 从初始分布中采样一个噪声点：
-
-$$
-X_0 \sim p_{\mathrm{init}}
-$$
-
-2. 按照 ODE 进行演化：
-
-$$
-\frac{dX_t}{dt} = u_t(X_t)
-$$
-
-3. 从 $t=0$ 积分到 $t=1$；
-
-4. 返回最终样本：
-
-$$
-X_1
-$$
-
-这就是 Flow Model 的生成过程。
-
-##### 5.7 数值求解：Euler Method
+##### 5.6 数值求解：Euler Method
 
 在实际计算机中，我们无法真正连续地求解 ODE，因此需要离散化。
 
@@ -444,6 +418,128 @@ $$
 
 从几何直觉上看，如果速度场在一步之内变化明显，Euler method 可能会沿着一开始的方向走偏；Heun's method 则会参考预测终点处的方向，因此通常更准确。
 
+##### 5.7 Flow Model 如何生成样本
+
+Flow Model 的目标是构造一个生成模型，使得它可以从简单分布出发，最终生成服从数据分布的样本。
+
+具体来说，我们希望从一个容易采样的初始分布 $p_{\mathrm{init}}$ 出发，通过 ODE 演化，把噪声逐渐变成数据。
+
+通常会选择标准高斯分布作为初始分布：
+
+$$
+p_{\mathrm{init}} = \mathcal{N}(0,I_d)
+$$
+
+采样过程如下。
+
+首先，从初始分布中采样一个随机初始点：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+$$
+
+这里的随机性来自初始条件 $X_0$。需要注意的是，ODE 本身是确定性的：一旦 $X_0$ 和 vector field 确定，整条轨迹也就确定了。因此 Flow Model 通过随机初始化 $X_0$ 来生成不同样本。
+
+然后，使用一个由神经网络参数化的 vector field：
+
+$$
+u_t^\theta : \mathbb{R}^d \times [0,1] \to \mathbb{R}^d
+$$
+
+它接收当前位置 $X_t$ 和时间 $t$，输出当前位置处的速度方向：
+
+$$
+u_t^\theta(X_t)
+$$
+
+Flow Model 对应的 ODE 为：
+
+$$
+\frac{d}{dt}X_t = u_t^\theta(X_t)
+$$
+
+也就是说，样本点会沿着神经网络给出的速度场从 $t=0$ 演化到 $t=1$。
+
+如果用 flow map 表示这条由 ODE 诱导出的变换，可以写成：
+
+$$
+X_1 = \psi_1^\theta(X_0)
+$$
+
+我们的目标是让最终得到的样本 $X_1$ 服从数据分布：
+
+$$
+X_1 \sim p_{\mathrm{data}}
+$$
+
+等价地说，希望：
+
+$$
+\psi_1^\theta(X_0) \sim p_{\mathrm{data}}
+$$
+
+其中：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+$$
+
+需要注意的是，虽然它叫 Flow Model，但神经网络本身并不是直接参数化 flow map $\psi_t^\theta$，而是参数化 vector field $u_t^\theta$。真正的 flow $\psi_t^\theta$ 是通过模拟 ODE 得到的。
+
+实际采样时，通常不能直接解析求解这个 ODE，所以需要用数值方法近似模拟。最简单的方法是 Euler method。
+
+给定步数 $n$，令步长为：
+
+$$
+h=\frac{1}{n}
+$$
+
+初始化：
+
+$$
+t=0,\qquad X_0\sim p_{\mathrm{init}}
+$$
+
+然后重复更新：
+
+$$
+X_{t+h}=X_t+h u_t^\theta(X_t)
+$$
+
+并令：
+
+$$
+t \leftarrow t+h
+$$
+
+直到 $t=1$。
+
+最后返回：
+
+$$
+X_1
+$$
+
+作为生成出的样本。
+
+因此，Flow Model 的生成过程可以概括为：
+
+1. 从简单分布 $p_{\mathrm{init}}$ 中采样噪声 $X_0$；
+2. 用神经网络 vector field $u_t^\theta$ 定义 ODE；
+3. 从 $t=0$ 到 $t=1$ 数值模拟这条 ODE；
+4. 返回最终点 $X_1$；
+5. 训练目标是让 $X_1$ 的分布尽可能接近数据分布 $p_{\mathrm{data}}$。
+
+简而言之：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+\quad \xrightarrow{\text{ODE driven by } u_t^\theta} \quad
+X_1 \sim p_{\mathrm{data}}
+$$
+
+Flow Model 就是在学习一个速度场，让简单噪声分布中的点沿着这个速度场运动后，最终变成数据分布中的样本。
+
 #### 6. Diffusion Models
 
 ##### 6.1 从 ODE 到 SDE
@@ -454,9 +550,17 @@ $$
 dX_t = u_t(X_t)dt
 $$
 
-如果初始点确定，那么轨迹也是确定的。
+或者写成更常见的导数形式：
 
-Diffusion Model 则在这个过程中加入随机性，也就是把 ODE 扩展为 SDE（随机微分方程）：
+$$
+\frac{d}{dt}X_t = u_t(X_t)
+$$
+
+如果初始点 $X_0$ 确定，并且 vector field $u_t$ 确定，那么整条轨迹也是确定的。
+
+也就是说，同一个初始点每次都会沿着同一条路径运动。
+
+Diffusion Model 则在这个过程中加入随机性，也就是把 ODE 扩展为 SDE（Stochastic Differential Equation，随机微分方程）：
 
 $$
 dX_t = u_t(X_t)dt + \sigma_t dW_t
@@ -464,12 +568,21 @@ $$
 
 其中：
 
-- $u_t(X_t)dt$ 是确定性的运动部分，即向量场；
-- $dW_t$ 是随机噪声，详细见6.2；
-- $\sigma_t$ 是 diffusion coefficient，也就是扩散系数， $\sigma_t$控制随机噪声的强度。
-$\boxed{
+- $u_t(X_t)dt$ 是确定性的运动部分，也叫 drift term；
+- $u_t$ 可以理解为 drift coefficient，控制样本主要往哪个方向运动；
+- $dW_t$ 是 Brownian Motion 的无穷小增量，用来引入随机噪声；
+- $\sigma_t$ 是 diffusion coefficient，也就是扩散系数；
+- $\sigma_t$ 控制随机噪声的强度。
+
+可以概括为：
+
+$$
+\boxed{
 \text{drift coefficient } u_t \text{ 控制方向，diffusion coefficient } \sigma_t \text{ 控制随机性}
-}$
+}
+$$
+
+![20260522155255](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20260522155255.png)
 
 当：
 
@@ -477,7 +590,7 @@ $$
 \sigma_t = 0
 $$
 
-时，SDE 就退化成 ODE：
+时，随机项消失，SDE 就退化成 ODE：
 
 $$
 dX_t = u_t(X_t)dt
@@ -487,7 +600,95 @@ $$
 
 > Flow Model 是没有随机噪声的情形，Diffusion Model 是带随机噪声的情形。
 
-任何在时间上连续且具有连续轨迹的马尔可夫过程都可以使用该形式的随机微分方程表示
+也就是说，ODE 可以看作 SDE 的特殊情况。
+
+---
+
+为了更直观地理解 SDE，可以先把 ODE 改写成小步更新的形式。
+
+ODE 的导数形式是：
+
+$$
+\frac{d}{dt}X_t = u_t(X_t)
+$$
+
+根据导数定义，当步长 $h$ 很小时，可以近似写成：
+
+$$
+\frac{1}{h}(X_{t+h}-X_t)
+=
+u_t(X_t) + R_t(h)
+$$
+
+也就是：
+
+$$
+X_{t+h}
+=
+X_t + h u_t(X_t) + hR_t(h)
+$$
+
+其中 $R_t(h)$ 是误差项，并且当 $h \to 0$ 时：
+
+$$
+R_t(h) \to 0
+$$
+
+这说明 ODE 的轨迹在每个小时间步里，都会沿着当前 vector field 的方向走一小步：
+
+$$
+X_t
+\longrightarrow
+X_t + h u_t(X_t)
+$$
+
+SDE 的做法就是在这个小步更新的基础上，再加入一个来自 Brownian Motion 的随机扰动：
+
+$$
+X_{t+h}
+=
+X_t
++
+h u_t(X_t)
++
+\sigma_t(W_{t+h}-W_t)
++
+hR_t(h)
+$$
+
+其中：
+
+$$
+h u_t(X_t)
+$$
+
+是确定性部分；
+
+$$
+\sigma_t(W_{t+h}-W_t)
+$$
+
+是随机部分；
+
+$$
+hR_t(h)
+$$
+
+是误差项。
+
+所以 SDE 可以理解为：
+
+> 每一步既按照 vector field 指定的方向前进，又额外加入一小段随机扰动。
+
+这也是为什么 SDE 的轨迹不再是完全确定的。
+
+在 ODE 中，如果给定 $X_0$，那么 $X_t$ 由 $X_0$ 唯一决定，因此可以定义一个确定性的 flow map：
+
+$$
+X_t = \psi_t(X_0)
+$$
+
+但在 SDE 中，即使 $X_0$ 相同，每次采样到的 Brownian Motion 路径也可能不同，所以最终轨迹也可能不同。因此 SDE 一般没有像 ODE 那样的确定性 flow map。
 
 ##### 6.2 Brownian Motion
 
@@ -499,42 +700,265 @@ $$
 W_t
 $$
 
-在时间为0时为0，它有两个重要性质。
+它可以理解为连续时间中的随机游走。
 
-第一，增量服从高斯分布：
+Brownian Motion 满足：
 
 $$
-W_{t+h} - W_t \sim \mathcal{N}(0, hI)
+W_0 = 0
 $$
 
-也就是说，时间间隔越大，随机变化的方差越大，方差基本沿时间线性增长。
+也就是说，它在时间 $t=0$ 时从 0 出发。
+
+Brownian Motion 有两个重要性质。
+
+---
+
+第一，增量服从高斯分布。
+
+对于 $0 \leq s < t$，有：
+
+$$
+W_t - W_s \sim \mathcal{N}(0, (t-s)I_d)
+$$
+
+如果令 $s=t$，下一个时间点是 $t+h$，则有：
+
+$$
+W_{t+h} - W_t \sim \mathcal{N}(0, hI_d)
+$$
+
+也就是说，时间间隔越大，随机变化的方差越大。
+
+它的方差会随着时间间隔线性增长。
+
+---
 
 第二，不同时间段的增量相互独立。
 
+如果有一组时间点：
+
+$$
+0 \leq t_0 < t_1 < \cdots < t_n
+$$
+
+那么这些增量：
+
+$$
+W_{t_1}-W_{t_0},
+\quad
+W_{t_2}-W_{t_1},
+\quad
+\ldots,
+\quad
+W_{t_n}-W_{t_{n-1}}
+$$
+
+彼此独立。
+
+也就是说，Brownian Motion 在不重叠时间段中的随机变化互不影响。
+
+---
+
 直观来说，Brownian Motion 描述的是一种连续时间中的随机游走。
 
-##### 6.3 SDE 的采样：Euler-Maruyama Method
+它有两个看起来有点矛盾但很重要的特点：
 
-和 ODE 类似，SDE 也需要用数值方法求解。
+1. 路径是连续的；
+2. 但路径非常不光滑，不能像普通函数那样直接求导。
 
-常用方法是 Euler-Maruyama Method。
+![20260522154842](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20260522154842.png)
 
-对于 SDE：
+这也是为什么从 ODE 进入 SDE 时，不能继续直接使用：
+
+$$
+\frac{d}{dt}X_t
+$$
+
+来严格描述随机轨迹，而是要用：
 
 $$
 dX_t = u_t(X_t)dt + \sigma_t dW_t
 $$
 
-离散化后可以写成：
+这样的随机微分方程记号。
+
+---
+
+Brownian Motion 可以用离散小步近似模拟。
+
+设步长为 $h$，从：
 
 $$
-X_{t+h} = X_t + h u_t(X_t) + \sigma_t \sqrt{h}\epsilon
+W_0 = 0
+$$
+
+开始，每一步更新为：
+
+$$
+W_{t+h}
+=
+W_t
++
+\sqrt{h}\epsilon_t
 $$
 
 其中：
 
 $$
-\epsilon \sim \mathcal{N}(0, I)
+\epsilon_t \sim \mathcal{N}(0,I_d)
+$$
+
+这是因为：
+
+$$
+W_{t+h}-W_t \sim \mathcal{N}(0,hI_d)
+$$
+
+而如果：
+
+$$
+\epsilon_t \sim \mathcal{N}(0,I_d)
+$$
+
+那么：
+
+$$
+\sqrt{h}\epsilon_t \sim \mathcal{N}(0,hI_d)
+$$
+
+所以可以用：
+
+$$
+\sqrt{h}\epsilon_t
+$$
+
+来模拟 Brownian Motion 在一个小时间步中的随机增量。
+
+##### 6.3 如何数值模拟 SDE：Euler-Maruyama Method
+
+ODE 可以用 Euler Method 近似模拟：
+
+$$
+X_{t+h}
+=
+X_t
++
+h u_t(X_t)
+$$
+
+SDE 也有类似的数值方法，叫 Euler-Maruyama Method。
+
+对于 SDE：
+
+$$
+dX_t
+=
+u_t(X_t)dt
++
+\sigma_t dW_t
+$$
+
+它的离散更新公式是：
+
+$$
+X_{t+h}
+=
+X_t
++
+h u_t(X_t)
++
+\sigma_t \sqrt{h}\epsilon_t
+$$
+
+其中：
+
+$$
+\epsilon_t \sim \mathcal{N}(0,I_d)
+$$
+
+这个式子可以分成两部分理解：
+
+$$
+h u_t(X_t)
+$$
+
+是确定性的 drift step，也就是沿着 vector field 前进一小步；
+
+$$
+\sigma_t \sqrt{h}\epsilon_t
+$$
+
+是随机的 diffusion step，也就是加入一小段高斯噪声。
+
+所以 Euler-Maruyama Method 可以理解为：
+
+> 每一步先按照 vector field 走一小步，再加入一小段由 Brownian Motion 产生的随机噪声。
+
+如果用神经网络参数化 vector field，则 Diffusion Model 可以写成：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+$$
+
+$$
+dX_t
+=
+u_t^\theta(X_t)dt
++
+\sigma_t dW_t
+$$
+
+实际采样时，给定步数 $n$，令：
+
+$$
+h=\frac{1}{n}
+$$
+
+然后从初始分布采样：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+$$
+
+并不断更新：
+
+$$
+X_{t+h}
+=
+X_t
++
+h u_t^\theta(X_t)
++
+\sigma_t \sqrt{h}\epsilon_t
+$$
+
+直到 $t=1$。
+
+最终返回：
+
+$$
+X_1
+$$
+
+作为生成样本。
+
+目标是让：
+
+$$
+X_1 \sim p_{\mathrm{data}}
+$$
+
+因此，Diffusion Model 的采样过程可以概括为：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+\quad
+\xrightarrow{
+\text{SDE driven by } u_t^\theta \text{ and } \sigma_t dW_t
+}
+\quad
+X_1 \sim p_{\mathrm{data}}
 $$
 
 ##### 6.4 Diffusion Model 如何生成样本
@@ -628,21 +1052,7 @@ $$
 一个向量场可以产生无数条轨迹。  
 每一个不同的初始点，都可以沿着同一个向量场生成一条不同的轨迹。
 
-##### 9.2 Flow 不是单独一条曲线
-
-Flow 更准确地说是由 ODE 产生的一族映射：
-
-$$
-\phi_t(x_0)
-$$
-
-它告诉我们：
-
-> 从任意初始点 $x_0$ 出发，经过时间 $t$ 后会到哪里。
-
-所以，Flow 描述的是整个空间如何随时间流动，而不是某一个点的单独运动。
-
-##### 9.3 $p_{\mathrm{data}}$ 通常是未知的
+##### 9.2 $p_{\mathrm{data}}$ 通常是未知的
 
 我们想从 $p_{\mathrm{data}}$ 中采样，但实际上并不知道这个分布的完整形式。
 
@@ -655,55 +1065,223 @@ $$
 模型训练的目的就是利用这些有限样本，学习一个能够近似生成真实数据分布的过程。
 
 ### 生成式AI的训练目标
+在上一节中，我们构造了 flow models 和 diffusion models。它们都是由神经网络向量场 $u_t^\theta$ 参数化的生成模型。
+
+不过，我们还没有讨论如何训练它们。也就是说，我们还没有讨论如何优化参数 $\theta$，使得生成模型能够输出有意义的结果，比如一张好看的图像，或者一段有趣的视频。
+
+接下来，我们将讨论 Flow Matching。Flow Matching 是一种用于训练 $u_t^\theta$ 的算法，它简单、可扩展，并且代表了当前的 state-of-the-art 方法。
+
+在本节中，我们先只关注 flow models。也就是说，我们有一个神经网络 $u_t^\theta$，并通过模拟下面这个 ODE 来从生成模型中采样：
+
+$$
+X_0 \sim p_{\mathrm{init}},
+\qquad
+dX_t = u_t^\theta(X_t)dt
+$$
+
+也就是：
+
+$$
+\text{Flow model}
+$$
+
+然后，我们把 $t=1$ 时的终点 $X_1$ 作为生成样本。
+
+正如前面讨论过的，我们的目标是让 $X_1$ 服从数据分布 $p_{\mathrm{data}}$，也就是：
+
+$$
+X_1 \sim p_{\mathrm{data}}
+$$
+
+因此，“如何训练”这个神经网络，本质上就是在问：
+
+> 我们应该如何优化参数 $\theta$，使得模拟式中的 flow model 之后，得到的样本 $X_1$ 服从数据分布 $p_{\mathrm{data}}$？
+
+换句话说，我们希望通过训练 $u_t^\theta$，让从简单初始分布 $p_{\mathrm{init}}$ 出发的 ODE 轨迹，最终在 $t=1$ 时到达数据分布。
 
 #### 区分Conditional 和 Marginal
 - conditional表示围绕某一个具体数据点$z$的情况
 - marginal表示对整个数据分布平均之后的整体情况
 
 #### 1. Probability Path：从噪声分布到数据分布的路径
-生成模型的目标是把简单分布变成数据分布：
+
+生成模型的目标是把一个简单、容易采样的初始分布变成真实数据分布：
+
 $$
 p_{\mathrm{init}} \longrightarrow p_{\mathrm{data}}
 $$
-但要训练模型，我们不能只说起点和终点，还需要知道中间过程应该是什么样的。
 
-因此，引入一条随时间变化的概率分布路径：$p_t$
-其中t∈[0,1],并且希望满足：
+在 Flow Model 中，我们希望 ODE 轨迹满足：
+
+$$
+X_0 \sim p_{\mathrm{init}}
+$$
+
+并且在最终时刻：
+
+$$
+X_1 \sim p_{\mathrm{data}}
+$$
+
+也就是说，$t=0$ 时样本来自噪声分布，$t=1$ 时样本来自数据分布。
+
+但只知道起点和终点还不够。我们还需要描述中间时刻：
+
+$$
+0 < t < 1
+$$
+
+样本整体应该服从什么分布。
+
+因此，引入一条随时间变化的概率分布路径：
+
+$$
+(p_t)_{0 \leq t \leq 1}
+$$
+
+并希望它满足：
+
 $$
 p_0 = p_{\mathrm{init}}
-$$ 
+$$
 
 $$
 p_1 = p_{\mathrm{data}}
 $$
-这条路径称为 probability path。
 
-它描述的是：
+这条路径就叫做 **probability path**。
+
+直观来说，probability path 描述的是：
 
 > 在每个时间 $t$，样本整体应该服从什么分布。
 
-直观地说，$p_t$ 是从噪声分布到数据分布的一条连续变化路径。
-$p_t$是一种分布，可以从中取样
+或者说，$p_t$ 是从噪声分布到数据分布的一条连续变化路径。
 
-#### 2.Conditional Probability Path
+下图是原文 Figure 4。它展示了通过 Gaussian conditional probability path，将噪声逐渐插值到图像数据的过程。
+
+这里每一张图像本身都是一个数据点，维度为：
+
+$$
+d = 32 \times 32
+$$
+
+所以这张图展示的是 probability path 中的**单个样本**如何随时间变化。
+
+![20260522160638](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20260522160638.png)
+
+而下图是原文 Figure 5。它展示的不是单张图像样本，而是二维空间中的**概率分布本身**，并用二维直方图可视化。
+
+![20260522161425](https://cdn.jsdelivr.net/gh/xiaoshuu/img/Picgo/20260522161425.png)
+
+图 5 中使用的是一个二维 toy example，而不是图像数据。这里的数据分布 $p_{\mathrm{data}}$ 是一个棋盘格形状的分布，方便我们直接看到“分布如何从噪声变成数据”。
+
+图 5 分成上下两排：
+
+- 上排是 conditional probability path；
+- 下排是 marginal probability path。
+
+并且每一列对应一个不同的时间 $t$。
+
+从左到右，时间逐渐增加：
+
+$$
+t=0 \longrightarrow t=1
+$$
+
+---
+
+#### 2. Conditional Probability Path
+
 ##### 2.1 定义
-给定一个真实数据点：$z \sim p_{\mathrm{data}}$
-我们可以构造一条围绕这个数据点 $z$ 的条件概率路径：$p_t(\cdot \mid z)$
+
+给定一个真实数据点：
+
+$$
+z \in \mathbb{R}^d
+$$
+
+我们可以构造一条围绕这个数据点 $z$ 的条件概率路径：
+
+$$
+p_t(\cdot \mid z)
+$$
+
 它表示：
+
 > 在给定目标数据点 $z$ 的情况下，时间 $t$ 时中间样本的分布。
 
 这里的 $\cdot$ 是占位符，表示这个分布作用在所有可能的 $x$ 上。
 
-也可以写成：$p_t(x \mid z)$
-表示时间 $t$ 时，样本位于 $x$ 附近的概率密度。
-
-##### 2.2 高斯条件路径
-式子如下： 
+也可以写成：
 
 $$
-p_t(\cdot \mid z)=\mathcal{N}(\alpha_t z,\beta_t^2 I_d)
+p_t(x \mid z)
 $$
-这表示在时间 $t$，样本服从一个高斯分布，其中：
+
+表示在时间 $t$，给定目标数据点 $z$ 时，样本位于 $x$ 附近的概率密度。
+
+conditional probability path 需要满足：
+
+$$
+p_0(\cdot \mid z) = p_{\mathrm{init}}
+$$
+
+$$
+p_1(\cdot \mid z) = \delta_z
+$$
+
+其中，$\delta_z$ 表示位于 $z$ 的 Dirac delta distribution。
+
+它可以理解为一种最简单的分布：从 $\delta_z$ 中采样时，永远都会得到 $z$。
+
+也就是说：
+
+$$
+X \sim \delta_z
+\quad \Longrightarrow \quad
+X = z
+$$
+
+因此，conditional probability path 的含义是：
+
+> 给定某一个数据点 $z$，构造一条从噪声分布 $p_{\mathrm{init}}$ 逐渐走向单个数据点 $z$ 的分布路径。
+
+也可以理解为：
+
+$$
+p_{\mathrm{init}}
+\longrightarrow
+\delta_z
+$$
+
+注意，这里的终点不是整个数据分布 $p_{\mathrm{data}}$，而是某一个固定数据点 $z$。
+
+---
+
+##### 2.2 Gaussian Conditional Probability Path
+
+最常用的一类 conditional probability path 是 Gaussian conditional probability path。
+
+它定义为：
+
+$$
+p_t(\cdot \mid z)
+=
+\mathcal{N}(\alpha_t z,\beta_t^2 I_d)
+$$
+
+也可以写成密度形式：
+
+$$
+p_t(x \mid z)
+=
+\mathcal{N}(x;\alpha_t z,\beta_t^2 I_d)
+$$
+
+这表示：在时间 $t$，给定目标数据点 $z$，中间样本服从一个高斯分布。
+
+其中：
+
 - 均值是 $\alpha_t z$；
 - 方差是 $\beta_t^2 I_d$；
 - $I_d$ 是 $d$ 维单位矩阵；
@@ -711,20 +1289,153 @@ $$
 - $\beta_t$ 控制噪声强度。
 
 等价地，可以写成采样形式：
+
 $$
-X_t = \alpha_t z + \beta_t \epsilon,\epsilon \sim \mathcal{N}(0,I_d)
+X_t = \alpha_t z + \beta_t \epsilon,
+\qquad
+\epsilon \sim \mathcal{N}(0,I_d)
 $$
 
-为了让它从噪声走到数据点，我们通常希望：$\alpha_0 = 0,\beta_0 = 1$,这样$X_0 = \epsilon \sim \mathcal{N}(0,I_d)$也就是初始噪声。
+为了让它从噪声走到数据点，需要满足：
 
-同时希望：$\alpha_1 = 1,\beta_1 = 0$,这样有$X_1 = z$,也就是最终到达数据点本身。
+$$
+\alpha_0 = 0,
+\qquad
+\beta_0 = 1
+$$
+
+此时：
+
+$$
+X_0 = \epsilon \sim \mathcal{N}(0,I_d)
+$$
+
+也就是初始噪声分布。
+
+同时还需要满足：
+
+$$
+\alpha_1 = 1,
+\qquad
+\beta_1 = 0
+$$
+
+此时：
+
+$$
+X_1 = z
+$$
+
+也就是最终到达数据点本身。
 
 所以 Gaussian conditional probability path 可以理解为：
+
 > 用一个逐渐移动、逐渐收缩的高斯分布，把噪声分布变成某一个具体数据点。
 
-#### 3.Marginal(边缘) Probability Path
+更直观地说：
 
-前面我们先构造了 conditional probability path：
+- 当 $t$ 接近 0 时，$\alpha_t$ 小、$\beta_t$ 大，样本主要是噪声；
+- 当 $t$ 接近 1 时，$\alpha_t$ 大、$\beta_t$ 小，样本越来越接近数据点 $z$；
+- 当 $t=1$ 时，噪声完全消失，样本变成 $z$。
+
+---
+
+##### 2.3 如何理解图 5 上排：Conditional Probability Path
+
+图 5 上排画的是 conditional probability path：
+
+$$
+p_t(x \mid z)
+$$
+
+也就是在固定某一个数据点 $z$ 的情况下，时间 $t$ 时 $x$ 的分布。
+
+图中使用的是 Gaussian conditional probability path，并且取：
+
+$$
+\alpha_t = t,
+\qquad
+\beta_t = 1-t
+$$
+
+所以：
+
+$$
+p_t(x \mid z)
+=
+\mathcal{N}(tz,(1-t)^2 I_d)
+$$
+
+也可以写成采样形式：
+
+$$
+X_t = tz + (1-t)\epsilon,
+\qquad
+\epsilon \sim \mathcal{N}(0,I_d)
+$$
+
+这时从左到右可以这样理解：
+
+当 $t=0$ 时：
+
+$$
+X_0 = \epsilon
+$$
+
+因此：
+
+$$
+p_0(x \mid z)=\mathcal{N}(0,I_d)
+$$
+
+这时分布和 $z$ 没有关系，所以图中看到的是一个位于原点附近的高斯噪声团。
+
+当 $t$ 增大时：
+
+$$
+X_t = tz + (1-t)\epsilon
+$$
+
+里面的数据成分 $tz$ 变多，噪声成分 $(1-t)\epsilon$ 变少。
+
+因此，上排的高斯分布会发生两件事：
+
+1. 它的中心逐渐从原点移动到目标数据点 $z$；
+2. 它的方差逐渐变小，也就是分布越来越集中。
+
+当 $t=1$ 时：
+
+$$
+X_1 = z
+$$
+
+所以：
+
+$$
+p_1(x \mid z)=\delta_z
+$$
+
+这时分布收缩成单个点 $z$。
+
+因此，图 5 上排想表达的是：
+
+> 如果目标数据点 $z$ 已经固定，那么 conditional path 会把一个标准高斯噪声分布，逐渐移动并收缩到这个具体的数据点 $z$ 上。
+
+所以它描述的是：
+
+$$
+\mathcal{N}(0,I_d)
+\longrightarrow
+\delta_z
+$$
+
+这就是 conditional probability path 的含义。
+
+---
+
+#### 3. Marginal Probability Path
+
+前面构造的是 conditional probability path：
 
 $$
 p_t(x \mid z)
@@ -741,11 +1452,14 @@ $$
 所以我们需要把所有数据点对应的 conditional path 混合起来，得到 marginal probability path：
 
 $$
-p_t(x)=\int p_t(x\mid z)p_{\mathrm{data}}(z)\,dz
+p_t(x)
+=
+\int p_t(x\mid z)p_{\mathrm{data}}(z)\,dz
 $$
-即对所有可能的数据点 $z$，把它们对应的路径 $p_t(x\mid z)$ 按照 $p_{\mathrm{data}}(z)$ 加权平均。
 
-这里的构造过程可以理解为：
+也就是说，对所有可能的数据点 $z$，把它们对应的路径 $p_t(x\mid z)$ 按照 $p_{\mathrm{data}}(z)$ 加权平均。
+
+这个构造过程可以理解为：
 
 1. 先从真实数据分布中采样一个数据点：
 
@@ -765,81 +1479,245 @@ $$
 X_t \sim p_t
 $$
 
-这个 $p_t$ 就是 marginal probability path。
-
-也就是说：
+因此：
 
 $$
-z \sim p_{\mathrm{data}}, \qquad X_t \mid z \sim p_t(\cdot \mid z)
-\quad \Longrightarrow \quad
+z \sim p_{\mathrm{data}},
+\qquad
+X_t \mid z \sim p_t(\cdot \mid z)
+\quad
+\Longrightarrow
+\quad
 X_t \sim p_t
 $$
 
-其中：
+这个 $p_t$ 就是 marginal probability path。
+
+---
+
+##### 3.1 如何理解图 5 下排：Marginal Probability Path
+
+图 5 下排画的是 marginal probability path：
 
 $$
-p_t(x)=\int p_t(x\mid z)p_{\mathrm{data}}(z)\,dz
+p_t(x)
 $$
 
-我们希望这条 marginal probability path 满足：
+它不是固定某一个数据点 $z$，而是考虑所有可能的数据点：
 
 $$
-p_0 = p_{\mathrm{init}}
+z \sim p_{\mathrm{data}}
 $$
+
+在这个二维 toy example 里，$p_{\mathrm{data}}$ 是一个棋盘格形状的分布。
+
+marginal path 的采样方式是：
+
+$$
+z \sim p_{\mathrm{data}},
+\qquad
+\epsilon \sim \mathcal{N}(0,I_d)
+$$
+
+然后令：
+
+$$
+X_t = tz + (1-t)\epsilon
+$$
+
+这时，如果不关心具体采到了哪个 $z$，只看所有 $X_t$ 的整体分布，就得到：
+
+$$
+X_t \sim p_t
+$$
+
+因此，图 5 下排可以理解为：
+
+> 对数据分布里的每一个可能数据点 $z$，都构造一条从噪声到 $z$ 的 conditional path；然后把这些路径全部混合起来，得到整体的 marginal path。
+
+从左到右看：
+
+当 $t=0$ 时：
+
+$$
+X_0 = \epsilon
+$$
+
+所以所有样本都来自标准高斯分布：
+
+$$
+p_0 = \mathcal{N}(0,I_d)
+$$
+
+此时虽然我们也采样了：
+
+$$
+z \sim p_{\mathrm{data}}
+$$
+
+但因为：
+
+$$
+X_0 = 0\cdot z + 1\cdot \epsilon
+$$
+
+数据点 $z$ 完全不起作用，所以整体分布仍然只是一个高斯噪声团。
+
+当 $t$ 稍微变大时，例如 $t=0.25$：
+
+$$
+X_t = 0.25z + 0.75\epsilon
+$$
+
+这时样本仍然有很强的噪声成分，所以整体看起来仍然比较模糊。
+
+但因为 $z$ 已经开始参与进来，分布会开始受到数据分布形状的影响。
+
+当 $t=0.5$ 时：
+
+$$
+X_t = 0.5z + 0.5\epsilon
+$$
+
+数据成分和噪声成分差不多。
+
+此时可以开始看到棋盘格结构的雏形，但由于噪声仍然较大，不同区域之间还会有明显的模糊和重叠。
+
+当 $t=0.75$ 时：
+
+$$
+X_t = 0.75z + 0.25\epsilon
+$$
+
+数据成分已经占主导，噪声成分变小。
+
+所以图中棋盘格结构会变得更加清楚，不同高密度区域之间的边界更加明显。
+
+当 $t=1$ 时：
+
+$$
+X_1 = z
+$$
+
+而：
+
+$$
+z \sim p_{\mathrm{data}}
+$$
+
+所以：
 
 $$
 p_1 = p_{\mathrm{data}}
 $$
 
-也就是说，在 $t=0$ 时，它是初始噪声分布；在 $t=1$ 时，它变成真实数据分布。
+这时 marginal path 的终点就是完整的数据分布，也就是图中的棋盘格分布。
 
-对于 Gaussian conditional path：
-
-$$
-p_t(x\mid z)=\mathcal{N}(\alpha_t z,\beta_t^2 I_d)
-$$
-
-如果满足：
+因此，图 5 下排想表达的是：
 
 $$
-\alpha_0=0,\qquad \beta_0=1
+\mathcal{N}(0,I_d)
+\longrightarrow
+p_{\mathrm{data}}
 $$
 
-那么：
+也就是从一个简单高斯分布，逐渐变成整个数据分布。
+
+##### 3.2 conditional path & marginal path
+
+对于每一个固定的数据点 $z$，都有一条 conditional path：
 
 $$
-p_0(x\mid z)=\mathcal{N}(0,I_d)
+p_t(x \mid z)
 $$
 
-它与 $z$ 无关，因此混合后仍然是：
+如果数据分布中有很多可能的数据点，那么每个数据点都会对应一条这样的路径。
+
+marginal path 本质上就是把这些路径按照数据分布的权重混合起来：
 
 $$
-p_0=\mathcal{N}(0,I_d)=p_{\mathrm{init}}
+p_t(x)
+=
+\int p_t(x\mid z)p_{\mathrm{data}}(z)\,dz
 $$
 
-如果满足：
+这里的：
 
 $$
-\alpha_1=1,\qquad \beta_1=0
+p_{\mathrm{data}}(z)
 $$
 
-那么：
+表示数据点 $z$ 在真实数据分布中的权重。
+
+如果某类数据点出现得更多，那么它对应的 conditional paths 在 marginal path 中的权重也更大。
+
+所以 marginal path 并不是凭空定义出来的，而是由 conditional path 自动诱导出来的。
+
+也就是说：
 
 $$
-p_1(x\mid z)
+\boxed{
+\text{conditional path } p_t(x\mid z)
+\quad
++
+\quad
+z \sim p_{\mathrm{data}}
+\quad
+\Longrightarrow
+\quad
+\text{marginal path } p_t(x)
+}
 $$
 
-会集中到数据点 $z$ 上。
+这也是 Flow Matching 后面能够训练的关键：
 
-把所有数据点 $z\sim p_{\mathrm{data}}$ 混合起来后，就得到：
+我们真正想学的是能生成整个数据分布的 marginal path；
+
+但训练时更容易构造和采样的是 conditional path.
+
+虽然 marginal probability path 的密度可以写成：
 
 $$
-p_1=p_{\mathrm{data}}
+p_t(x)
+=
+\int p_t(x\mid z)p_{\mathrm{data}}(z)\,dz
 $$
 
-因此，marginal probability path 的作用是：
+但这个积分通常是不可计算的。
 
-> 把针对单个数据点的 conditional path，变成针对整个数据分布的路径。
+也就是说，我们一般无法直接算出某个点 $x$ 在 marginal path 下的密度值 $p_t(x)$。
+
+但是，我们可以很容易地从 $p_t$ 中采样。
+
+对于 Gaussian path，只需要：
+
+$$
+z \sim p_{\mathrm{data}},
+\qquad
+\epsilon \sim \mathcal{N}(0,I_d)
+$$
+
+然后令：
+
+$$
+X_t = \alpha_t z + \beta_t \epsilon
+$$
+
+于是：
+
+$$
+X_t \sim p_t
+$$
+
+所以这里有一个重要区别：
+
+$$
+\boxed{
+\text{我们能从 } p_t \text{ 采样，但通常不能显式计算 } p_t(x)
+}
+$$
+
+这一点后面很重要，因为 Flow Matching 的训练会利用容易采样的 conditional path，而避免直接计算复杂的 marginal density。
 
 #### 4.Conditional Vector Field
 
