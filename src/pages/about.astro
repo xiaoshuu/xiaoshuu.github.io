@@ -32,7 +32,10 @@ const principles = [
 
 <BaseLayout title="About Me">
   <div class="about-container">
-    
+    <nav class="top-nav" aria-label="Page navigation">
+      <a href="/" class="back-btn"><span aria-hidden="true">←</span> Home</a>
+    </nav>
+
     <header class="page-header">
       <h1 class="title">About.</h1>
       <p class="subtitle">Engineer / Student / Dreamer</p>
@@ -124,6 +127,26 @@ const principles = [
     max-width: 1100px;
     margin: 0 auto;
     padding: 3rem 1.5rem;
+  }
+
+  .top-nav { margin-bottom: 2rem; }
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-sizing: border-box;
+    min-height: 44px;
+    padding: 8px 16px;
+    background: #f4f4f5;
+    color: var(--text-sub);
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  .back-btn:hover { background: #e4e4e7; color: var(--text-main); }
+  .back-btn:focus-visible {
+    outline: 2px solid var(--text-main);
+    outline-offset: 3px;
   }
 
   .page-header { margin-bottom: 2rem; }
